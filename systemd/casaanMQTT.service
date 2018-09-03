@@ -1,0 +1,13 @@
+[Unit]
+Description=Casaan MQTT
+After=network.target auditd.service
+WorkingDirectory=/opt/casaanMQTT
+
+[Service]
+ExecStart=/opt/casaanMQTT/casaanMQTT.php
+KillMode=process
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+Alias=casaanMQTT.service

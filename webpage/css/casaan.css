@@ -1,0 +1,497 @@
+html, body {
+    	height: 100%;
+	width: 100%;
+	margin: 0px;
+	overflow-x:hidden;
+	position: fixed; 
+	overflow-y: scroll;
+	width: 100%;
+}
+html {
+    display: table;
+    margin: auto;
+    text-align : center;
+}
+
+body {
+    font-family: "Arial";
+    font-size: 0;
+    background-color: #EEEEEE;
+	overflow: hidden;
+position:relative;
+}
+
+
+.labelsmall {
+    font-size:1vmin;
+    margin-top: 30px;
+}
+
+.domoticainfo{
+  justify-content: center;
+  display: flex;
+}
+
+.domoticabuttons {
+  justify-content: center;
+  display: flex;
+    margin-top: 30px;
+}
+
+.domoticabutton {
+vertical-align:middle;
+    font-size:3vh;
+    line-height: 1.4;
+	height: 10vh;
+	width: 10vh;
+	padding: 0;
+}
+
+.mainarea {
+  display: flex;
+  justify-content: center;
+  position: absolute;
+    vertical-align: middle;
+	text-align: center;
+	right: 0px;
+	left: 0px;
+	top: 0px;
+	bottom:7vh;
+}
+
+.submainarea {
+    display: inline-block;
+	align-self: center;
+}
+
+.floating-box, .wide-floating-box, .fullscreen-floating-box {
+  text-align : left;
+    vertical-align: top;
+    border-radius: 5px;
+    display: inline-block;
+    width: 43vh;
+    height: 43vh;
+    margin: 0.1vh;
+    padding: 0px;
+    border: 0.1vh solid #AAAAAA;  
+    background-color: #FFFFFF;
+    position: relative;
+}
+
+.wide-floating-box {
+    	width: 86.5vh;
+}
+
+.fullscreen-floating-box {
+	left: 10px;
+	right: 10px;
+	top: 10px;
+	bottom: 10px;
+	height: auto;
+	width: auto;
+	position: absolute;
+}
+
+
+.boxverticalbar {
+    display: inline-block;
+    position: absolute;
+    left:0;
+    top:0;
+	margin:7%; 
+	width:15%; 
+	height:85%; 
+	border-radius:5px;
+}
+
+.tempgauge {
+    display: inline-block;
+    left:0;
+    top:0;
+    margin-top: 10%;
+    margin-left: -7%;
+    height: 100%;
+}
+
+
+.boxtitle {
+    display: inline-block;
+    margin-top: 5px;
+    margin-right : 5px;
+    top:0;
+    left:auto;
+    right:0;
+    text-align: right;
+    font-size:50%;
+    justify-content: right; /* align horizontal */
+    position: absolute;
+}
+
+.boxtoptext {
+    display: inline-block;
+    margin: 5%;
+    top: 10%;
+    left:auto;
+    right:0;
+    text-align: left;
+    font-size:50%;
+    justify-content: right; /* align horizontal */
+    position: absolute;
+}
+
+.infobox
+{
+    margin:0; padding: 0; table-layout:fixed; width:100%; border-spacing: 0px;
+}
+
+.infobox td:nth-child(2)
+{
+	padding:0; text-align: right;
+}
+
+.infobox td:nth-child(3)
+{
+ 	width: 2px;
+}
+
+.infobox td:nth-child(5)
+{
+	padding:0; text-align: right;
+}
+
+.boxvalue, .boxlabelsmall, .boxlabel2small, .boxvalue2
+  {
+    display: inline-block;
+    width:auto;
+    text-align: left;
+    position: absolute;
+    right: 0;
+    left:30%;
+    font-size: 70%;
+  }
+
+.boxvalue
+{
+    margin-top: 30%;
+}
+  
+.boxvalue2
+{
+    margin-top: 65%;
+}
+
+.boxlabelsmall, .boxlabel2small
+{
+    font-size:60%;
+}
+
+.boxlabelsmall
+{
+    margin-top: 21%;
+}
+
+.boxlabel2small
+{
+    margin-top: 56%;
+}
+
+
+.boxtext, .boxtexttabs, .fullscreen-boxtext, .wideboxtext
+  {
+    display: flex;
+    height:auto;
+    bottom:0;
+    top:0;
+    left:0;
+    right:0;    
+    margin: 5%;
+    text-align: left;
+    vertical-align: middle;
+    align-items: center; /* align vertical */
+    position: absolute;
+  }
+
+.fullboxtext
+{
+    display: flex;
+    height:auto;
+    bottom:0;
+    top:0;
+    left:0;
+    right:0;    
+    margin: 2%;
+    text-align: left;
+    vertical-align: middle;
+    align-items: center; /* align vertical */
+    position: absolute;
+}
+  
+.boxtexttabs
+  {
+    bottom:45px;
+  }
+
+.weathertexttodaylong
+  {
+    font-size: 80%;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	padding: 0;
+	margin: 0;
+  }
+
+.boxtime
+  {
+    display: inline-block;
+    vertical-align: middle;
+    position: absolute;
+    margin-top: 30%;
+    width: 100%;
+    text-align: center;
+  }
+
+.boxweathericon
+  {
+    display: inline-block;
+    vertical-align: middle;
+    position: absolute;
+    margin-top: 20%;
+    width: 100%;
+    text-align: center;
+    font-size: 220%;
+    color: #800080;
+  }
+
+.tempbuttons
+  {
+    display: inline-block;
+    position: absolute;
+    margin-top: 25%;
+    margin-left: 70%;
+    width: 20%;
+    height: 20%;
+    text-align: center;
+  }
+ 
+.tempbutton
+{
+    height: 100%;
+    width: 100%;
+    margin-top: 7%;
+}
+
+.ventbuttons
+  {
+    display: inline-block;
+    position: absolute;
+    margin-top: 50%;
+    margin-left: 30%;
+    width: 100%;
+    height: 100%;
+    text-align: left;
+    font-size: 220%;
+  }
+ 
+.ventbutton
+{
+    margin-top: 7%;
+}
+
+
+.boxdate, .boxweathertemp, .boxlowertext
+  {
+    display: inline-block;
+    vertical-align: middle;
+    position: absolute;
+    margin-top: 60%;
+    width: 100%;
+    text-align: center;
+  }
+  
+.boxweathertext
+{
+    display: inline-block;
+    vertical-align: middle;
+    position: absolute;
+    margin-top: 75%;
+    width: 100%;
+    text-align: center;
+}
+
+
+.boxcenter, .boxcenterbig
+  {
+    display: flex;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+    align-items: center; /* align vertical */
+    justify-content: center;
+	text-align:center;
+	position: absolute;
+  }
+
+.boxcenterbig
+{
+	 font-size: 200%;
+}
+
+.buienradaricon
+{
+	width: 25%;
+	height: 25%;
+	padding-left: 2%;
+}
+
+
+/* Style the list */
+ul.tab {
+	display:flex;    
+	list-style-type: none;
+	right: 0;
+	bottom:0;
+	left: 0;
+	height: 7%;
+	margin: 0;
+        padding: 0;
+        overflow: hidden;
+	border: none;
+	border: 1px solid #AAAAAA;  
+	vertical-align: middle;
+	position: absolute;
+	background-color: #FFFFFF;
+	text-align: center;
+	width: 100%;
+}
+
+ul.tab div{
+  flex: 1;
+}
+
+ul.tab li{
+  height: 100%;
+}
+
+/* Float the list items side by side */
+ul.tab div li.menuitem 
+{
+	float: left;
+	border-right: 1px solid #ccc;
+}
+
+/* Float the list items side by side */
+ul.tab div.left
+{
+	align-self: center;
+	text-align: left;
+}
+
+ul.tab div.right
+{
+	align-self: center;
+	text-align: right;
+}
+
+ul.tab div li.label a 
+{
+	color:#007700;
+}
+
+ul.tab.div li.label
+{
+	align-self: center;
+}
+
+
+ul.tab div li.backbutton
+{
+	right: 0;
+	float: right;
+	border-left: 1px solid #ccc;
+}
+
+/* Style the links inside the list items */
+ul.tab li a {
+    display: inline-block;
+    color: black;
+    text-align: center;
+    padding: 1vh 1.5vmin;
+    text-decoration: none;
+    transition: 0.3s;
+	height: 8vmin;
+}
+
+/* Change background color of links on hover */
+ul.tab li a:hover {background-color: #ddd;}
+
+/* Create an active/current tablink class */
+//ul.tab li a:focus, .active {background-color: #ccc;}
+
+/* Style the tab content */
+.tabcontent {
+    display: none;
+    padding: 6% 6%;
+    border: 1px solid #ccc;
+    border-top: none;
+}
+
+
+ul.tab li.menuitem
+{
+	float: left;
+	border-right: 1px solid #ccc;
+	border-left: 0;
+}
+
+
+div.therm.outer-therm.vertical {
+	margin: 0;
+}
+
+@media all and (max-aspect-ratio: 100/55){
+	.floating-box
+	{
+		width: 24vw;
+		height: 24vw;
+		margin: 0.1vw;
+	}
+
+	.wide-floating-box {
+		width: 48.4vw;
+		height: 24vw;
+		margin: 0.1vw;
+	}
+
+	ul.tab
+	{
+		height: 6vw;
+	}
+	.mainarea 
+	{
+		bottom:6vw;
+	}
+}
+
+@media all and (max-aspect-ratio: 1/1){
+	.floating-box
+	{
+		width: 22vh;
+		height: 22vh;
+		margin: 0.1vh;
+	}
+	.wide-floating-box {
+		width: 44.4vh;
+		height: 22vh;
+		margin: 0.1vh;
+	}
+	ul.tab
+	{
+		height: 7vh;
+	}
+	.mainarea {
+		bottom:7vh;
+	}
+}

@@ -1,0 +1,132 @@
+
+*** These modified files were found in JOE when it aborted on Sat Jan 14 18:45:11 2017
+*** JOE was aborted because the terminal closed
+
+*** File '(Unnamed)'
+newtravel
+RaiseL
+uwl
+url
+allow_url
+slaac
+dns
+150
+dns
+forward
+
+*** File '(Unnamed)'
+default.css
+../time.html
+../time.html
+../time.html
+default.css
+default.css
+default.css
+default.css
+default.css
+default.css
+../time.html
+../time.html
+
+*** File '* Startup Log *'
+Processing '/etc/joe/joerc'...
+Processing '/etc/joe/ftyperc'...
+Finished processing /etc/joe/ftyperc
+Finished processing /etc/joe/joerc
+
+*** These modified files were found in JOE when it aborted on Tue Jun 19 21:59:07 2018
+*** JOE was aborted because the terminal closed
+
+*** File '(Unnamed)'
+buienradar
+color
+humidity
+ESP_SLAAPKAMER2
+192.168.2.
+192.168.2.
+m3
+m3
+ESP_OPENTHERM
+ESP_OPENTHERM
+
+*** File '(Unnamed)'
+cookie
+expiryDays
+cc-link
+center
+kwh
+serverrack
+sendzwave
+Recv
+debug
+opentherm
+font
+
+*** File '(Unnamed)'
+../phpMQTT.php
+casaan.js
+casaan.js
+casaan.js
+subscribe.php
+subscribe.php
+subscribe.php
+subscribe.php
+temp
+temp
+casaan.css
+casaan.css
+
+*** File '* Startup Log *'
+Processing '/etc/joe/joerc'...
+Processing '/etc/joe/ftyperc'...
+Finished processing /etc/joe/ftyperc
+Finished processing /etc/joe/joerc
+
+*** These modified files were found in JOE when it aborted on Sat Jul  7 17:22:56 2018
+*** JOE was aborted because the terminal closed
+
+*** File '(Unnamed)'
+192.168.2.
+m3
+m3
+ESP_OPENTHERM
+ESP_OPENTHERM
+toggletuinrelay
+ESP_SMARTMETER
+ESP_SMARTMETER
+SMARTMETER_ESP
+ESP_SMARTMETER
+
+*** File '(Unnamed)'
+ESP_TUIN
+dns
+DNS
+smartmeter
+smartmeter
+smartmeter
+SMARTMETER_ESP
+smartmeter
+electricitybar
+dv
+
+*** File '(Unnamed)'
+esp_smartmeter_mysql.php
+casaan.js
+casaan.js
+esp_smartmeter_mysql.php
+esp_smartmeter_mysql.php
+esp_smartmeter_mysql.php
+../phpMQTT/phpMQTT.php
+esp_smartmeter_mysql.php
+../phpMQTT/phpMQTT.php
+casaan.js
+casaan.css
+casaan.css
+casaan.css
+casaan.css
+
+*** File '* Startup Log *'
+Processing '/etc/joe/joerc'...
+Processing '/etc/joe/ftyperc'...
+Finished processing /etc/joe/ftyperc
+Finished processing /etc/joe/joerc
