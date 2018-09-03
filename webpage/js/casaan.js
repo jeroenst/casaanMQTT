@@ -1104,8 +1104,8 @@ function fillOverviewPage(nodename)
 	{
 		titels = ["Vandaag", "Deze Maand", "Dit Jaar", "Totaal", "Gisteren", "Vorige Maand", "Vorig Jaar", ""];
 		unit = "kwh"
-		mqttitems1 = ["home/smartmeter/electricity/today/kwh_used",  "home/smartmeter/electricity/month/kwh_used", "home/smartmeter/electricity/year/kwh_used", "home/ESP_SMARTMETER/electricity/kwh_used", "home/smartmeter/electricity/yesterday/kwh_used", "home/smartmeter/electricity/lastmonth/kwh_used", "home/smartmeter/electricity/lastyear/kwh_used", ""];
-		mqttitems2 = ["home/smartmeter/electricity/today/kwh_provided",  "home/smartmeter/electricity/month/kwh_provided", "home/smartmeter/electricity/year/kwh_provided", "home/ESP_SMARTMETER/electricity/kwh_provided", "home/smartmeter/electricity/yesterday/kwh_provided", "home/smartmeter/electricity/lastmonth/kwh_provided", "home/smartmeter/electricity/lastyear/kwh_provided", ""];
+		mqttitems1 = ["home/casaan/electricity/today/kwh_used",  "home/casaan/electricity/month/kwh_used", "home/casaan/electricity/year/kwh_used", "home/ESP_SMARTMETER/electricity/kwh_used", "home/casaan/electricity/yesterday/kwh_used", "home/casaan/electricity/lastmonth/kwh_used", "home/casaan/electricity/lastyear/kwh_used", ""];
+		mqttitems2 = ["home/casaan/electricity/today/kwh_provided",  "home/casaan/electricity/month/kwh_provided", "home/casaan/electricity/year/kwh_provided", "home/ESP_SMARTMETER/electricity/kwh_provided", "home/casaan/electricity/yesterday/kwh_provided", "home/casaan/electricity/lastmonth/kwh_provided", "home/casaan/electricity/lastyear/kwh_provided", ""];
 		label1 = "Verbruikt";
 		jsonunit = "kwh_used";
 		label2 = "Teruggeleverd";
@@ -1125,7 +1125,7 @@ function fillOverviewPage(nodename)
 	{
 		titels = ["Vandaag", "Deze Maand", "Dit Jaar", "Totaal", "Gisteren", "Vorige Maand", "Vorig Jaar", ""];
 		unit = "m3"
-		mqttitems1 = ["home/smartmeter/gas/today/m3", "home/smartmeter/gas/month/m3", "home/smartmeter/gas/year/m3", "home/smartmeter/gas/m3",  "home/smartmeter/gas/yesterday/m3", "home/smartmeter/gas/lastmonth/m3", "home/smartmeter/gas/lastyear/m3", ""];
+		mqttitems1 = ["home/casaan/gas/today/m3", "home/casaan/gas/month/m3", "home/casaan/gas/year/m3", "home/ESP_SMARTMETER/gas/m3",  "home/casaan/gas/yesterday/m3", "home/casaan/gas/lastmonth/m3", "home/casaan/gas/lastyear/m3", ""];
 		jsonunit = "m3";
 	}
 	
@@ -1267,9 +1267,9 @@ function showPage(pageName) {
 	}
 	else if (pageName == "electricity")
 	{
-		graphmqttmonth = "home/smartmeter/electricity/month/graph/kwh";
-		graphmqttday = "home/smartmeter/electricity/day/graph/kwh";
-		graphmqttyear = "home/smartmeter/electricity/year/graph/kwh";
+		graphmqttmonth = "home/casaan/electricity/month/graph/kwh";
+		graphmqttday = "home/casaan/electricity/day/graph/kwh";
+		graphmqttyear = "home/casaan/electricity/year/graph/kwh";
 		graphylabel = "kwh";
 		graphtitle = "Netstroom";
 		graphcolors = ["#666666", "#00FF00"];
@@ -1279,9 +1279,9 @@ function showPage(pageName) {
 	}
 	else if (pageName == "gas")
 	{
-		graphmqttmonth = "home/smartmeter/gas/month/graph/m3";
-		graphmqttday = "home/smartmeter/gas/day/graph/m3";
-		graphmqttyear = "home/smartmeter/gas/year/graph/m3";
+		graphmqttmonth = "home/casaan/gas/month/graph/m3";
+		graphmqttday = "home/casaan/gas/day/graph/m3";
+		graphmqttyear = "home/casaan/gas/year/graph/m3";
 		graphylabel = "m3";
 		graphtitle = "Gasgebruik";
 		graphcolors = ["#FFFF00"];
