@@ -34,6 +34,8 @@ $topics['home/ESP_SMARTMETER/status'] = array("qos" => 0, "function" => "smartme
 
 $topics['home/ESP_WATERMETER/water/m3'] = array("qos" => 0, "function" => "watermetermessage");
 
+$topics['home/ESP_GROWATT/#'] = array("qos" => 0, "function" => "growattmessage");
+
 $mqtt->subscribe($topics, 0);
 
 while($mqtt->proc()){
@@ -43,38 +45,6 @@ while($mqtt->proc()){
 
 $mqtt->close();
 
-function watermetermessage($topic, $msg)
-{
-        global $inisettings;
-        global $mqtt;
-        global $topicprefix;
-        $watermeterdata = array();
-	echo "$topic = $msg\n";
-        $mysqli = mysqli_connect($inisettings["mysql"]["server"],$inisettings["mysql"]["username"],$inisettings["mysql"]["password"],$inisettings["mysql"]["database"]);
-
-        if (($mysqli) && (!$mysqli->connect_errno))
-        {
-                        // Write values to database
-      	                if (!$mysqli->query("INSERT INTO `watermeter` (m3) VALUES (".$msg.");"))
-               	        {
-                       	        echo "error writing watermeter values to database ".$mysqli->error."\n";
-                        }
-                        
-                        $newarray = array();
-                        
-                        // Calculate values for today
-                        if ($result = $mysqli->query("SELECT * FROM `watermeter` WHERE timestamp >= CURDATE() ORDER BY timestamp ASC LIMIT 1"))
-                        {
-                                $row = $result->fetch_object();
-                                $watermeterdata["today"]["m3"] = round($msg - $row->m3,3);
-				$mqtt->publishwhenchanged ($topicprefix."watermeter/today/m3", $watermeterdata["today"]["m3"],0,1);
-                        }
-                        else
-                        {
-                                echo "error reading watermeter values from database ".$mysqli->error."\n";
-                        }
-        }
-}
 
 function smartmetermessage($topic, $msg){
 	echo "$topic = $msg\n";
@@ -459,7 +429,7 @@ function smartmetermessage($topic, $msg){
                         {
                                 echo "error reading gas values from database ".$mysqli->error."\n";
                         }
-                        $mqtt->publishwhenchanged ($topicprefix."gas/yesterday/m3", $newdata["yesterday"]["m3"],0,1);
+                        $mqtt->publishwhenchanged ($topicprefix."gasmeter/yesterday/m3", $newdata["yesterday"]["m3"],0,1);
 
 
                         // Calculate values from this month
@@ -473,7 +443,7 @@ function smartmetermessage($topic, $msg){
                         {
                                 echo "error reading gas values from database ".$mysqli->error."\n";
                         }
-                        $mqtt->publishwhenchanged ($topicprefix."gas/month/m3", $newdata["month"]["m3"],0,1);
+                        $mqtt->publishwhenchanged ($topicprefix."gasmeter/month/m3", $newdata["month"]["m3"],0,1);
 
 
                         // Calculate values from previous month
@@ -492,7 +462,7 @@ function smartmetermessage($topic, $msg){
                                 echo "error reading gas values from database ".$mysqli->error."\n";
 
                         }
-                        $mqtt->publishwhenchanged ($topicprefix."gas/lastmonth/m3", $newdata["lastmonth"]["m3"],0,1);
+                        $mqtt->publishwhenchanged ($topicprefix."gasmeter/lastmonth/m3", $newdata["lastmonth"]["m3"],0,1);
 
 
                         // Calculate values from this year
@@ -509,7 +479,7 @@ function smartmetermessage($topic, $msg){
                         {
                                 echo "error reading gas values from database ".$mysqli->error."\n";
                         }
-                        $mqtt->publishwhenchanged ($topicprefix."gas/year/m3", $newdata["year"]["m3"],0,1);
+                        $mqtt->publishwhenchanged ($topicprefix."gasmeter/year/m3", $newdata["year"]["m3"],0,1);
 
                         // Calculate values from previous year
                         if ($result = $mysqli->query("SELECT * FROM `gasmeter` WHERE timestamp >= DATE_FORMAT(NOW() ,'%Y-01-01') - INTERVAL 1 YEAR ORDER BY timestamp ASC LIMIT 1"))
@@ -527,7 +497,7 @@ function smartmetermessage($topic, $msg){
                                 echo "error reading gas values from database ".$mysqli->error."\n";
 
                         }
-                        $mqtt->publishwhenchanged ($topicprefix."gas/lastyear/m3", $newdata["lastyear"]["m3"],0,1);
+                        $mqtt->publishwhenchanged ($topicprefix."gasmeter/lastyear/m3", $newdata["lastyear"]["m3"],0,1);
 
                         // Creating day graph data for gas
                         $daym3array = array();
@@ -567,7 +537,7 @@ function smartmetermessage($topic, $msg){
                                 }
                                 $hour--;
                         }
-                        $mqtt->publishwhenchanged ($topicprefix."gas/day/graph/m3", json_encode($daym3array), 0, 1);
+                        $mqtt->publishwhenchanged ($topicprefix."gasmeter/day/graph/m3", json_encode($daym3array), 0, 1);
 
 
                         // Creating month graph data for gas
@@ -599,7 +569,7 @@ function smartmetermessage($topic, $msg){
                                 }
                                 $day--;
                         }
-                        $mqtt->publishwhenchanged ($topicprefix."gas/month/graph/m3", json_encode($monthm3array), 0, 1);
+                        $mqtt->publishwhenchanged ($topicprefix."gasmeter/month/graph/m3", json_encode($monthm3array), 0, 1);
 
                         // Creating year graph data for gas
                         $yearm3array = array();
@@ -630,7 +600,7 @@ function smartmetermessage($topic, $msg){
                                 }
                                 $week--;
                         }
-                        $mqtt->publishwhenchanged ($topicprefix."gas/year/graph/m3", json_encode($yearm3array), 0, 1);
+                        $mqtt->publishwhenchanged ($topicprefix."gasmeter/year/graph/m3", json_encode($yearm3array), 0, 1);
 
                         $mysqli->close();
 
@@ -643,3 +613,328 @@ function smartmetermessage($topic, $msg){
         }
 
 }
+
+function watermetermessage($topic, $msg)
+{
+        global $inisettings;
+        global $mqtt;
+        global $topicprefix;
+      	$newdata=array();
+	echo "$topic = $msg\n";
+        $mysqli = mysqli_connect($inisettings["mysql"]["server"],$inisettings["mysql"]["username"],$inisettings["mysql"]["password"],$inisettings["mysql"]["database"]);
+        
+        $m3 = $msg;
+        if (($mysqli) && (!$mysqli->connect_errno))
+        {
+		      	$mysqli->query("INSERT INTO `watermeter` (m3) VALUES (".$m3.");");
+                	
+                        // Read values from database
+                	if ($result = $mysqli->query("SELECT * FROM `watermeter` WHERE timestamp >= CURDATE() ORDER BY timestamp ASC LIMIT 1")) 
+                	{
+                		$row = $result->fetch_object();
+                		//var_dump ($row);
+                		$newdata["today"]["m3"] = round($m3 - $row->m3,3);
+                		$newdata["total"]["m3"] = $m3;
+				$mqtt->publishwhenchanged ($topicprefix."watermeter/today/m3", $newdata["today"]["m3"],0,1);
+                                $mqtt->publishwhenchanged ($topicprefix."watermeter/total/m3", $newdata["total"]["m3"],0,1);
+			}
+			else
+			{
+                        	echo "error reading water values from database ".$mysqli->error."\n"; 
+                        }
+
+			// Read values from database
+        	        if ($result = $mysqli->query("SELECT * FROM `watermeter` WHERE timestamp >= CURDATE() - INTERVAL 1 DAY AND timestamp < CURDATE() ORDER BY timestamp ASC LIMIT 1")) 
+        	        {
+	                	$row = $result->fetch_object();
+	                	if ($row)
+	                	{
+					$newdata['yesterday']['m3'] = round($newdata["total"]["m3"] - $row->m3 - ["today"]["m3"],3);
+					$mqtt->publishwhenchanged ($topicprefix."watermeter/yesterday/m3", $newdata["yesterday"]["m3"],0,1);
+				}
+			}
+			else
+			{
+                	       	echo "error reading water values from database ".$mysqli->error."\n"; 
+	                }
+
+			// Read values from database
+        	        if ($result = $mysqli->query("SELECT * FROM `watermeter` WHERE timestamp >= CURDATE() - INTERVAL 1 MONTH AND timestamp < CURDATE() - INTERVAL 1 MONTH + INTERVAL 1 DAY ORDER BY timestamp ASC LIMIT 1")) 
+        	        {
+	                	$row = $result->fetch_object();
+	                	if ($row)
+	                	{
+					$newdata['month']['m3'] = round($newdata["total"]["m3"]  - $row->m3, 3);
+					$mqtt->publishwhenchanged ($topicprefix."watermeter/month/m3", $newdata["month"]["m3"],0,1);
+				}
+			}
+			else
+			{
+                	       	echo "error reading water values from database ".$mysqli->error."\n"; 
+	                }
+
+                        // Read values from database
+                        if ($result = $mysqli->query("SELECT * FROM `watermeter` WHERE timestamp >= DATE_FORMAT(NOW() ,'%Y-01-01') AND timestamp < DATE_FORMAT(NOW() ,'%Y-01-01') + INTERVAL 1 DAY ORDER BY timestamp ASC LIMIT 1"))
+                        {
+                                $row = $result->fetch_object();
+                                if ($row)
+                                {
+                                	$newdata['year']['m3'] = round($newdata["total"]["m3"]  - $row->m3, 3);
+                                	$mqtt->publishwhenchanged ($topicprefix."watermeter/year/m3", $newdata["year"]["m3"],0,1);
+				}
+                        }
+                        else
+                        {
+                                echo "error reading water values from database ".$mysqli->error."\n";
+                        }
+                        
+                        // Read values from database
+        	        if ($result = $mysqli->query("SELECT * FROM `watermeter` WHERE timestamp >= CURDATE() - INTERVAL 2 MONTH AND timestamp < CURDATE() - INTERVAL 2 MONTH + INTERVAL 1 DAY ORDER BY timestamp DESC LIMIT 1")) 
+        	        {
+	                	$row = $result->fetch_object();
+	                	if ($row)
+	                	{
+					$newdata['lastmonth']['m3'] = round($newdata['total']['m3'] - $row->m3 - $newdata['month']['m3'], 3);
+					$mqtt->publishwhenchanged ($topicprefix."watermeter/lastmonth/m3", $newdata["lastmonth"]["m3"],0,1);
+				}
+			}
+			else
+			{
+                	       	echo "error reading water values from database ".$mysqli->error."\n"; 
+	                }
+
+                        // Read values from database
+                        if ($result = $mysqli->query("SELECT * FROM `watermeter` WHERE timestamp >= DATE_FORMAT(NOW() ,'%Y-01-01') - INTERVAL 1 YEAR AND timestamp < DATE_FORMAT(NOW() ,'%Y-01-01') - INTERVAL 1 YEAR + INTERVAL 1 DAY ORDER BY timestamp ASC LIMIT 1"))
+                        {
+                                $row = $result->fetch_object();
+                                if ($row)
+                                {
+                                	$newdata['lastyear']['m3'] = round($newdata['total']['m3'] - $row->m3 - $newdata['year']['m3'], 3);
+                                	$mqtt->publishwhenchanged ($topicprefix."watermeter/lastyear/m3", $newdata["lastyear"]["m3"],0,1);
+				}
+                        }
+                        else
+                        {
+                                echo "error reading water values from database ".$mysqli->error."\n";
+                        }
+        }
+        $mysqli->close();
+}
+
+function growattmessage($topic, $msg)
+{
+        global $inisettings;
+        global $mqtt;
+        global $topicprefix;
+        $growattprefix = "home/ESP_GROWATT/";
+      	static $newdata=array();
+	echo "$topic = $msg\n";
+	
+        if ($topic == $growattprefix."pv/1/volt") $newdata['now']['pv']['1']['volt'] = $msg;
+        if ($topic == $growattprefix."pv/2/volt") $newdata['now']['pv']['2']['volt'] = $msg;
+        if ($topic == $growattprefix."pv/watt") $newdata['now']['pv']['watt'] = $msg;
+        if ($topic == $growattprefix."grid/volt") $newdata['now']['grid']['volt'] = $msg;
+        if ($topic == $growattprefix."grid/watt") $newdata['now']['grid']['watt'] = $msg;
+        if ($topic == $growattprefix."grid/amp") $newdata['now']['grid']['amp'] = $msg;
+        if ($topic == $growattprefix."grid/frequency") $newdata['now']['grid']['frequency'] = $msg;
+        if ($topic == $growattprefix."grid/today/kwh") $newdata['today']['kwh'] = $msg;
+        if ($topic == $growattprefix."grid/total/kwh") $newdata['total']['kwh'] = $msg;
+
+        $mysqli = mysqli_connect($inisettings["mysql"]["server"],$inisettings["mysql"]["username"],$inisettings["mysql"]["password"],$inisettings["mysql"]["database"]);
+        
+        $totalnewdataitems = count($newdata, COUNT_RECURSIVE);
+        
+        echo ("count of newdata=".$totalnewdataitems."\n");
+        
+        if (($topic == $growattprefix."status") && ($msg == "ready") && ($totalnewdataitems >= 16))
+        {
+        	echo ("Received growatt data...\n");
+	        if (($mysqli) && (!$mysqli->connect_errno))
+	        {
+	        	$sql = "INSERT INTO `sunelectricity` (pv_watt, pv_1_volt, pv_2_volt, grid_watt, grid_volt, grid_amp, grid_freq, kwh_today, kwh_total) VALUES ('".
+                                                $newdata['now']['pv']['watt']."','".
+                                                $newdata['now']['pv']['1']['volt']."','".
+                                                $newdata['now']['pv']['2']['volt']."','".
+                                                $newdata['now']['grid']['watt']."','".
+                                                $newdata['now']['grid']['volt']."','".
+                                                $newdata['now']['grid']['amp']."','".
+                                                $newdata['now']['grid']['frequency']."','".
+                                                $newdata['today']['kwh']."','".
+                                                $newdata['total']['kwh']."');";
+                                                
+			echo $sql."\n";
+			
+			$result = $mysqli->query ($sql);
+                        // write values from database
+                        if (!$result)
+                        {
+                                echo "error writing sunelectricty values to database ".$mysqli->error."\n";
+                        }
+                                      
+
+			// Read values from database
+			echo ("Calculating yesterday...\n");
+        	        if ($result = $mysqli->query("SELECT * FROM `sunelectricity` WHERE timestamp >= CURDATE() - INTERVAL 1 DAY AND timestamp < CURDATE() ORDER BY timestamp ASC LIMIT 1")) 
+        	        {
+	                	if ($row = $result->fetch_object())
+	                	{
+	                		$newdata['yesterday']['kwh'] = round($newdata['total']['kwh'] - $row->kwh_total - $newdata['today']['kwh'],1);
+	                		$mqtt->publishwhenchanged ($topicprefix."growatt/grid/yesterday/kwh", $newdata["yesterday"]["kwh"],0,1);
+				}
+				else $mqtt->publishwhenchanged ($topicprefix."growatt/grid/yesterday/kwh", "-",0,1);
+			}
+			else
+			{
+                	       	echo "error reading sunelectricty values from database ".$mysqli->error."\n"; 
+	                }
+
+
+			echo ("Calculating month...\n");
+			// Read values from database
+        	        if ($result = $mysqli->query("SELECT * FROM `sunelectricity` WHERE timestamp >= CURDATE() - INTERVAL 1 MONTH AND timestamp < CURDATE() - INTERVAL 1 MONTH + INTERVAL 1 DAY ORDER BY timestamp ASC LIMIT 1")) 
+        	        {
+	                	if ($row = $result->fetch_object())
+	                	{
+					$newdata['month']['kwh'] = round($newdata['total']['kwh'] - $row->kwh_total, 1);
+					$mqtt->publishwhenchanged ($topicprefix."growatt/grid/month/kwh", $newdata["month"]["kwh"],0,1);
+				}
+				else $mqtt->publishwhenchanged ($topicprefix."growatt/grid/month/kwh", "-",0,1);
+			}
+			else
+			{
+                	       	echo "error reading sunelectricty values from database ".$mysqli->error."\n"; 
+	                }
+
+			echo ("Calculating year...\n");
+                        // Read values from database
+                        if ($result = $mysqli->query("SELECT * FROM `sunelectricity` WHERE timestamp >= DATE_FORMAT(NOW() ,'%Y-01-01') AND timestamp < DATE_FORMAT(NOW() ,'%Y-01-02') ORDER BY timestamp ASC LIMIT 1"))
+                        {
+                                if ($row = $result->fetch_object())
+                                {
+                                	$newdata['year']['kwh'] = round($newdata['total']['kwh'] - $row->kwh_total, 1);
+                                	$mqtt->publishwhenchanged ($topicprefix."growatt/grid/year/kwh", $newdata["year"]["kwh"],0,1);
+				}
+				else $mqtt->publishwhenchanged ($topicprefix."growatt/grid/year/kwh", "-",0,1);
+                        }
+                        else
+                        {
+                                echo "error reading sunelectricty values from database ".$mysqli->error."\n";
+                        }
+                        
+
+			echo ("Calculating lastmonth...\n");
+                        // Read values from database
+        	        if ($result = $mysqli->query("SELECT * FROM `sunelectricity` WHERE timestamp >= CURDATE() - INTERVAL 2 MONTH AND timestamp < CURDATE() - INTERVAL 2 MONTH + INTERVAL 1 DAY ORDER BY timestamp DESC LIMIT 1")) 
+        	        {
+	                	if ($row = $result->fetch_object())
+	                	{
+					$newdata['lastmonth']['kwh'] = round($newdata['total']['kwh'] - $row->kwh_total - $newdata['month']['kwh'], 1);
+					$mqtt->publishwhenchanged ($topicprefix."growatt/grid/lastmonth/kwh", $newdata["lastmonth"]["kwh"],0,1);
+				}
+				else $mqtt->publishwhenchanged ($topicprefix."growatt/grid/lastmonth/kwh", "-",0,1);
+
+			}
+			else
+			{
+                	       	echo "error reading sunelectricty values from database ".$mysqli->error."\n"; 
+	                }
+
+			echo ("Calculating lastyear...\n");
+                        // Read values from database
+                        if ($result = $mysqli->query("SELECT * FROM `sunelectricity` WHERE timestamp >= DATE_FORMAT(NOW() ,'%Y-01-01') - INTERVAL 1 YEAR AND timestamp < DATE_FORMAT(NOW() ,'%Y-01-01') ORDER BY timestamp ASC LIMIT 1"))
+                        {
+                                if ($row = $result->fetch_object())
+                                {
+                                	$newdata['lastyear']['kwh'] = round($newdata['total']['kwh'] - $row->kwh_total - $newdata['year']['kwh'], 1);
+                                	$mqtt->publishwhenchanged ($topicprefix."growatt/grid/lastyear/kwh", $newdata["lastyear"]["kwh"],0,1);
+				}
+                               else $mqtt->publishwhenchanged ($topicprefix."growatt/grid/lastyear/kwh", "-",0,1);
+                        }
+                        else
+                        {
+                                echo "error reading sunelectricty values from database ".$mysqli->error."\n";
+                                $mqtt->publishwhenchanged ($topicprefix."growatt/grid/lastyear/kwh", "-",0,1);
+                        }
+                        
+
+			echo ("Calculating growatt values finished...\n");
+                	$mysqli->close();
+		}
+		else
+		{
+                	echo ("Error while writing water values to database: ".$mysqli->connect_error ."\n");
+		}
+
+
+
+	}
+}
+
+
+function updatezwave($newdata)
+{
+        global $settings;
+        global $casaandata;
+	if (isset($newdata)) 
+	{
+		if (!isset($casaandata["zwave"])) $casaandata["zwave"] = array();
+		$zwavereplacedata = array_replace_recursive($casaandata["zwave"], $newdata);
+		if (isset($zwavereplacedata))  $casaandata["zwave"] = $zwavereplacedata;
+		sendtowebsockets("{\"zwave\":".json_encode($newdata)."}");
+	}
+}
+
+function updateducobox($newdata)
+{
+        global $settings;
+        global $casaandata;
+	if (isset($newdata)) 
+	{
+		$casaandata["ducobox"] = $newdata;
+		sendtowebsockets("{\"ducobox\":".json_encode($newdata)."}");
+	}
+}
+
+function updateopentherm($newdata)
+{
+        global $settings;
+        global $casaandata;
+	if (isset($newdata)) 
+	{
+		if (!isset($casaandata["opentherm"])) $casaandata["opentherm"] = array();
+		$zwavereplacedata = array_replace_recursive($casaandata["opentherm"], $newdata);
+		if (isset($zwavereplacedata))  $casaandata["opentherm"] = $zwavereplacedata;
+		sendtowebsockets("{\"opentherm\":".json_encode($newdata)."}");
+	}
+
+
+        $mysqli = mysqli_connect($settings["mysqlserver"],$settings["mysqlusername"],$settings["mysqlpassword"],$settings["mysqldatabase"]);
+
+        if ($mysqli)
+        {
+                if (!$mysqli->connect_errno)
+                {
+                        $type = NULL;
+                        $value = NULL;
+                        if (isset($newdata["boiler"]["temperature"])) { $type = "boiler_temperature"; $sqlvalue = $newdata["boiler"]["temperature"];}
+                        if (isset($newdata["dhw"]["temperature"])) {$type = "dhw_temperature"; $sqlvalue = $newdata["dhw"]["temperature"];}
+                        if (isset($newdata["thermostat"]["setpoint"])) {$type = "thermostat_setpoint"; $sqlvalue = $newdata["thermostat"]["setpoint"];}
+                        if (isset($newdata["thermostat"]["temperature"])) {$type = "thermostat_temperature"; $sqlvalue = $newdata["thermostat"]["temperature"];}
+                        if (isset($newdata["thermostat"]["heating"]["water"]["temperature"]["setpoint"])) {$type = "thermostat_water_setpoint"; $sqlvalue = $newdata["thermostat"]["heating"]["water"]["temperature"]["setpoint"];}
+                        if (isset($newdata["burner"]["modulation"]["level"])) {$type = "burner_modulationlevel"; $sqlvalue = $newdata["burner"]["modulation"]["level"];}
+                        
+                        if ($type != NULL)
+                        {
+                        	$sql = "INSERT INTO `opentherm` (type, value) VALUES ('".$type."','".$sqlvalue."');";
+                        	echo $sql;
+                        	if (!$mysqli->query($sql))
+                        	{
+                                	echo "error writing opentherm value to database ".$mysqli->error."\n";
+				}
+			}
+			$mysqli->close();
+		}
+	}
+}
+
+
