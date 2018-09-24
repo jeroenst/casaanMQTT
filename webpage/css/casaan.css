@@ -1,24 +1,31 @@
+*, *:before, *:after {
+ /*CSS transitions*/
+ transition-property: none !important;
+ /*CSS transforms*/
+ transform: none !important;
+ /*CSS animations*/
+ animation: none !important;
+ }
+ 
+
 html, body {
     	height: 100%;
 	width: 100%;
 	margin: 0px;
-	overflow-x:hidden;
-	position: fixed; 
-	overflow-y: scroll;
+	overflow:hidden;
 	width: 100%;
-}
-html {
-    display: table;
-    margin: auto;
+	position: absolute;
+	margin: 0;
     text-align : center;
-}
-
-body {
     font-family: "Arial";
     font-size: 0;
     background-color: #EEEEEE;
-	overflow: hidden;
-position:relative;
+}
+
+html {
+}
+
+body {
 }
 
 
@@ -51,12 +58,12 @@ vertical-align:middle;
   display: flex;
   justify-content: center;
   position: absolute;
-    vertical-align: middle;
-	text-align: center;
-	right: 0px;
-	left: 0px;
-	top: 0px;
-	bottom:7vh;
+  vertical-align: middle;
+  text-align: center;
+  right: 0px;
+  left: 0px;
+  top: 0px;
+/*  bottom:7vh;*/
 }
 
 .submainarea {
@@ -354,7 +361,7 @@ ul.tab {
 	right: 0;
 	bottom:0;
 	left: 0;
-	height: 7%;
+/*	height: 7%;*/
 	margin: 0;
         padding: 0;
         overflow: hidden;
@@ -421,7 +428,7 @@ ul.tab li a {
     padding: 1vh 1.5vmin;
     text-decoration: none;
     transition: 0.3s;
-	height: 8vmin;
+/*	height: 8vmin;*/
 }
 
 /* Change background color of links on hover */
@@ -465,14 +472,14 @@ div.therm.outer-therm.vertical {
 		margin: 0.1vw;
 	}
 
-	ul.tab
+/*	ul.tab
 	{
 		height: 6vw;
 	}
 	.mainarea 
 	{
 		bottom:6vw;
-	}
+	}*/
 }
 
 @media all and (max-aspect-ratio: 1/1){
@@ -487,11 +494,11 @@ div.therm.outer-therm.vertical {
 		height: 22vh;
 		margin: 0.1vh;
 	}
-	ul.tab
+/*	ul.tab
 	{
 		height: 7vh;
 	}
 	.mainarea {
 		bottom:7vh;
-	}
+	}*/
 }

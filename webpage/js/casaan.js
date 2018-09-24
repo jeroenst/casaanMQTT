@@ -10,6 +10,16 @@ var mqttdata = {};
 //  for best fit on screen. Also changes from portrait to
 //  landscape mode based on screen aspect ratio
 //
+
+var weekday = new Array(7);
+weekday[0] = "Zondag";
+weekday[1] = "Maandag";
+weekday[2] = "Dinsdag";
+weekday[3] = "Woendag";
+weekday[4] = "Donderdag";
+weekday[5] = "Vrijdag";
+weekday[6] = "Zaterdag";
+
 function autochangesizes()
 {
 	var element;
@@ -28,7 +38,7 @@ function autochangesizes()
 		{
 			elements[i].innerHTML = "<BR>"
 		}
-		floatingboxWidthHeight = clientHeight / 4.6;
+		floatingboxWidthHeight = clientHeight / 4.5;
 		if (floatingboxWidthHeight * 2.3 > clientWidth) floatingboxWidthHeight = clientWidth / 2.3;		
 	}
 	else
@@ -65,6 +75,9 @@ function autochangesizes()
 	{
 		elements[i].style.fontSize = (floatingboxWidthHeight  / 10) + "px";
 	}
+
+//	document.getElementsByClassName('label')[0].style.fontSize = (floatingboxWidthHeight / 10) + "px";
+	document.getElementsByClassName('mainarea')[0].style.bottom = document.getElementsByClassName('label')[0].clientHeight + "px";
 
 	//	var clientWidth = 1;
 	
@@ -418,7 +431,7 @@ function createDomoticaPage()
 {
 
 	var domoticapagestring;
-	domoticapagestring += '<div class="floating-box"><div class="boxtitle">Huiskamer</div><div class="domoticabuttons"><div><button class="domoticabutton" id="buttonzwave3off" onclick="zwavetoggle(4)">Tv</button><button class="domoticabutton" id="buttonzwave3off" onclick="zwavetoggle(3)">Dressoir</button><BR><button class="domoticabutton" id="buttonzwave3off" onclick="zwavecolordim(11)">Stalamp</button><button class="domoticabutton" id="buttonzwave3off" onclick="zwavedim(10)">Spots</button></div></div><div class="domoticainfo"></div></div>';
+	domoticapagestring += '<div class="floating-box"><div class="boxtitle">Huiskamer</div><div class="domoticabuttons"><div><button class="domoticabutton" id="buttonzwave3off" onclick="zwavetoggle(4)">Tv</button><button class="domoticabutton" id="buttonespdim3off" onclick="mqttdim(1)">Dressoir</button><BR><button class="domoticabutton" id="buttonzwave3off" onclick="zwavecolordim(11)">Stalamp</button><button class="domoticabutton" id="buttonzwave3off" onclick="zwavedim(10)">Spots</button></div></div><div class="domoticainfo"></div></div>';
 	domoticapagestring += '<div class="floating-box"><div class="boxtitle">Keuken</div><div class="domoticabuttons"><div><button class="domoticabutton" id="buttonzwave3off" onclick="zwavedim(9)">Eettafel</button><button class="domoticabutton" id="buttonzwave3off" onclick="zwavedim(2)">Spots</button><BR><button class="domoticabutton" id="buttonzwave3off" onclick="zwavedim(0)">-</button><button class="domoticabutton" id="buttonzwave3off" onclick="zwavedim(0)">-</button></div></div><div class="domoticainfo"></div></div>';
 	domoticapagestring += '<span class="portraitbr"></span><div class="floating-box"><div class="boxtitle">Tuin</div><div class="domoticabuttons"><div><button class="domoticabutton" id="sonoff1_0" onclick="toggletuinrelay(0);">Pomp1</button><button class="domoticabutton" id="sonoff1_1" onclick="toggletuinrelay(1);">Pomp2</button><br><button class="domoticabutton" id="sonoff1_2" onclick="toggletuinrelay(2);">UV</button><button class="domoticabutton" id="sonoff1_3" onclick="toggletuinrelay(3);">Lampen</button></div></div><div class="domoticainfo"></div></div>';
 	domoticapagestring += '<div class="floating-box"><div class="boxtitle">Sproeiers</div><div class="domoticabuttons"><div><button class="domoticabutton" id="sonoff2_0" onclick="togglesproeierrelay(0);">Voortuin</button><button class="domoticabutton" id="sonoff2_1" onclick="togglesproeierrelay(1);">Achtertuin<br>Achter</button><br><button class="domoticabutton" id="sonoff2_2" onclick="togglesproeierrelay(2);">Achtertuin<BR>voor</button><button class="domoticabutton" id="sonoff2_3" onclick="togglesproeierrelay(3);">-</button></div></div><div class="domoticainfo"></div></div>';
@@ -444,6 +457,28 @@ function zwavedim(id)
 	else if (mqttdata["home/zwave/"+id+"/switchmultilevel/1/level"] < 99) sendzwave(id,"switchmultilevel",1,0,99);
 	else sendzwave(id,"switchmultilevel",1,0,0);
 }
+
+function mqttdim(id)
+{
+	var pretopic = "";
+	switch (id)
+	{
+		case 1: pretopic = "home/ESP_DIMMER/";
+		break;
+	}
+	 
+	if (pretopic != "")
+	{
+		var currentvalue = mqttdata[pretopic + "dimvalue"];
+		var newvalue = 0;
+		if (currentvalue < 35) newvalue = 35;
+		else if (currentvalue < 70) newvalue = 70;
+		else if (currentvalue < 255) newvalue = 255;
+	
+		sendmqtt(pretopic+"setdimvalue",String(newvalue),0,1);
+	}
+}
+
 
 function zwavecolordim(id)
 {
@@ -472,39 +507,43 @@ function zwavescene(sceneid)
 	{
 		case "avond":
 			sendzwave(2,"switchmultilevel",1,0,20); 
-			sendzwave(3,"switchbinary",1,0,1); 
+//			sendzwave(3,"switchbinary",1,0,1); 
 			sendzwave(4,"switchbinary",1,0,1); 
 			sendzwave(9,"switchmultilevel",1,0,0);
 			sendzwave(10,"switchmultilevel",1,0,20);
 			sendzwave(11,"switchmultilevel",1,0,50); 
 			sendzwave(11,"colorswitch",1,0,"#FF88200000");
+			sendmqtt("home/ESP_DIMMER/setdimvalue","35",0,1);
 		break;
 		case "film":
 			sendzwave(2,"switchmultilevel",1,0,1);
 			sendzwave(3,"switchbinary",1,0,0); 
-			sendzwave(4,"switchbinary",1,0,1); 
+//			sendzwave(4,"switchbinary",1,0,1); 
 			sendzwave(9,"switchmultilevel",1,0,0); 
 			sendzwave(10,"switchmultilevel",1,0,1); 
 			sendzwave(11,"colorswitch",1,0,"#FF88180000");
 			sendzwave(11,"switchmultilevel",1,0,1);
+			sendmqtt("home/ESP_DIMMER/setdimvalue","30",0,1);
 		break
 		case "fel":
 			sendzwave(2,"switchmultilevel",1,0,99);
-			sendzwave(3,"switchbinary",1,0,1); 
+//			sendzwave(3,"switchbinary",1,0,1); 
 			sendzwave(4,"switchbinary",1,0,1); 
 			sendzwave(9,"switchmultilevel",1,0,99); 
 			sendzwave(10,"switchmultilevel",1,0,99);
 			sendzwave(11,"colorswitch",1,0,"#FF90300000");
 			sendzwave(11,"switchmultilevel",1,0,99); 
+			sendmqtt("home/ESP_DIMMER/setdimvalue","255",0,1);
 		break;
 		case "uit":
 			sendzwave(2,"switchmultilevel",1,0,0); 
-			sendzwave(3,"switchbinary",1,0,0); 
+//			sendzwave(3,"switchbinary",1,0,0); 
 			sendzwave(4,"switchbinary",1,0,0); 
 			sendzwave(9,"switchmultilevel",1,0,0); 
 			sendzwave(10,"switchmultilevel",1,0,0); 
 			sendzwave(11,"colorswitch",1,0,"#FF88180000");
 			sendzwave(11,"switchmultilevel",1,0,0); 
+			sendmqtt("home/ESP_DIMMER/setdimvalue","0",0,1);
 		break;
 	}
 }
@@ -524,15 +563,35 @@ connectMQTT();
 function onConnect() {
   // Once a connection has been made, make a subscription and send a message.
   console.log("MQTT Connected");
-  client.subscribe("home/ESP_WATERMETER/#");
-  client.subscribe("home/ESP_SMARTMETER/#");
-  client.subscribe("home/ESP_WATERMETER/#");
+  
+  client.subscribe("home/ESP_WATERMETER/status");
+  client.subscribe("home/ESP_WATERMETER/water/m3");
+  client.subscribe("home/ESP_WATERMETER/water/lmin");
+  
+  client.subscribe("home/ESP_SMARTMETER/status");
+  client.subscribe("home/ESP_SMARTMETER/electricity/#");
+  client.subscribe("home/ESP_SMARTMETER/gas/#");
+
+  client.subscribe("home/ESP_GROWATT/status");
+  client.subscribe("home/ESP_GROWATT/grid/#");
+  client.subscribe("home/ESP_GROWATT/pv/#");
+
+  client.subscribe("home/ESP_OPENTHERM/status");
+  client.subscribe("home/ESP_OPENTHERM/boiler/#");
+  client.subscribe("home/ESP_OPENTHERM/dhw/#");
+  client.subscribe("home/ESP_OPENTHERM/thermostat/#");
+  client.subscribe("home/ESP_OPENTHERM/burner/modulation/level");
+  client.subscribe("home/ESP_OPENTHERM/ch/water/pressure");
+  
+  
   client.subscribe("home/casaan/#");
-//  client.subscribe("home/smartmeter/gas/#");
-  client.subscribe("home/growatt/#");
-//  client.subscribe("home/growatt/pv/#");
-  client.subscribe("home/ESP_OPENTHERM/#");
-  client.subscribe("home/ESP_DUCOBOX/#");
+
+  client.subscribe("home/ESP_DUCOBOX/status");
+  client.subscribe("home/ESP_DUCOBOX/1/#");
+  client.subscribe("home/ESP_DUCOBOX/2/#");
+  client.subscribe("home/ESP_DUCOBOX/relay/#");
+  client.subscribe("home/ESP_DUCOBOX/setfan");
+  
   client.subscribe("home/buienradar/actueel_weer/weerstations/weerstation/6370/#");
 
   client.subscribe("home/buienradar/verwachting_vandaag/samenvatting");
@@ -545,14 +604,26 @@ function onConnect() {
   client.subscribe("home/zwave/+/switchbinary/+/switch");
   client.subscribe("home/zwave/+/meter/+/power");
   client.subscribe("home/zwave/+/colorswitch/#");
-  client.subscribe("home/temper2/#");
-  client.subscribe("home/sanitasSBF70/#");
-  client.subscribe("home/esp8266/#");
-  client.subscribe("home/ESP_SLAAPKAMER2/#");
-  client.subscribe("home/ESP_BADKAMER/#");
+// client.subscribe("home/temper2/#");
+// client.subscribe("home/sanitasSBF70/#");
+// client.subscribe("home/esp8266/#");
+  client.subscribe("home/ESP_SLAAPKAMER2/dht22/#");
+  client.subscribe("home/ESP_SLAAPKAMER2/mhz19/#");
+  client.subscribe("home/ESP_SLAAPKAMER2/status");
+
+  client.subscribe("home/ESP_BADKAMER/status");
+  client.subscribe("home/ESP_BADKAMER/dht22/#");
+
   client.subscribe("home/zwave/+/meter/1/voltage");
-  client.subscribe("home/ESP_TUIN/#");
-  client.subscribe("home/ESP_IRRIGATION/#");
+
+  client.subscribe("home/ESP_TUIN/status");
+  client.subscribe("home/ESP_TUIN/relay/#");
+
+  client.subscribe("home/ESP_IRRIGATION/status");
+  client.subscribe("home/ESP_IRRIGATION/relay/#");
+
+  client.subscribe("home/ESP_DIMMER/status");
+  client.subscribe("home/ESP_DIMMER/dimvalue");
   
   
 //  message = new Paho.MQTT.Message("Hello");
@@ -593,7 +664,7 @@ function onMessageArrived(message) {
   document.getElementById('waterbox').getElementsByClassName('boxtitle')[0].innerHTML =   
     "<font color=\""+(((dv(mqttdata["home/ESP_WATERMETERC/status"]) == "offline") || (dv(mqttdata["home/ESP_WATERMETER/status"]) == "-")) ? "ff0000" : "#00bb00")+"\">Water</font>";
   document.getElementById('sunelectricitybox').getElementsByClassName('boxtitle')[0].innerHTML =   
-    "<font color=\""+(((dv(mqttdata["home/growatt/status"]) == "offline" || dv(mqttdata["home/growatt/status"]) == "-")) ? "#ff0000" : "#00bb00")+"\">Zonnestroom</font>";
+    "<font color=\""+(((dv(mqttdata["home/ESP_GROWATT/status"]) == "offline" || dv(mqttdata["home/ESP_GROWATT/status"]) == "-")) ? "#ff0000" : "#00bb00")+"\">Zonnestroom</font>";
   document.getElementById('domoticabox').getElementsByClassName('boxtitle')[0].innerHTML =   
     "<font color=\""+(((dv(mqttdata["home/zwave/status"]) == "offline" || dv(mqttdata["home/zwave/status"]) == "-")) ? "#ff0000" : "#00bb00")+"\">Domotica</font>";
  
@@ -629,14 +700,14 @@ function onMessageArrived(message) {
 	break;
 
 
-  	case "home/growatt/grid/watt":
+  	case "home/ESP_GROWATT/grid/watt":
                 document.getElementById('sunelectricitycurrent').innerHTML = dv(value) + " watt";
                 sunelectricitybar.value = parseInt(value);
                 sunelectricitybar.grow();
 	break;
 	
 	
-	case "home/growatt/grid/today/kwh":
+	case "home/ESP_GROWATT/grid/today/kwh":
 		document.getElementById('sunelectricitytoday').innerHTML = dv(value) + " kwh";
 	break;
 	case "home/ESP_OPENTHERM/thermostat/temperature":
@@ -656,11 +727,8 @@ function onMessageArrived(message) {
 	break;
 	
 	case "home/buienradar/actueel_weer/weerstations/weerstation/6370/windsnelheidBF":
-		document.getElementById("windnow").innerHTML = dv(value) + " Bft<BR>" + dv(mqttdata["home/buienradar/actueel_weer/weerstations/weerstation/6370/windsnelheidBF"]); 
-	break;
-	
 	case "home/buienradar/actueel_weer/weerstations/weerstation/6370/windrichting":
-		document.getElementById("windnow").innerHTML = dv(mqttdata["home/buienradar/actueel_weer/weerstations/weerstation/6370/windsnelheidBF"])+ " Bft<BR>" + dv(value);
+		document.getElementById("windnow").innerHTML = dv(mqttdata["home/buienradar/actueel_weer/weerstations/weerstation/6370/windsnelheidBF"]) + " Bft<BR>" + dv(mqttdata["home/buienradar/actueel_weer/weerstations/weerstation/6370/windrichting"]); 
 	break;
 
 	case "home/buienradar/verwachting_vandaag/samenvatting":
@@ -677,21 +745,29 @@ function onMessageArrived(message) {
 
 	case "home/buienradar/verwachting_meerdaags/dag-plus1/mintemp":
 	case "home/buienradar/verwachting_meerdaags/dag-plus1/maxtemp":
+		var d = new Date();
+		document.getElementsByClassName('nametoday+1')[0].innerHTML=weekday[d.getDay() + 1 < 7 ? d.getDay() + 1 : d.getDay() - 6];
 		document.getElementById("temptomorrow").innerHTML = dv(mqttdata["home/buienradar/verwachting_meerdaags/dag-plus1/maxtemp"]) + " / " + dv(mqttdata["home/buienradar/verwachting_meerdaags/dag-plus1/mintemp"]);
 	break;		
 
 	case "home/buienradar/verwachting_meerdaags/dag-plus2/mintemp":
 	case "home/buienradar/verwachting_meerdaags/dag-plus2/maxtemp":
+		var d = new Date();
+		document.getElementsByClassName('nametoday+2')[0].innerHTML=weekday[d.getDay() + 2 < 7 ? d.getDay() + 2 : d.getDay() - 5];
 		document.getElementById("tempaftertomorrow").innerHTML = dv(mqttdata["home/buienradar/verwachting_meerdaags/dag-plus2/maxtemp"]) + " / " + dv(mqttdata["home/buienradar/verwachting_meerdaags/dag-plus2/mintemp"]);
 	break;		
 
 	case "home/buienradar/verwachting_meerdaags/dag-plus3/mintemp":
 	case "home/buienradar/verwachting_meerdaags/dag-plus3/maxtemp":
+		var d = new Date();
+		document.getElementsByClassName('nametoday+3')[0].innerHTML=weekday[d.getDay() + 3 < 7 ? d.getDay() + 3 : d.getDay() - 6];
 		document.getElementById("tempafteraftertomorrow").innerHTML = dv(mqttdata["home/buienradar/verwachting_meerdaags/dag-plus3/maxtemp"]) + " / " + dv(mqttdata["home/buienradar/verwachting_meerdaags/dag-plus3/mintemp"]);
 	break;		
 
 	case "home/buienradar/verwachting_meerdaags/dag-plus4/mintemp":
 	case "home/buienradar/verwachting_meerdaags/dag-plus4/maxtemp":
+		var d = new Date();
+		document.getElementsByClassName('nametoday+4')[0].innerHTML=weekday[d.getDay() + 4 < 7 ? d.getDay() + 4 : d.getDay() - 5];
 		document.getElementById("tempafterafteraftertomorrow").innerHTML = dv(mqttdata["home/buienradar/verwachting_meerdaags/dag-plus4/maxtemp"]) + " / " + dv(mqttdata["home/buienradar/verwachting_meerdaags/dag-plus4/mintemp"]);
 	break;		
 
@@ -773,8 +849,11 @@ function onMessageArrived(message) {
 		document.getElementsByClassName('domoticabutton')[0].innerHTML = "TV<BR>" + dv(Math.round(value) + "W");
 	break;
 
-	case "home/zwave/3/meter/1/power":
-		document.getElementsByClassName('domoticabutton')[1].innerHTML = "Dressoir<BR>" + dv(Math.round(value) + "W");
+	case "home/ESP_DIMMER/dimvalue":
+		document.getElementsByClassName('domoticabutton')[1].innerHTML = "Dressoir<BR>" + dv(Math.round((100/255)*value) + "%");
+                buttonsceneoncolor = "#00ccff";
+                buttonoffcolor = "";
+		document.getElementsByClassName('domoticabutton')[1].style.backgroundColor = value != "0" ? buttononcolor : buttonoffcolor;
 	break;
 	
 	case "home/zwave/3/switchbinary/1/switch":
@@ -853,6 +932,12 @@ function sendzwave(nodeid, instanceid, commandclass, index, value)
 	console.log("MQTT-Sending:"+topic+"="+value); 
 	
 	client.send (topic, String(value), 0, false);
+}
+
+function sendmqtt(topic, value, qos = 0, retain = 0)
+{
+	console.log("MQTT-Sending:"+topic+"="+value+" (qos="+qos+",retain="+(retain == 0 ? false:true) +")"); 
+	client.send (topic, value, qos, retain == 0 ? false : true);
 }
 
 function objectnulltodash(obj)
@@ -1041,11 +1126,11 @@ function fillSunElectricityPage()
 	elements = document.getElementById("overviewpage").getElementsByClassName("floating-box");
 	elements[7].getElementsByClassName("boxtoptext")[0].innerHTML = 
 	"<TABLE STYLE=\"margin:0; table-layout:fixed; width:100%;\">" + 
-	"<TR><TD>Netvermogen</TD><TD style=\"width: 50%; text-align:right\">" + mqttdata["home/growatt/grid/watt"] + " W</TD></TR>" + 
-	"<TR><TD>Netspanning</TD><TD style=\"width: 50%; text-align:right\">" + mqttdata["home/growatt/grid/volt"] + " V</TD></TR>" + 
-	"<TR><TD>Frequentie</TD><TD style=\"width: 50%; text-align:right\">" + mqttdata["home/growatt/grid/frequency"] + " Hz</TD></TR>" + 
-	"<TR><TD>PVvermogen</TD><TD style=\"width: 50%; text-align:right\">" + mqttdata["home/growatt/pv/watt"] + " W</TD></TR>" + 
-	"<TR><TD>PVspanning</TD><TD style=\"width: 50%; text-align:right\">" + mqttdata["home/growatt/pv/1/volt"] + " V</TD></TR>" + 
+	"<TR><TD>Netvermogen</TD><TD style=\"width: 50%; text-align:right\">" + mqttdata["home/ESP_GROWATT/grid/watt"] + " W</TD></TR>" + 
+	"<TR><TD>Netspanning</TD><TD style=\"width: 50%; text-align:right\">" + mqttdata["home/ESP_GROWATT/grid/volt"] + " V</TD></TR>" + 
+	"<TR><TD>Frequentie</TD><TD style=\"width: 50%; text-align:right\">" + mqttdata["home/ESP_GROWATT/grid/frequency"] + " Hz</TD></TR>" + 
+	"<TR><TD>PVvermogen</TD><TD style=\"width: 50%; text-align:right\">" + mqttdata["home/ESP_GROWATT/pv/watt"] + " W</TD></TR>" + 
+	"<TR><TD>PVspanning</TD><TD style=\"width: 50%; text-align:right\">" + mqttdata["home/ESP_GROWATT/pv/1/volt"] + " V</TD></TR>" + 
 	"</TABLE>";
 }
 
@@ -1106,8 +1191,8 @@ function fillOverviewPage(nodename)
 	{
 		titels = ["Vandaag", "Deze Maand", "Dit Jaar", "Totaal", "Gisteren", "Vorige Maand", "Vorig Jaar", ""];
 		unit = "kwh"
-		mqttitems1 = ["home/casaan/electricity/today/kwh_used",  "home/casaan/electricity/month/kwh_used", "home/casaan/electricity/year/kwh_used", "home/ESP_SMARTMETER/electricity/kwh_used", "home/casaan/electricity/yesterday/kwh_used", "home/casaan/electricity/lastmonth/kwh_used", "home/casaan/electricity/lastyear/kwh_used", ""];
-		mqttitems2 = ["home/casaan/electricity/today/kwh_provided",  "home/casaan/electricity/month/kwh_provided", "home/casaan/electricity/year/kwh_provided", "home/ESP_SMARTMETER/electricity/kwh_provided", "home/casaan/electricity/yesterday/kwh_provided", "home/casaan/electricity/lastmonth/kwh_provided", "home/casaan/electricity/lastyear/kwh_provided", ""];
+		mqttitems1 = ["home/casaan/electricitymeter/today/kwh_used",  "home/casaan/electricitymeter/month/kwh_used", "home/casaan/electricitymeter/year/kwh_used", "home/ESP_SMARTMETER/electricity/kwh_used", "home/casaan/electricitymeter/yesterday/kwh_used", "home/casaan/electricitymeter/lastmonth/kwh_used", "home/casaan/electricitymeter/lastyear/kwh_used", ""];
+		mqttitems2 = ["home/casaan/electricitymeter/today/kwh_provided",  "home/casaan/electricitymeter/month/kwh_provided", "home/casaan/electricitymeter/year/kwh_provided", "home/ESP_SMARTMETER/electricity/kwh_provided", "home/casaan/electricitymeter/yesterday/kwh_provided", "home/casaan/electricitymeter/lastmonth/kwh_provided", "home/casaan/electricitymeter/lastyear/kwh_provided", ""];
 		label1 = "Verbruikt";
 		jsonunit = "kwh_used";
 		label2 = "Teruggeleverd";
@@ -1118,7 +1203,7 @@ function fillOverviewPage(nodename)
 	{
 		titels = ["Vandaag", "Deze Maand", "Dit Jaar", "Totaal", "Gisteren", "Vorige Maand", "Vorig Jaar", "Info"];
 		unit = "kwh"
-		mqttitems1 = ["home/growatt/grid/today/kwh",  "home/growatt/grid/month/kwh", "home/growatt/grid/year/kwh", "home/growatt/grid/total/kwh", "home/growatt/grid/yesterday/kwh", "home/growatt/grid/lastmonth/kwh", "home/growatt/grid/lastyear/kwh", ""];
+		mqttitems1 = ["home/ESP_GROWATT/grid/today/kwh",  "home/casaan/growatt/grid/month/kwh", "home/casaan/growatt/grid/year/kwh", "home/ESP_GROWATT/grid/total/kwh", "home/casaan/growatt/grid/yesterday/kwh", "home/casaan/growatt/grid/lastmonth/kwh", "home/casaan/growatt/grid/lastyear/kwh", ""];
 		label1 = "Opgewekt";
 		jsonunit = "kwh";
 	}
@@ -1127,7 +1212,7 @@ function fillOverviewPage(nodename)
 	{
 		titels = ["Vandaag", "Deze Maand", "Dit Jaar", "Totaal", "Gisteren", "Vorige Maand", "Vorig Jaar", ""];
 		unit = "m3"
-		mqttitems1 = ["home/casaan/gas/today/m3", "home/casaan/gas/month/m3", "home/casaan/gas/year/m3", "home/ESP_SMARTMETER/gas/m3",  "home/casaan/gas/yesterday/m3", "home/casaan/gas/lastmonth/m3", "home/casaan/gas/lastyear/m3", ""];
+		mqttitems1 = ["home/casaan/gasmeter/today/m3", "home/casaan/gasmeter/month/m3", "home/casaan/gasmeter/year/m3", "home/ESP_SMARTMETER/gas/m3",  "home/casaan/gasmeter/yesterday/m3", "home/casaan/gasmeter/lastmonth/m3", "home/casaan/gasmeter/lastyear/m3", ""];
 		jsonunit = "m3";
 	}
 	
@@ -1135,7 +1220,7 @@ function fillOverviewPage(nodename)
 	{
 		titels = ["Vandaag", "Deze Maand", "Dit Jaar", "Totaal", "Gisteren", "Vorige Maand", "Vorig Jaar", ""];
 		unit = "m3"
-		mqttitems1 = ["home/watermeter/today/m3", "home/watermeter/month/m3", "home/watermeter/year/m3", "home/watermeter/m3",  "home/watermeter/yesterday/m3", "home/watermeter/lastmonth/m3", "home/watermeter/lastyear/m3", ""];
+		mqttitems1 = ["home/casaan/watermeter/today/m3", "home/casaan/watermeter/month/m3", "home/casaan/watermeter/year/m3", "home/ESP_WATERMETER/water/m3",  "home/casaan/watermeter/yesterday/m3", "home/casaan/watermeter/lastmonth/m3", "home/casaan/watermeter/lastyear/m3", ""];
 		jsonunit = "m3";
 	}
 
