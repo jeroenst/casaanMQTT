@@ -17,7 +17,7 @@ $mqtt = new phpMQTT($inisettings["mqtt"]["server"], $inisettings["mqtt"]["port"]
 $lastgasdatetime = "";
 
 if(!$mqtt->connect(true, NULL, $inisettings["mqtt"]["username"], $inisettings["mqtt"]["password"])) {
-	exit(1);
+//	exit(1); // auto reconnect is implemented
 }
 
 echo "Connected to mqtt server...\n";
@@ -37,9 +37,16 @@ $topics['home/ESP_WATERMETER/water/m3'] = array("qos" => 0, "function" => "water
 $topics['home/ESP_GROWATT/#'] = array("qos" => 0, "function" => "growattmessage");
 
 $mqtt->subscribe($topics, 0);
-
-while($mqtt->proc()){
-         usleep(100000);
+$oldtime = 0;
+while($mqtt->proc())
+{
+	usleep(100000);
+        if(time() != $oldtime) 
+        {
+		$oldtime = time();
+//		$mqtt->publishwhenchanged ("time/seconds", time(),0,1);
+//		$mqtt->publishwhenchanged ("time/ISO-8601", date("Y-m-d\TH:i:sO"),0,1);		
+	}
 }
 
 
@@ -379,7 +386,7 @@ function smartmetermessage($topic, $msg){
 
 
                         // Calculate gas hour
-                        if ($result = $mysqli->query("SELECT * FROM `gasmeter` WHERE timestamp >= DATE_SUB(NOW(), INTERVAL 1 HOUR) ORDER BY timestamp ASC LIMIT 1"))
+                        if ($result = $mysqli->query("SELECT * FROM `gasmeter` WHERE timestamp >= DATE_SUB(NOW(), INTERVAL 2 HOUR) ORDER BY timestamp ASC LIMIT 1"))
                         {
                                 $row = $result->fetch_object();
                                 //var_dump ($row);
@@ -398,6 +405,27 @@ function smartmetermessage($topic, $msg){
                                 $newdata["m3h"] = "-";
                         }
                         $mqtt->publishwhenchanged ($topicprefix."gasmeter/m3h", $newdata["m3h"],0,1);
+
+                        // Calculate gas day
+                        if ($result = $mysqli->query("SELECT * FROM `gasmeter` WHERE timestamp >= DATE_SUB(NOW(), INTERVAL 1 DAY) ORDER BY timestamp ASC LIMIT 1"))
+                        {
+                                $row = $result->fetch_object();
+                                //var_dump ($row);
+                                if ($row)
+                                {
+                                        $newdata["day"]["m3"] = round($mqttdata['home/ESP_SMARTMETER/gas/m3'] - $row->m3,3);
+                                }
+                                else
+                                {
+                                        $newdata["day"]["m3"] = "";
+                                }
+                        }
+                        else
+                        {
+                                echo "no gas values from database ".$mysqli->error."\n";
+                                $newdata["day"]["m3h"] = "-";
+                        }
+                        $mqtt->publishwhenchanged ($topicprefix."gasmeter/day/m3", $newdata["day"]["m3"],0,1);
 
                         // Calculate gas today
                         if ($result = $mysqli->query("SELECT * FROM `gasmeter` WHERE timestamp >= CURDATE() ORDER BY timestamp ASC LIMIT 1"))
@@ -514,7 +542,7 @@ function smartmetermessage($topic, $msg){
                                         ORDER BY `gasmeter`.`timestamp` DESC LIMIT 1"))
                                 {
                                         $row = $result->fetch_object();
-                                        var_dump($row);
+                                        //var_dump($row);
                                         if ($row) 
                                         {
                                                 $m3hour = $row->m3;
@@ -628,20 +656,22 @@ function watermetermessage($topic, $msg)
         {
 		      	$mysqli->query("INSERT INTO `watermeter` (m3) VALUES (".$m3.");");
                 	
+              		$newdata["total"]["m3"] = $m3;
+                        $mqtt->publishwhenchanged ($topicprefix."watermeter/total/m3", $newdata["total"]["m3"],0,1);
+
                         // Read values from database
                 	if ($result = $mysqli->query("SELECT * FROM `watermeter` WHERE timestamp >= CURDATE() ORDER BY timestamp ASC LIMIT 1")) 
                 	{
                 		$row = $result->fetch_object();
-                		//var_dump ($row);
                 		$newdata["today"]["m3"] = round($m3 - $row->m3,3);
-                		$newdata["total"]["m3"] = $m3;
-				$mqtt->publishwhenchanged ($topicprefix."watermeter/today/m3", $newdata["today"]["m3"],0,1);
-                                $mqtt->publishwhenchanged ($topicprefix."watermeter/total/m3", $newdata["total"]["m3"],0,1);
+                		//var_dump ($row);
 			}
 			else
 			{
                         	echo "error reading water values from database ".$mysqli->error."\n"; 
+                		$newdata["today"]["m3"] = 0;
                         }
+			$mqtt->publishwhenchanged ($topicprefix."watermeter/today/m3", $newdata["today"]["m3"],0,1);
 
 			// Read values from database
         	        if ($result = $mysqli->query("SELECT * FROM `watermeter` WHERE timestamp >= CURDATE() - INTERVAL 1 DAY AND timestamp < CURDATE() ORDER BY timestamp ASC LIMIT 1")) 
@@ -649,7 +679,7 @@ function watermetermessage($topic, $msg)
 	                	$row = $result->fetch_object();
 	                	if ($row)
 	                	{
-					$newdata['yesterday']['m3'] = round($newdata["total"]["m3"] - $row->m3 - ["today"]["m3"],3);
+					$newdata['yesterday']['m3'] = round($newdata["total"]["m3"] - $row->m3 - $newdata["today"]["m3"],3);
 					$mqtt->publishwhenchanged ($topicprefix."watermeter/yesterday/m3", $newdata["yesterday"]["m3"],0,1);
 				}
 			}

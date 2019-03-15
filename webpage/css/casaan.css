@@ -2,11 +2,16 @@
  /*CSS transitions*/
  transition-property: none !important;
  /*CSS transforms*/
- transform: none !important;
+/* transform: none !important;*/
  /*CSS animations*/
  animation: none !important;
  }
- 
+
+
+*:focus  
+{  
+    outline: none;  
+}  
 
 html, body {
     	height: 100%;
@@ -19,7 +24,8 @@ html, body {
     text-align : center;
     font-family: "Arial";
     font-size: 0;
-    background-color: #EEEEEE;
+    color: #FFFFFF;
+    background-color: #000000;
 }
 
 html {
@@ -43,15 +49,18 @@ body {
   justify-content: center;
   display: flex;
     margin-top: 30px;
+    
 }
 
 .domoticabutton {
 vertical-align:middle;
     font-size:3vh;
-    line-height: 1.4;
+    line-height: 1.2;
 	height: 10vh;
 	width: 10vh;
 	padding: 0;
+	margin : 1px;
+    background-color: #aaaaaa;
 }
 
 .mainarea {
@@ -80,8 +89,8 @@ vertical-align:middle;
     height: 43vh;
     margin: 0.1vh;
     padding: 0px;
-    border: 0.1vh solid #AAAAAA;  
-    background-color: #FFFFFF;
+    border: 0.1vh solid #666666;  
+    background-color: #222222;
     position: relative;
 }
 
@@ -259,7 +268,7 @@ vertical-align:middle;
     text-align: center;
   }
 
-.boxweathericon
+.boxweathericon, .boxdomoticaicon
   {
     display: inline-block;
     vertical-align: middle;
@@ -268,7 +277,6 @@ vertical-align:middle;
     width: 100%;
     text-align: center;
     font-size: 220%;
-    color: #800080;
   }
 
 .tempbuttons
@@ -287,6 +295,7 @@ vertical-align:middle;
     height: 100%;
     width: 100%;
     margin-top: 7%;
+    background-color: #888888;
 }
 
 .ventbuttons
@@ -366,12 +375,15 @@ ul.tab {
         padding: 0;
         overflow: hidden;
 	border: none;
-	border: 1px solid #AAAAAA;  
+	border-width: 1px 0px 0px 0px;
+	border-style: solid;
+	border-color:  #666666;  
 	vertical-align: middle;
 	position: absolute;
-	background-color: #FFFFFF;
+	background-color: #222222;
 	text-align: center;
 	width: 100%;
+	color: #fff;
 }
 
 ul.tab div{
@@ -404,7 +416,7 @@ ul.tab div.right
 
 ul.tab div li.label a 
 {
-	color:#007700;
+	color:#77BB77;
 }
 
 ul.tab.div li.label
@@ -420,10 +432,12 @@ ul.tab div li.backbutton
 	border-left: 1px solid #ccc;
 }
 
+a:hover { background: do-not-change; }
+
 /* Style the links inside the list items */
 ul.tab li a {
     display: inline-block;
-    color: black;
+    color: #fff;
     text-align: center;
     padding: 1vh 1.5vmin;
     text-decoration: none;
@@ -432,7 +446,8 @@ ul.tab li a {
 }
 
 /* Change background color of links on hover */
-ul.tab li a:hover {background-color: #ddd;}
+ul.tab li a:hover {background-color: do-not-change;}
+a:active {background-color: #ccc;}
 
 /* Create an active/current tablink class */
 //ul.tab li a:focus, .active {background-color: #ccc;}
