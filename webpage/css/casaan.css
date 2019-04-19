@@ -28,12 +28,29 @@ html, body {
     background-color: #000000;
 }
 
-html {
+
+.footersection {
+	display: flex;
+	justify-content: center; /* align horizontal */
+	align-items: center; /* align vertical */
+	width: 100%;
 }
 
-body {
+.footerbutton {
+	display: flex;
+	justify-content: center; /* align horizontal */
+	align-items: center; /* align vertical */
+	cursor: pointer;
+	width: 80%;
 }
 
+.label {
+	display: flex;
+	justify-content: center; /* align horizontal */
+	align-items: center; /* align vertical */
+	cursor: pointer;
+	width: 80%;
+}
 
 .labelsmall {
     font-size:1vmin;
@@ -132,8 +149,8 @@ vertical-align:middle;
 
 .boxtitle {
     display: inline-block;
-    margin-top: 5px;
-    margin-right : 5px;
+    margin-top: 2%;
+    margin-right : 2%;
     top:0;
     left:auto;
     right:0;
@@ -257,7 +274,7 @@ vertical-align:middle;
 	padding: 0;
 	margin: 0;
   }
-
+  
 .boxtime
   {
     display: inline-block;
@@ -337,6 +354,21 @@ vertical-align:middle;
 }
 
 
+#boxweathertext
+{
+    display: inline-block;
+    position: absolute;
+    left : 2%;
+    right: 2%;
+    top: 15%;
+    bottom: 2%;
+}
+
+#weathertext
+{
+	display: inline-block;
+}
+
 .boxcenter, .boxcenterbig
   {
     display: flex;
@@ -414,7 +446,7 @@ ul.tab div.right
 	text-align: right;
 }
 
-ul.tab div li.label a 
+ul.tab div li.label
 {
 	color:#77BB77;
 }
@@ -424,12 +456,24 @@ ul.tab.div li.label
 	align-self: center;
 }
 
+.infobox TH
+{
+padding-top: 3%;
+text-align: center;	
+}
 
 ul.tab div li.backbutton
 {
+	text-align: center;
+	width: 60%;
+	margin-left:40%;
 	right: 0;
-	float: right;
-	border-left: 1px solid #ccc;
+    justify-content:center;
+    align-content:center;
+    flex-direction:column;
+        cursor: pointer;
+	
+/*	border-left: 1px solid #ccc;*/
 }
 
 a:hover { background: do-not-change; }

@@ -68,16 +68,22 @@ function autochangesizes()
                 elements[i].style.width = (floatingboxWidthHeight*2.01) + "px";
         }
 
+	var elements = document.querySelectorAll("ul.tab");
+        for(var i=0; i<elements.length; i++)
+        {
+                elements[i].style.height = (clientHeight/19) + "px";
+        }
+
 	// Auto size footer bar items
-	var clientHeight = document.getElementsByClassName('tab')[0].clientHeight;
-	elements = document.querySelectorAll('.label, .backbutton, .menuitem, .footer');
+	var clientHeight = document.getElementsByClassName('footer')[0].clientHeight;
+	elements = document.querySelectorAll('.label, .backbutton, .menuitem, .footer .footerbutton');
 	for(var i=0; i<elements.length; i++)
 	{
 		elements[i].style.fontSize = (floatingboxWidthHeight  / 10) + "px";
 	}
 
 //	document.getElementsByClassName('label')[0].style.fontSize = (floatingboxWidthHeight / 10) + "px";
-	document.getElementsByClassName('mainarea')[0].style.bottom = document.getElementsByClassName('label')[0].clientHeight + "px";
+	document.getElementsByClassName('mainarea')[0].style.bottom = document.getElementsByClassName('footer')[0].clientHeight + "px";
 
 	//	var clientWidth = 1;
 	
@@ -214,18 +220,23 @@ minTemp: 15,
 		}
 	}
 
-	clientHeight =  document.getElementsByClassName("boxweathertext")[0].clientHeight;
-	clientWidth =  document.getElementsByClassName("boxweathertext")[0].clientWidth;
 
-	element = document.getElementById("weathertext");
-	if (clientHeight > 0)
-	{
-		element.style.fontSize = "80px";
-		for (var i = 60; (element.offsetHeight > clientHeight) && (i > 1); i--)
+		element = document.getElementById("boxweathertext");
+		clientHeight =  element.clientHeight;
+		clientWidth =  element.clientWidth;
+
+		element = document.getElementById("weathertext");
+		if (clientHeight > 0)
 		{
-			document.getElementById("weathertext").style.fontSize = i + "px";
+			element.style.fontSize = "6px";
+			var i;
+			for (i = 6; (element.offsetHeight < clientHeight) && (i < 60); i++)
+			{
+				element.style.fontSize = i + "px";
+			}
+			element.style.fontSize = (i-2) + "px";
 		}
-	}
+
 }
 
 //
@@ -326,7 +337,7 @@ gutterRight: 0
 	{
 id: 'sunelectricitybar',
 min: 0,
-max: 2500,
+max: 2600,
 value: 0,
 options: {
 textAccessible: true,
@@ -491,12 +502,12 @@ function createDomoticaPage()
 	domoticapagestring += '<button class="domoticabutton" id="zithoek_tv" onclick="mqtttoggle(1)">Tv</button>';
 	domoticapagestring += '<button class="domoticabutton" id="zithoek_zoutlamp" onclick="mqtttoggle(4);">Zoutlamp</button><BR>';
 	domoticapagestring += '<button class="domoticabutton" id="zithoek_dressoir" onclick="mqttdim(1)">Dressoir</button>';
-	domoticapagestring += '<button class="domoticabutton" id="zithoek_spots" onclick="zwavedim(10)">Spots</button></div>';
+	domoticapagestring += '<button class="domoticabutton" id="zithoek_spots" onclick="zwavedim(4)">Spots</button></div>';
 	domoticapagestring += '</div><div class="domoticainfo"></div></div>';
 	
 	domoticapagestring += '<div class="floating-box"><div class="boxtitle">Eethoek / Keuken</div><div class="domoticabuttons"><div>';
 	domoticapagestring += '<button class="domoticabutton" id="eethoek_stalamp" onclick="sonoffcolordim(0)">Stalamp</button>';
-	domoticapagestring += '<button class="domoticabutton" id="eethoek_eettafel" onclick="zwavedim(9)">Eettafel</button><BR>';
+	domoticapagestring += '<button class="domoticabutton" id="eethoek_eettafel" onclick="zwavedim(3)">Eettafel</button><BR>';
 	domoticapagestring += '<button class="domoticabutton" id="keuken_spots" onclick="zwavedim(2)">Spots</button>';
 	domoticapagestring += '<button class="domoticabutton" id="keuken_coffeelamp" onclick="togglecoffeelamp();">Koffie<BR>Lamp</button>';
 	domoticapagestring += '</div></div><div class="domoticainfo"></div></div>';
@@ -505,7 +516,7 @@ function createDomoticaPage()
 	domoticapagestring += '<button class="domoticabutton" id="sonoff1_0" onclick="toggletuinrelay(0);">Pomp1</button>';
 	domoticapagestring += '<button class="domoticabutton" id="sonoff1_1" onclick="toggletuinrelay(1);">Pomp2</button><br>';
 	domoticapagestring += '<button class="domoticabutton" id="sonoff1_2" onclick="toggletuinrelay(2);">UV</button>';
-	domoticapagestring += '<button class="domoticabutton" id="sonoff1_3" onclick="toggletuinrelay(3);">Lampen</button>';
+	domoticapagestring += '<button class="domoticabutton" id="sonoff1_3" onclick="toggletuinrelay(3);">Vogel<BR>verjager</button>';
 	domoticapagestring += '</div></div><div class="domoticainfo"></div></div>';
 	
 	domoticapagestring += '<div class="floating-box"><div class="boxtitle">Sproeiers</div><div class="domoticabuttons"><div>';
@@ -518,8 +529,8 @@ function createDomoticaPage()
 	domoticapagestring += '<BR><div class="floating-box"><div class="boxtitle">Overige</div><div class="domoticabuttons"><div>';
 	domoticapagestring += '<button class="domoticabutton" id="buttonmqtt2" onclick="mqtttoggle(2)">Was<br>machine</button>';
 	domoticapagestring += '<button class="domoticabutton" id="buttonmqtt3" onclick="mqtttoggle(3)">Pellet<BR>Kachel</button><BR>';
-	domoticapagestring += '<button class="domoticabutton" id="noidnow2" onclick="">-</button>';
-	domoticapagestring += '<button class="domoticabutton" id="noidnow3" onclick="">-</button>';
+	domoticapagestring += '<button class="domoticabutton" id="vaatwasser" onclick="">Vaat<BR>wasser</button>';
+	domoticapagestring += '<button class="domoticabutton" id="serverrack" onclick="">Server<BR>Rack<BR>-W</button>';
 	domoticapagestring += '</div></div><div class="domoticainfo"></div></div>';
 	
 	domoticapagestring += '<div class="floating-box"><div class="boxtitle">Stalamp Huiskamer</div><div class="domoticabuttons"><div>';
@@ -603,6 +614,7 @@ function mqtttoggle(id)
 			on = "3";
 			off = "0";
 			retain = 0;
+			sendmqtt('home/ESP_PELLETSTOVE/settemperature','21',1,retain);
 		break;
 		case 4: writetopic = "home/SONOFFS20_001/setrelay/0";
 			readtopic = "home/SONOFFS20_001/relay/0";
@@ -665,8 +677,8 @@ function zwavescene(sceneid)
 			sendzwave(2,"switchmultilevel",1,0,20); 
 //			sendzwave(3,"switchbinary",1,0,1); 
 //			sendzwave(4,"switchbinary",1,0,1); 
-			sendzwave(9,"switchmultilevel",1,0,10);
-			sendzwave(10,"switchmultilevel",1,0,25);
+			sendzwave(3,"switchmultilevel",1,0,10);
+			sendzwave(4,"switchmultilevel",1,0,25);
 //			sendzwave(11,"switchmultilevel",1,0,50); 
 //			sendzwave(11,"colorswitch",1,0,"#FF88200000");
 			sendmqtt("home/ESP_DIMMER/setdimvalue","40",0,1);
@@ -679,8 +691,8 @@ function zwavescene(sceneid)
 			sendzwave(2,"switchmultilevel",1,0,20); 
 //			sendzwave(3,"switchbinary",1,0,1); 
 			//sendzwave(4,"switchbinary",1,0,1); 
-			sendzwave(9,"switchmultilevel",1,0,60);
-			sendzwave(10,"switchmultilevel",1,0,25);
+			sendzwave(3,"switchmultilevel",1,0,60);
+			sendzwave(4,"switchmultilevel",1,0,25);
 //			sendzwave(11,"switchmultilevel",1,0,50); 
 //			sendzwave(11,"colorswitch",1,0,"#FF88200000");
 			sendmqtt("home/ESP_DIMMER/setdimvalue","40",0,1);
@@ -691,10 +703,10 @@ function zwavescene(sceneid)
 		break;
 		case "film":
 			sendzwave(2,"switchmultilevel",1,0,10);
-			sendzwave(3,"switchbinary",1,0,0); 
+//			sendzwave(3,"switchbinary",1,0,0); 
 //			sendzwave(4,"switchbinary",1,0,1); 
-			sendzwave(9,"switchmultilevel",1,0,0); 
-			sendzwave(10,"switchmultilevel",1,0,10); 
+			sendzwave(3,"switchmultilevel",1,0,0); 
+			sendzwave(4,"switchmultilevel",1,0,10); 
 //			sendzwave(11,"colorswitch",1,0,"#FF88180000");
 //			sendzwave(11,"switchmultilevel",1,0,1);
 			sendmqtt("home/SONOFF_BULB/setcolor","3300001100",0,1);
@@ -707,8 +719,8 @@ function zwavescene(sceneid)
 			sendzwave(2,"switchmultilevel",1,0,99);
 //			sendzwave(3,"switchbinary",1,0,1); 
 //			sendzwave(4,"switchbinary",1,0,1); 
-			sendzwave(9,"switchmultilevel",1,0,99); 
-			sendzwave(10,"switchmultilevel",1,0,99);
+			sendzwave(3,"switchmultilevel",1,0,99); 
+			sendzwave(4,"switchmultilevel",1,0,99);
 //			sendzwave(11,"colorswitch",1,0,"#FFAA300000");
 			//sendzwave(11,"switchmultilevel",1,0,99); 
 			sendmqtt("home/SONOFF_COFFEELAMP/setrelay/0","1",0,1);
@@ -719,8 +731,8 @@ function zwavescene(sceneid)
 		case "lampenuit":
 			sendzwave(2,"switchmultilevel",1,0,0); 
 //			sendzwave(3,"switchbinary",1,0,0); 
-			sendzwave(9,"switchmultilevel",1,0,0); 
-			sendzwave(10,"switchmultilevel",1,0,0); 
+			sendzwave(3,"switchmultilevel",1,0,0); 
+			sendzwave(4,"switchmultilevel",1,0,0); 
 //			sendzwave(11,"colorswitch",1,0,"#FF88180000");
 //			sendzwave(11,"switchmultilevel",1,0,0); 
 			sendmqtt("home/SONOFF_COFFEELAMP/setrelay/0","0",0,1);
@@ -732,8 +744,8 @@ function zwavescene(sceneid)
 			sendzwave(2,"switchmultilevel",1,0,0); 
 //			sendzwave(3,"switchbinary",1,0,0); 
 //			sendzwave(4,"switchbinary",1,0,0); 
-			sendzwave(9,"switchmultilevel",1,0,0); 
-			sendzwave(10,"switchmultilevel",1,0,0); 
+			sendzwave(3,"switchmultilevel",1,0,0); 
+			sendzwave(4,"switchmultilevel",1,0,0); 
 //			sendzwave(11,"colorswitch",1,0,"#FF88180000");
 //			sendzwave(11,"switchmultilevel",1,0,0); 
 			sendmqtt("home/SONOFF_COFFEELAMP/setrelay/0","0",0,1);
@@ -799,7 +811,7 @@ function onConnect() {
   client.subscribe("home/buienradar/verwachting_vandaag/samenvatting");
   client.subscribe("home/buienradar/verwachting_vandaag/tekst");
   client.subscribe("home/buienradar/verwachting_meerdaags/+/mintemp");
-  client.subscribe("home/buienradar/verwachting_meerdaags/+/maxtemp");
+  client.subscribe("home/buienradar/verwachting_meerdaags/+/maxtempmax");
   client.subscribe("home/buienradar/verwachting_meerdaags/+/windkracht");
   client.subscribe("home/buienradar/verwachting_meerdaags/+/windrichting");
   client.subscribe("home/buienradar/verwachting_meerdaags/+/icoon/@/ID");
@@ -847,6 +859,14 @@ function onConnect() {
   client.subscribe("home/ESP_PELLETSTOVE/power/value");  
   
   client.subscribe("home/SONOFFS20_001/relay/0");
+
+  client.subscribe("home/ESP_SDM120/power");
+  client.subscribe("home/ESP_SDM120/voltage");
+  client.subscribe("home/ESP_SDM120/current");
+  client.subscribe("home/ESP_SDM120/power/apparant");
+  client.subscribe("home/ESP_SDM120/powerfactor");
+  client.subscribe("home/ESP_SDM120/frequency");
+  client.subscribe("home/casaan/sdm120/today/kwh");
   
 //  message = new Paho.MQTT.Message("Hello");
 //  message.destinationName = "World";
@@ -936,13 +956,19 @@ function onMessageArrived(message) {
   {
   	case "home/ESP_SMARTMETER/electricity/kw_providing":
   	case "home/ESP_SMARTMETER/electricity/kw_using":
-  			value = dv(Math.round((mqttdata["home/ESP_SMARTMETER/electricity/kw_using"]-mqttdata["home/ESP_SMARTMETER/electricity/kw_providing"])*1000));
+  	/*		value = dv(Math.round((mqttdata["home/ESP_SMARTMETER/electricity/kw_using"]-mqttdata["home/ESP_SMARTMETER/electricity/kw_providing"])*1000));
 	 		document.getElementById('electricitycurrent').innerHTML = value + " watt";
+	 		if (value >= 0) electricitybar.value = parseInt(value);
+	 		else electricitybar.value = 0;
+	 		electricitybar.grow();*/
+	break;
+	case "home/ESP_SDM120/power":
+	 		document.getElementById('electricitycurrent').innerHTML = dv(value,0) + " watt";
 	 		if (value >= 0) electricitybar.value = parseInt(value);
 	 		else electricitybar.value = 0;
 	 		electricitybar.grow();
 	break;
-	
+		
 	case "home/ESP_SMARTMETER/electricity/kwh_used1":
 	case "home/ESP_SMARTMETER/electricity/kwh_used2":
 		mqttdata["home/ESP_SMARTMETER/electricity/kwh_used"]=(parseFloat(mqttdata["home/ESP_SMARTMETER/electricity/kwh_used1"]) + parseFloat(mqttdata["home/ESP_SMARTMETER/electricity/kwh_used2"])).toFixed(3);
@@ -953,14 +979,17 @@ function onMessageArrived(message) {
 	break;
 	
 	case "home/casaan/electricitymeter/today/kwh":
-		document.getElementById('electricityusedtoday').innerHTML = dv(parseFloat(value).toFixed(3)) + " kwh";
+//		document.getElementById('electricityusedtoday').innerHTML = dv(parseFloat(value).toFixed(3)) + " kwh";
+	break;
+	case "home/casaan/sdm120/today/kwh":
+		document.getElementById('electricityusedtoday').innerHTML = dv(value,3) + " kwh";
 	break;
 	case "home/casaan/gasmeter/today/m3":
-		document.getElementById('gastoday').innerHTML = dv(parseFloat(value).toFixed(3)) + " m3";
+		document.getElementById('gastoday').innerHTML = dv(value,3) + " m3";
 	break;
 
 	case "home/casaan/gasmeter/m3h":
-		document.getElementById('gascurrent').innerHTML = dv(parseFloat(value).toFixed(3)) + " m3";
+		document.getElementById('gascurrent').innerHTML = dv(value,3) + " m3";
 	 		if (value >= 0) gasbar.value = parseFloat(value);
 	 		else gasbar.value = 0;
 	 		gasbar.grow();
@@ -968,27 +997,22 @@ function onMessageArrived(message) {
 
 
   	case "home/ESP_GROWATT/grid/watt":
-                document.getElementById('sunelectricitycurrent').innerHTML = dv(parseFloat(value).toFixed(0)) + " watt";
+                document.getElementById('sunelectricitycurrent').innerHTML = dv(value, 0) + " watt";
                 sunelectricitybar.value = parseInt(value);
                 sunelectricitybar.grow();
 	break;
 	
 	
 	case "home/ESP_GROWATT/grid/today/kwh":
-		document.getElementById('sunelectricitytoday').innerHTML = dv(parseFloat(value).toFixed(1)) + " kwh";
+		document.getElementById('sunelectricitytoday').innerHTML = dv(value,1) + " kwh" + "<BR>" + dv((100/18.900)*value,1) + "%";
 	break;
 	case "home/ESP_OPENTHERM/thermostat/temperature":
-                document.getElementById('livingroomtemperaturenow').innerHTML = dv(parseFloat(value).toFixed(1));
+                document.getElementById('livingroomtemperaturenow').innerHTML = dv(value,1);
                 temperaturebar.value = parseFloat(value).toFixed(1);
                 temperaturebar.grow();
 	break;
 	case "home/ESP_OPENTHERM/thermostat/setpoint":
-		document.getElementById('livingroomtemperatureset').innerHTML = dv(parseFloat(value).toFixed(1));
-	break;
-
-	case "home/buienradar/actueel_weer/weerstations/weerstation/6370/windrichtingGR":
-		var icon = getwindicon(value);
-                document.getElementsByClassName('boxweathericon')[2].innerHTML = "<span class=\"wi wi-wind "+icon+"\"></span>"+(icon == ""?value:"");
+		document.getElementById('livingroomtemperatureset').innerHTML = dv(value,1);
 	break;
 
 	case "home/buienradar/actueel_weer/weerstations/weerstation/6370/windrichting":
@@ -996,14 +1020,16 @@ function onMessageArrived(message) {
 //	case "home/buienradar/actueel_weer/weerstations/weerstation/6370/temperatuurGC":
 	case "home/buienradar/actueel_weer/weerstations/weerstation/6370/windsnelheidBF":
 	case "home/buienradar/actueel_weer/weerstations/weerstation/6370/luchtdruk":
+	case "home/buienradar/actueel_weer/weerstations/weerstation/6370/windsnelheidMS": 
+	case "home/buienradar/actueel_weer/weerstations/weerstation/6370/windrichtingGR":
+		var icon = getwindicon(mqttdata["home/buienradar/actueel_weer/weerstations/weerstation/6370/windrichtingGR"]);
+                document.getElementsByClassName('boxweathericon')[2].innerHTML = "<span class=\"wi wi-wind "+icon+"\"></span>"+(icon == ""?value:"");
 
-		document.getElementsByClassName('weathertemptoday')[0].innerHTML = dv(mqttdata["home/ESP_WEATHER/temperature"]) + " &deg;C<BR>" + dv(mqttdata["home/buienradar/actueel_weer/weerstations/weerstation/6370/windsnelheidBF"]) + " Bft - " + dv(mqttdata["home/buienradar/actueel_weer/weerstations/weerstation/6370/windrichting"]);
-		document.getElementsByClassName('weathertemptoday')[1].innerHTML = dv(mqttdata["home/ESP_WEATHER/temperature"]) + " &deg;C<BR>" + dv(mqttdata["home/buienradar/actueel_weer/weerstations/weerstation/6370/luchtdruk"]) + " mbar";
-		document.getElementById("windnow").innerHTML = dv(mqttdata["home/buienradar/actueel_weer/weerstations/weerstation/6370/windsnelheidBF"]) + " Bft<BR>" + dv(mqttdata["home/buienradar/actueel_weer/weerstations/weerstation/6370/windrichting"]); 
+		document.getElementsByClassName('weathertemptoday')[0].innerHTML = dv(mqttdata["home/ESP_WEATHER/temperature"],1) + " &deg;C<BR>" + dv(mqttdata["home/buienradar/actueel_weer/weerstations/weerstation/6370/windsnelheidBF"]) + " Bft - " + dv(mqttdata["home/buienradar/actueel_weer/weerstations/weerstation/6370/windrichting"]);
+		document.getElementsByClassName('weathertemptoday')[1].innerHTML = dv(mqttdata["home/ESP_WEATHER/temperature"],1) + " &deg;C<BR>" + dv(mqttdata["home/buienradar/actueel_weer/weerstations/weerstation/6370/luchtdruk"]) + " mbar";
+		document.getElementById("windnow").innerHTML = dv(mqttdata["home/buienradar/actueel_weer/weerstations/weerstation/6370/windsnelheidBF"]) + " Bft - " + dv(mqttdata["home/buienradar/actueel_weer/weerstations/weerstation/6370/windsnelheidMS"] * 3.6, 0) + " km/h<BR>" + dv(mqttdata["home/buienradar/actueel_weer/weerstations/weerstation/6370/windrichting"]) + " - " + dv(mqttdata["home/buienradar/actueel_weer/weerstations/weerstation/6370/windrichtingGR"]) + "&deg;"; 
 	break;
 	
-//		document.getElementById("windnow").innerHTML = dv(mqttdata["home/buienradar/actueel_weer/weerstations/weerstation/6370/windsnelheidBF"]) + " Bft<BR>" + dv(mqttdata["home/buienradar/actueel_weer/weerstations/weerstation/6370/windrichting"]); 
-//	break;
 	case "home/buienradar/actueel_weer/weerstations/weerstation/6370/icoonactueel/@/ID":
 		var icon = getweathericon(value);
                 document.getElementsByClassName('boxweathericon')[0].innerHTML = "<span class=\"wi "+icon+"\"></span>"+(icon == ""?value:"");
@@ -1011,11 +1037,9 @@ function onMessageArrived(message) {
 	break;
 
 	case "home/buienradar/verwachting_vandaag/samenvatting":
-                elements = document.getElementsByClassName('weathertext');
-                for(var y=0; y<elements.length; y++)
-                {
-                     elements[y].innerHTML = dv(value);
-                }
+                var element = document.getElementById('weathertext');
+                element.innerHTML = dv(value);
+                autochangesizes();
 	break;		
 
 
@@ -1024,13 +1048,13 @@ function onMessageArrived(message) {
 	break;		
 
 	case "home/buienradar/verwachting_meerdaags/dag-plus1/mintemp":
-	case "home/buienradar/verwachting_meerdaags/dag-plus1/maxtemp":
+	case "home/buienradar/verwachting_meerdaags/dag-plus1/maxtempmax":
 	case "home/buienradar/verwachting_meerdaags/dag-plus1/windkracht":
 	case "home/buienradar/verwachting_meerdaags/dag-plus1/windrichting":
 		var d = new Date();
 		d.setDate(d.getDate()+1);
 		document.getElementsByClassName('nametoday+1')[0].innerHTML=weekday[d.getDay()];
-		document.getElementById("temptomorrow").innerHTML = dv(mqttdata["home/buienradar/verwachting_meerdaags/dag-plus1/maxtemp"]) + " / " + dv(mqttdata["home/buienradar/verwachting_meerdaags/dag-plus1/mintemp"]);
+		document.getElementById("temptomorrow").innerHTML = dv(mqttdata["home/buienradar/verwachting_meerdaags/dag-plus1/mintemp"]) + " - " + dv(mqttdata["home/buienradar/verwachting_meerdaags/dag-plus1/maxtempmax"]) + " &deg;C";
 		document.getElementById("temptomorrow").innerHTML += "<BR>" + dv(mqttdata["home/buienradar/verwachting_meerdaags/dag-plus1/windkracht"]) + " Bft - " + dv(mqttdata["home/buienradar/verwachting_meerdaags/dag-plus1/windrichting"]); 
 	break;		
 	case "home/buienradar/verwachting_meerdaags/dag-plus1/icoon/@/ID":
@@ -1039,13 +1063,13 @@ function onMessageArrived(message) {
 	break;
 
 	case "home/buienradar/verwachting_meerdaags/dag-plus2/mintemp":
-	case "home/buienradar/verwachting_meerdaags/dag-plus2/maxtemp":
+	case "home/buienradar/verwachting_meerdaags/dag-plus2/maxtempmax":
 	case "home/buienradar/verwachting_meerdaags/dag-plus2/windkracht":
 	case "home/buienradar/verwachting_meerdaags/dag-plus2/windrichting":
 		var d = new Date();
 		d.setDate(d.getDate()+2);
 		document.getElementsByClassName('nametoday+2')[0].innerHTML=weekday[d.getDay()];
-		document.getElementById("tempaftertomorrow").innerHTML = dv(mqttdata["home/buienradar/verwachting_meerdaags/dag-plus2/maxtemp"]) + " / " + dv(mqttdata["home/buienradar/verwachting_meerdaags/dag-plus2/mintemp"]);
+		document.getElementById("tempaftertomorrow").innerHTML = dv(mqttdata["home/buienradar/verwachting_meerdaags/dag-plus2/mintemp"]) + " - " + dv(mqttdata["home/buienradar/verwachting_meerdaags/dag-plus2/maxtempmax"]) + " &deg;C";
 		document.getElementById("tempaftertomorrow").innerHTML += "<BR>" + dv(mqttdata["home/buienradar/verwachting_meerdaags/dag-plus2/windkracht"]) + " Bft - " + dv(mqttdata["home/buienradar/verwachting_meerdaags/dag-plus2/windrichting"]); 
 	break;		
 	case "home/buienradar/verwachting_meerdaags/dag-plus2/icoon/@/ID":
@@ -1054,13 +1078,13 @@ function onMessageArrived(message) {
 	break;
 
 	case "home/buienradar/verwachting_meerdaags/dag-plus3/mintemp":
-	case "home/buienradar/verwachting_meerdaags/dag-plus3/maxtemp":
+	case "home/buienradar/verwachting_meerdaags/dag-plus3/maxtempmax":
 	case "home/buienradar/verwachting_meerdaags/dag-plus3/windkracht":
 	case "home/buienradar/verwachting_meerdaags/dag-plus3/windrichting":
 		var d = new Date();
 		d.setDate(d.getDate()+3);
 		document.getElementsByClassName('nametoday+3')[0].innerHTML=weekday[d.getDay()];
-		document.getElementById("tempafteraftertomorrow").innerHTML = dv(mqttdata["home/buienradar/verwachting_meerdaags/dag-plus3/maxtemp"]) + " / " + dv(mqttdata["home/buienradar/verwachting_meerdaags/dag-plus3/mintemp"]);
+		document.getElementById("tempafteraftertomorrow").innerHTML = dv(mqttdata["home/buienradar/verwachting_meerdaags/dag-plus3/mintemp"]) + " - " + dv(mqttdata["home/buienradar/verwachting_meerdaags/dag-plus3/maxtempmax"]) + " &deg;C";
 		document.getElementById("tempafteraftertomorrow").innerHTML += "<BR>" + dv(mqttdata["home/buienradar/verwachting_meerdaags/dag-plus3/windkracht"]) + " Bft - " + dv(mqttdata["home/buienradar/verwachting_meerdaags/dag-plus3/windrichting"]); 
 	break;		
 	case "home/buienradar/verwachting_meerdaags/dag-plus3/icoon/@/ID":
@@ -1069,13 +1093,13 @@ function onMessageArrived(message) {
 	break;
 
 	case "home/buienradar/verwachting_meerdaags/dag-plus4/mintemp":
-	case "home/buienradar/verwachting_meerdaags/dag-plus4/maxtemp":
+	case "home/buienradar/verwachting_meerdaags/dag-plus4/maxtempmax":
 	case "home/buienradar/verwachting_meerdaags/dag-plus4/windkracht":
 	case "home/buienradar/verwachting_meerdaags/dag-plus4/windrichting":
 		var d = new Date();
 		d.setDate(d.getDate()+4);
 		document.getElementsByClassName('nametoday+4')[0].innerHTML=weekday[d.getDay()];
-		document.getElementById("tempafterafteraftertomorrow").innerHTML = dv(mqttdata["home/buienradar/verwachting_meerdaags/dag-plus4/maxtemp"]) + " / " + dv(mqttdata["home/buienradar/verwachting_meerdaags/dag-plus4/mintemp"]);
+		document.getElementById("tempafterafteraftertomorrow").innerHTML = dv(mqttdata["home/buienradar/verwachting_meerdaags/dag-plus4/mintemp"]) + " - " + dv(mqttdata["home/buienradar/verwachting_meerdaags/dag-plus4/maxtempmax"]) + " &deg;C";
 		document.getElementById("tempafterafteraftertomorrow").innerHTML += "<BR>" + dv(mqttdata["home/buienradar/verwachting_meerdaags/dag-plus4/windkracht"]) + " Bft - " + dv(mqttdata["home/buienradar/verwachting_meerdaags/dag-plus4/windrichting"]); 
 	break;		
 	case "home/buienradar/verwachting_meerdaags/dag-plus4/icoon/@/ID":
@@ -1087,12 +1111,12 @@ function onMessageArrived(message) {
 	
 
 	case "home/ESP_WATERMETER/water/lmin":
-                document.getElementById('watercurrent').innerHTML = dv(value) + " l/min";
+                document.getElementById('watercurrent').innerHTML = dv(value,1) + " l/min";
                 waterbar.value = value;
                 waterbar.grow();
 	break;
 	case "home/casaan/watermeter/today/m3":
-                document.getElementById('watertoday').innerHTML = dv(value) + " m3";
+                document.getElementById('watertoday').innerHTML = dv(value,3) + " m3";
 	break;
 
 
@@ -1102,16 +1126,16 @@ function onMessageArrived(message) {
 		document.getElementById('keuken_spots').innerHTML = "Spots<BR>" + dv(mqttdata["home/zwave/2/switchmultilevel/1/level"]) + "%";// - " + dv(mqttdata["home/zwave/2/sensormultilevel/1/power"]) + " watt";
 	break;
 
-	case "home/zwave/9/switchmultilevel/1/level":
+	case "home/zwave/3/switchmultilevel/1/level":
 		document.getElementById('eethoek_eettafel').style.backgroundColor = value > 0 ? buttononcolor : buttonoffcolor;
-	case "home/zwave/9/sensormultilevel/1/power":
-		document.getElementById('eethoek_eettafel').innerHTML = "Eettafel<BR>" + dv(mqttdata["home/zwave/9/switchmultilevel/1/level"]) + "%";//+" - " + dv(mqttdata["home/zwave/9/sensormultilevel/1/power"]) + " watt";
+	case "home/zwave/3/sensormultilevel/1/power":
+		document.getElementById('eethoek_eettafel').innerHTML = "Eettafel<BR>" + dv(mqttdata["home/zwave/3/switchmultilevel/1/level"]) + "%";//+" - " + dv(mqttdata["home/zwave/9/sensormultilevel/1/power"]) + " watt";
 	break;
 
 
-	case "home/zwave/10/switchmultilevel/1/level":
+	case "home/zwave/4/switchmultilevel/1/level":
 		document.getElementById('zithoek_spots').style.backgroundColor = value > 0 ? buttononcolor : buttonoffcolor;
-		document.getElementById('zithoek_spots').innerHTML = "Spots<BR>" + dv(mqttdata["home/zwave/10/switchmultilevel/1/level"]) + "%";//+" - " + dv(mqttdata["home/zwave/10/sensormultilevel/1/power"]) + " watt";
+		document.getElementById('zithoek_spots').innerHTML = "Spots<BR>" + dv(mqttdata["home/zwave/4/switchmultilevel/1/level"]) + "%";//+" - " + dv(mqttdata["home/zwave/10/sensormultilevel/1/power"]) + " watt";
 	break;
 
 	case "home/SONOFF_BULB/color":
@@ -1215,6 +1239,17 @@ function onMessageArrived(message) {
 		}
 	break;
 
+	case "home/zwave/5/switchbinary/1/switch":
+		document.getElementById('vaatwasser').style.backgroundColor = value == "true" ? buttononcolor : buttonoffcolor;
+	break;
+	
+	case "home/zwave/5/meter/1/power":
+		document.getElementById('vaatwasser').innerHTML = "Vaat<BR>wasser<BR>" + dv(mqttdata["home/zwave/5/meter/1/power"]) + "W";//+" - " + dv(mqttdata["home/zwave/9/sensormultilevel/1/power"]) + " watt";
+	break;
+	case "home/zwave/5/meter/1/power":
+
+	break;
+	
 	case "home/zwave/3/meter/1/power":
 	case "home/zwave/12/meter/1/power":
 	case "home/zwave/13/meter/1/power":
@@ -1232,7 +1267,7 @@ function onMessageArrived(message) {
   if (message.destinationName.search("home/ESP_OPENTHERM") == 0) if (currentpage == "climatecontrol") fillClimateControlPage();
   if (message.destinationName.search("home/growatt") == 0) if (currentpage == "sunelectricity") fillSunElectricityPage();
   if (message.destinationName.search("home/zwave/4/meter/1/voltage") == 0) if (currentpage == "electricity") fillElectricityPage();
-  if (message.destinationName.search("home/esp8266/ESP_POWERMETER") == 0) if (currentpage == "electricity") fillElectricityPage();
+  if (message.destinationName.search("home/ESP_SDM120") == 0) if (currentpage == "electricity") fillElectricityPage();
   
 }
 
@@ -1345,18 +1380,18 @@ function fillClimateControlPage()
 				overviewpagebar[key].value = parseInt(mqttdata["home/ESP_OPENTHERM/boiler/temperature"]);
 				overviewpagebar[key].grow();
 				label2 = "Retourwater"
-				value2 = dv(mqttdata["home/ESP_OPENTHERM/ow/ch/returnwatertemperature"]) + " &deg;C";  
+				value2 = dv(mqttdata["home/ESP_OPENTHERM/ow/ch/returnwatertemperature"],1) + " &deg;C";  
 			break;  
 			case 1:
                 	        titel = "<font color=\""+(dv(mqttdata["home/ESP_OPENTHERM/status"]) == "online" ? "#00ee00" : "#ff0000")+"\">CV Ketel</font>";
 				label1 = "Warmwater"
-				value1 = mqttdata["home/ESP_OPENTHERM/dhw/temperature"] + " &deg;C";  
+				value1 = dv(mqttdata["home/ESP_OPENTHERM/dhw/temperature"],1) + " &deg;C";  
 				overviewpagebar[key].max = 50;
 				overviewpagebar[key].min = 20;
 				overviewpagebar[key].value = parseInt(value1);
 				overviewpagebar[key].grow();
 				label2 = "Koudwater"
-				value2 = dv(mqttdata["home/ESP_OPENTHERM/ow/dcw/temperature"]) + " &deg;C";
+				value2 = dv(mqttdata["home/ESP_OPENTHERM/ow/dcw/temperature"],1) + " &deg;C";
 			break;  
 			case 2:
                 	        titel = "<font color=\""+(dv(mqttdata["home/ESP_OPENTHERM/status"]) == "online" ? "#00ee00" : "#ff0000")+"\">CV ketel</font>";
@@ -1366,13 +1401,13 @@ function fillClimateControlPage()
 				overviewpagebar[key].value = parseInt(mqttdata["home/ESP_OPENTHERM/burner/modulation/level"]);
 				overviewpagebar[key].grow();
 				label2 = "CV Druk"
-				value2 = mqttdata["home/ESP_OPENTHERM/ch/water/pressure"] + " bar";
+				value2 = dv(mqttdata["home/ESP_OPENTHERM/ch/water/pressure"],1) + " bar";
 			break;  
 			case 3:
 
                 	        titel = "<font color=\""+(dv(mqttdata["home/ESP_OPENTHERM/status"]) != "offline" && dv(mqttdata["home/ESP_OPENTHERM/status"]) != "" ? "#00ee00" : "#ff0000")+"\">Thermostaat</font>";
 				label1 = "Water Instelling"
-				value1 = mqttdata["home/ESP_OPENTHERM/thermostat/ch/water/setpoint"] + " &deg;C";    
+				value1 = dv(mqttdata["home/ESP_OPENTHERM/thermostat/ch/water/setpoint"],1) + " &deg;C";    
 				overviewpagebar[key].max = 60;
 				overviewpagebar[key].value = parseInt(mqttdata["home/ESP_OPENTHERM/thermostat/ch/water/setpoint"]);
 				overviewpagebar[key].grow();
@@ -1408,22 +1443,22 @@ function fillClimateControlPage()
                 	        value1 = dv(mqttdata["home/ESP_SLAAPKAMER2/mhz19/co2"]) + " ppm";
        	                        overviewpagebar[key].max = 1200;
        	                        overviewpagebar[key].min = 400;
-               	                overviewpagebar[key].value = parseInt(mqttdata["home/ESP_SLAAPKAMER2/mhz19/co2"]);
+               	                overviewpagebar[key].value = dv(mqttdata["home/ESP_SLAAPKAMER2/mhz19/co2"]);
                        	        overviewpagebar[key].grow();
 	                        label2 = "Temperatuur"
-                                value2 = dv(mqttdata["home/ESP_SLAAPKAMER2/dht22/temperature"]) + " &deg;C";
+                                value2 = dv(mqttdata["home/ESP_SLAAPKAMER2/dht22/temperature"],1) + " &deg;C";
                         break;
 			case 7:
 				elements[key].getElementsByClassName("boxverticalbar")[0].style = "visibility: visible;";
                 	        titel = "<font color=\""+(dv(mqttdata["home/ESP_BADKAMER/status"]) == "online" ? "#00ee00" : "#ff0000")+"\">Klimaat Badkamer</font>";
                 	        label1 = "Luchtvochtigheid";
-                	        value1 = dv(mqttdata["home/ESP_BADKAMER/dht22/humidity"])  + " %";
+                	        value1 = dv(mqttdata["home/ESP_BADKAMER/dht22/humidity"],1)  + " %";
        	                        overviewpagebar[key].max = 100;
        	                        overviewpagebar[key].min = 0;
                	                overviewpagebar[key].value = parseInt(mqttdata["home/ESP_BADKAMER/dht22/humidity"]);
                        	        overviewpagebar[key].grow();
 	                        label2 = "Temperatuur"
-                                value2 = dv(mqttdata["home/ESP_BADKAMER/dht22/temperature"]) + " &deg;C";
+                                value2 = dv(mqttdata["home/ESP_BADKAMER/dht22/temperature"],1) + " &deg;C";
                         break;
 
 		}
@@ -1449,18 +1484,20 @@ function fillSunElectricityPage()
 	"</TABLE>";
 }
 
-function dv(value)
+
+function dv(value, precision = 0)
 {
   if (typeof value == 'undefined') return "-";
-  if (typeof value == "string")
+  if (isNaN(value))
   {
   	if ((value == null) || (value == "") || (value == "NaN")) return "-";
 	  else return value;
   }
   else
   {
-  	if ((value == null) || (isNaN(value))) return "-";
-	  else return value;
+        console.log ("VALUE="+value);
+  	if (value == null) return "-";
+	return parseFloat(value).toFixed(precision);
   }
 }
 
@@ -1468,25 +1505,18 @@ function fillElectricityPage()
 {
 	fillOverviewPage("electricitymeter");
 	elements = document.getElementById("overviewpage").getElementsByClassName("floating-box");
-     	var wattTotal = (mqttdata["home/esp8266/ESP_POWERMETER/powermeter/0/mVA"]/1000+mqttdata["home/esp8266/ESP_POWERMETER/powermeter/1/mVA"]/1000+mqttdata["home/esp8266/ESP_POWERMETER/powermeter/2/mVA"]/1000+
-	mqttdata["home/esp8266/ESP_POWERMETER/powermeter/3/mVA"]/1000+mqttdata["home/esp8266/ESP_POWERMETER/powermeter/4/mVA"]/1000+mqttdata["home/esp8266/ESP_POWERMETER/powermeter/5/mVA"]/1000+
-	mqttdata["home/esp8266/ESP_POWERMETER/powermeter/6/mVA"]/1000+mqttdata["home/esp8266/ESP_POWERMETER/powermeter/7/mVA"]/1000-mqttdata["home/esp8266/ESP_POWERMETER/powermeter/8/mVA"]/1000+
-	mqttdata["home/esp8266/ESP_POWERMETER/powermeter/9/mVA"]/1000+mqttdata["home/esp8266/ESP_POWERMETER/powermeter/10/mVA"]/1000+mqttdata["home/esp8266/ESP_POWERMETER/powermeter/11/mVA"]/1000).toFixed(1);
 	elements[7].getElementsByClassName("boxtoptext")[0].innerHTML = 
-	"<TABLE CLASS=\"infobox\">" +
-	"<TR><TD colspan=5 ALIGN=CENTER>Groepen (VA)</TD></TR>" + 
-	"<TR><TD>1</TD><TD AlIGN=RIGHT>" + dv((mqttdata["home/esp8266/ESP_POWERMETER/powermeter/0/mVA"]/1000).toFixed(1)) + "</TD><TD></TD><TD>7</TD><TD AlIGN=RIGHT>" + dv((mqttdata["home/esp8266/ESP_POWERMETER/powermeter/6/mVA"]/1000).toFixed(1))  + "</TD></TR>" + 
-	"<TR><TD>2</TD><TD AlIGN=RIGHT>" + dv((mqttdata["home/esp8266/ESP_POWERMETER/powermeter/1/mVA"]/1000).toFixed(1)) + "</TD><TD></TD><TD>8</TD><TD AlIGN=RIGHT>" + dv((mqttdata["home/esp8266/ESP_POWERMETER/powermeter/7/mVA"]/1000).toFixed(1))  + "</TD></TR>" + 
-	"<TR><TD>3</TD><TD AlIGN=RIGHT>" + dv((mqttdata["home/esp8266/ESP_POWERMETER/powermeter/2/mVA"]/1000).toFixed(1)) + "</TD><TD></TD><TD>9</TD><TD AlIGN=RIGHT>" + dv((-mqttdata["home/esp8266/ESP_POWERMETER/powermeter/8/mVA"]/1000).toFixed(1))  + "</TD></TR>" + 
-	"<TR><TD>4</TD><TD AlIGN=RIGHT>" + dv((mqttdata["home/esp8266/ESP_POWERMETER/powermeter/3/mVA"]/1000).toFixed(1)) + "</TD><TD></TD><TD>10</TD><TD AlIGN=RIGHT>" + dv((mqttdata["home/esp8266/ESP_POWERMETER/powermeter/9/mVA"]/1000).toFixed(1))  + "</TD></TR>" + 
-	"<TR><TD>5</TD><TD AlIGN=RIGHT>" + dv((mqttdata["home/esp8266/ESP_POWERMETER/powermeter/4/mVA"]/1000).toFixed(1)) + "</TD><TD></TD><TD>11</TD><TD AlIGN=RIGHT>" + dv((mqttdata["home/esp8266/ESP_POWERMETER/powermeter/10/mVA"]/1000).toFixed(1))  + "</TD></TR>" + 
-	"<TR><TD>6</TD><TD AlIGN=RIGHT>" + dv((mqttdata["home/esp8266/ESP_POWERMETER/powermeter/5/mVA"]/1000).toFixed(1)) + "</TD><TD></TD><TD>12</TD><TD AlIGN=RIGHT>" + dv((mqttdata["home/esp8266/ESP_POWERMETER/powermeter/11/mVA"]/1000).toFixed(1))  + "</TD></TR>" + 
-	"</TABLE>" +
 	"<TABLE CLASS=\"infobox\">" + 
-	"<TR><TD colspan=2>Totaal: " + dv(wattTotal) + " VA</TD></TR>" + 
-	"<TR><TD colspan=2>Netspanning: " + dv(mqttdata["home/zwave/4/meter/1/voltage"]) + " V</TD></TR>" + 
+	"<TH COLSPAN=2>Slimme Meter</TH>" + 
+	"<TR><TD>Vermogen: </TD><TD>" + dv(mqttdata["home/ESP_SMARTMETER/electricity/kw_using"]*1000 - mqttdata["home/ESP_SMARTMETER/electricity/kw_providing"]*1000, 0) + " W</TD></TR>" + 
+	"<TH COLSPAN=2>SDM120</TH>"+
+	"<TR><TD>Vermogen: </TD><TD>" + dv(mqttdata["home/ESP_SDM120/power"], 0) + " W</TD></TR>" + 
+	"<TR><TD>Schijnvermogen: </TD><TD>" + dv(mqttdata["home/ESP_SDM120/power/apparant"], 0) + " VA</TD></TR>" + 
+	"<TR><TD>Spanning: </TD><TD>" + dv(mqttdata["home/ESP_SDM120/voltage"], 0) + " V</TD></TR>" + 
+	"<TR><TD>Stroom: </TD><TD>" + dv(mqttdata["home/ESP_SDM120/current"], 2) + " A</TD></TR>" + 
+	"<TR><TD>Powerfactor: </TD><TD>" + dv(mqttdata["home/ESP_SDM120/powerfactor"], 2) + "</TD></TR>" + 
+	"<TR><TD>Frequency: </TD><TD>" + dv(mqttdata["home/ESP_SDM120/frequency"],2) + " Hz</TD></TR>" + 
 	"</TABLE>";
-
 }
 
 
@@ -1569,13 +1599,13 @@ function fillOverviewPage(nodename)
 		}
 		if ((nodename == "sunelectricitymeter") || (nodename == "electricitymeter"))
 		{
-			if (value1 != null) value1 = Math.round(value1*10)/10;
-			if (value1 != null) value2 = Math.round(value2*10)/10;
+			if (value1 != null) value1 = dv(value1,1);
+			if (value1 != null) value2 = dv(value2,1);
 		}
 		if (nodename == "gasmeter")
 		{
-			if (value1 != null) value1 = Math.round(value1*1000)/1000;
-			if (value1 != null) value2 = Math.round(value2*1000)/1000;
+			if (value1 != null) value1 = dv(value1,3);
+			if (value1 != null) value2 = dv(value2,3);
 		}
 		if (value1 != null) value1 = value1 + " " + unit;
 		else value1 = "";
@@ -1641,14 +1671,14 @@ function showPage(pageName) {
 	if (pageName == "mainpage")
 	{
 		document.getElementsByClassName("backbutton")[0].style.display = "none"; 
-		document.getElementsByClassName("domoticafooterbutton")[0].style.display = "inline-block"; 
-		document.getElementsByClassName("domoticafooterbutton")[1].style.display = "inline-block"; 
+		document.getElementsByClassName("footerbutton")[0].style.display = "flex"; 
+		document.getElementsByClassName("footerbutton")[1].style.display = "flex"; 
 	}
 	else
 	{
-		document.getElementsByClassName("backbutton")[0].style.display = "inline-block"; 
-		document.getElementsByClassName("domoticafooterbutton")[0].style.display = "none"; 
-		document.getElementsByClassName("domoticafooterbutton")[1].style.display = "none"; 
+		document.getElementsByClassName("backbutton")[0].style.display = "flex"; 
+		document.getElementsByClassName("footerbutton")[0].style.display = "none"; 
+		document.getElementsByClassName("footerbutton")[1].style.display = "none"; 
 	}
 	previousPageName.push(pageName)
 	console.log("Opening page:"+pageName);
@@ -1844,12 +1874,13 @@ function showPage(pageName) {
 	}
 	
 	
+	
 	else if (document.getElementById(pageName)) document.getElementById(pageName).style.display = "inline-block"; 
 	else document.getElementById("mainpage").style.display = "inline-block";
 	autochangesizes();
-	
-	if (pageName != "mainpage") pageTimer = setTimeout(function(){window.location='#';}, 600000);
+	if (pageName != "mainpage") pageTimer = setTimeout(function(){window.location='#';}, 60000);
 }
+
 
 function drawgraph(graphname, graphtitle, xtitle, ytitle, names, labels, values, colors)
 {

@@ -142,7 +142,6 @@ onclick="setpelletstoveon();">Pellet<BR>kachel</button></div>-->
 <div class="submainarea" id="domotica" style="display:none">
 </div>
 
-
 <div class="submainarea" id="weather" style="display:none"><div class="floating-box">
 <div class="boxweathericon"><span class="wi wi-day-sunny"></span></div>
 <div class="boxtitle">Nu</div>
@@ -154,7 +153,7 @@ onclick="setpelletstoveon();">Pellet<BR>kachel</button></div>-->
 <div class="boxweathertemp"><span id="windnow"></span></div>
 </div><span class="portraitbr"></span><div class="wide-floating-box" style="cursor: pointer; cursor: hand;" onclick="showPage('weathertextpage')">
 <div class="boxtitle">Weerbericht</div>
-<div id="weathertext" class="wideboxtext weathertext"></div>
+<div id="boxweathertext"><div id="weathertext"></div></div>
 </div><br><div class="floating-box">
 <div class="boxtitle nametoday+1">Morgen</div>
 <div class="boxweathericon"><span class="wi wi-day-sunny"></span></div>
@@ -217,23 +216,26 @@ onclick="setpelletstoveon();">Pellet<BR>kachel</button></div>-->
 
 </div>
 <ul class="tab footer">
-	<div><li class="menuitem" id="graphbuttons" style="display:none">
-		<a href="javascript:void(0)" onclick="showPage('graphdaypage')">Dag</a>
-		<a href="javascript:void(0)" onclick="showPage('graphmonthpage')">Maand</a>
-		<a href="javascript:void(0)" onclick="showPage('graphyearpage')">Jaar</a>
-		<a href="javascript:void(0)" onclick="showPage('graphtotalpage')">Totaal</a>
-		<li class="domoticafooterbutton"><a href="javascript:void(0)" onclick="footeron();">Aan</a></li>
-	</li>
+	<div class="footersection">
+		<li class="menuitem" id="graphbuttons" style="display:none">
+			<a href="javascript:void(0)" onclick="showPage('graphdaypage')">Dag</a>
+			<a href="javascript:void(0)" onclick="showPage('graphmonthpage')">Maand</a>
+			<a href="javascript:void(0)" onclick="showPage('graphyearpage')">Jaar</a>
+			<a href="javascript:void(0)" onclick="showPage('graphtotalpage')">Totaal</a>
+		</li>
+		<li class="footerbutton" onclick="footeron();">Aan</a></li>
 	</div>
-	<div><li class="label"><a href="javascript:void(0)" onclick="window.location='#'">Casaan</a></li></div>
-	<div>
-		<li class="backbutton" style="display:none"><a href="javascript:void(0)" onclick="window.history.back();">Terug</a></li>
-		<li class="domoticafooterbutton"><a href="javascript:void(0)" onclick="footeroff();">Uit</a></li>
+	<div class="footersection">
+		<li class="label" onclick="window.location='#'">Casaan</li></div>
+	<div class="footersection">
+		<li class="backbutton" style="display:none" onclick="window.history.back();">Terug</li>
+		<li class="footerbutton"  onclick="footeroff();">Uit</a></li>
 	</div>
 </ul>
 </body>
 
 <script src="js/moment.js"></script>
+<script src="js/textFit.js"></script>
 <script src="js/moment-with-locales.min.js"></script>
 <script src="js/moment-timezone-with-data.min.js"></script>
 <script src="js/jquery.min.js"></script>
