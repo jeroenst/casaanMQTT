@@ -36,11 +36,13 @@ $topics['home/ESP_WATERMETER/water/m3'] = array("qos" => 0, "function" => "water
 
 $topics['home/ESP_GROWATT/#'] = array("qos" => 0, "function" => "growattmessage");
 
+$topics['home/ESP_SDM120/energy/active'] = array("qos" => 0, "function" => "sdm120message");
+
 $mqtt->subscribe($topics, 0);
 $oldtime = 0;
 while($mqtt->proc())
 {
-	usleep(100000);
+	usleep(10000);
         if(time() != $oldtime) 
         {
 		$oldtime = time();
@@ -648,13 +650,13 @@ function watermetermessage($topic, $msg)
         global $mqtt;
         global $topicprefix;
       	$newdata=array();
-	echo "$topic = $msg\n";
+	echo "watermetermessage: $topic = $msg\n";
         $mysqli = mysqli_connect($inisettings["mysql"]["server"],$inisettings["mysql"]["username"],$inisettings["mysql"]["password"],$inisettings["mysql"]["database"]);
         
-        $m3 = $msg;
-        if (($mysqli) && (!$mysqli->connect_errno))
+        if (($mysqli) && (!$mysqli->connect_errno) && ($topic == "home/ESP_WATERMETER/water/m3"))
         {
-		      	$mysqli->query("INSERT INTO `watermeter` (m3) VALUES (".$m3.");");
+		        $m3 = $msg;
+		      	$mysqli->query("INSERT INTO `watermeter` (m3) VALUES ('".$m3."');");
                 	
               		$newdata["total"]["m3"] = $m3;
                         $mqtt->publishwhenchanged ($topicprefix."watermeter/total/m3", $newdata["total"]["m3"],0,1);
@@ -746,6 +748,115 @@ function watermetermessage($topic, $msg)
                         else
                         {
                                 echo "error reading water values from database ".$mysqli->error."\n";
+                        }
+        }
+        $mysqli->close();
+}
+
+function sdm120message($topic, $msg)
+{
+        global $inisettings;
+        global $mqtt;
+        global $topicprefix;
+      	$newdata=array();
+	echo "$topic = $msg\n";
+        $mysqli = mysqli_connect($inisettings["mysql"]["server"],$inisettings["mysql"]["username"],$inisettings["mysql"]["password"],$inisettings["mysql"]["database"]);
+        
+        $kwh = $msg;
+        if (($mysqli) && (!$mysqli->connect_errno) && ($topic == "home/ESP_SDM120/energy/active"))
+        {
+		      	$mysqli->query("INSERT INTO `sdm120` (kwh) VALUES (".$kwh.");");
+                	
+              		$newdata["total"]["kwh"] = $kwh;
+                        $mqtt->publishwhenchanged ($topicprefix."sdm120/total/kwh", $newdata["total"]["kwh"],0,1);
+
+                        // Read values from database
+                	if ($result = $mysqli->query("SELECT * FROM `sdm120` WHERE timestamp >= CURDATE() ORDER BY timestamp ASC LIMIT 1")) 
+                	{
+                		$row = $result->fetch_object();
+                		$newdata["today"]["kwh"] = round($kwh - $row->kwh,3);
+                		//var_dump ($row);
+			}
+			else
+			{
+                        	echo "error reading sdm120 values from database ".$mysqli->error."\n"; 
+                		$newdata["today"]["kwh"] = 0;
+                        }
+			$mqtt->publishwhenchanged ($topicprefix."sdm120/today/kwh", $newdata["today"]["kwh"],0,1);
+
+			// Read values from database
+        	        if ($result = $mysqli->query("SELECT * FROM `sdm120` WHERE timestamp >= CURDATE() - INTERVAL 1 DAY AND timestamp < CURDATE() ORDER BY timestamp ASC LIMIT 1")) 
+        	        {
+	                	$row = $result->fetch_object();
+	                	if ($row)
+	                	{
+					$newdata['yesterday']['kwh'] = round($newdata["total"]["kwh"] - $row->kwh - $newdata["today"]["kwh"],3);
+					$mqtt->publishwhenchanged ($topicprefix."sdm120/yesterday/kwh", $newdata["yesterday"]["kwh"],0,1);
+				}
+			}
+			else
+			{
+                	       	echo "error reading sdm120 values from database ".$mysqli->error."\n"; 
+	                }
+
+			// Read values from database
+        	        if ($result = $mysqli->query("SELECT * FROM `sdm120` WHERE timestamp >= CURDATE() - INTERVAL 1 MONTH AND timestamp < CURDATE() - INTERVAL 1 MONTH + INTERVAL 1 DAY ORDER BY timestamp ASC LIMIT 1")) 
+        	        {
+	                	$row = $result->fetch_object();
+	                	if ($row)
+	                	{
+					$newdata['month']['kwh'] = round($newdata["total"]["kwh"]  - $row->kwh, 3);
+					$mqtt->publishwhenchanged ($topicprefix."sdm120/month/kwh", $newdata["month"]["kwh"],0,1);
+				}
+			}
+			else
+			{
+                	       	echo "error reading sdm120 values from database ".$mysqli->error."\n"; 
+	                }
+
+                        // Read values from database
+                        if ($result = $mysqli->query("SELECT * FROM `sdm120` WHERE timestamp >= DATE_FORMAT(NOW() ,'%Y-01-01') AND timestamp < DATE_FORMAT(NOW() ,'%Y-01-01') + INTERVAL 1 DAY ORDER BY timestamp ASC LIMIT 1"))
+                        {
+                                $row = $result->fetch_object();
+                                if ($row)
+                                {
+                                	$newdata['year']['kwh'] = round($newdata["total"]["kwh"]  - $row->kwh, 3);
+                                	$mqtt->publishwhenchanged ($topicprefix."sdm120/year/kwh", $newdata["year"]["kwh"],0,1);
+				}
+                        }
+                        else
+                        {
+                                echo "error reading sdm120 values from database ".$mysqli->error."\n";
+                        }
+                        
+                        // Read values from database
+        	        if ($result = $mysqli->query("SELECT * FROM `sdm120` WHERE timestamp >= CURDATE() - INTERVAL 2 MONTH AND timestamp < CURDATE() - INTERVAL 2 MONTH + INTERVAL 1 DAY ORDER BY timestamp DESC LIMIT 1")) 
+        	        {
+	                	$row = $result->fetch_object();
+	                	if ($row)
+	                	{
+					$newdata['lastmonth']['kwh'] = round($newdata['total']['kwh'] - $row->m3 - $newdata['month']['kwh'], 3);
+					$mqtt->publishwhenchanged ($topicprefix."sdm120/lastmonth/kwh", $newdata["lastmonth"]["kwh"],0,1);
+				}
+			}
+			else
+			{
+                	       	echo "error reading sdm120 values from database ".$mysqli->error."\n"; 
+	                }
+
+                        // Read values from database
+                        if ($result = $mysqli->query("SELECT * FROM `sdm120` WHERE timestamp >= DATE_FORMAT(NOW() ,'%Y-01-01') - INTERVAL 1 YEAR AND timestamp < DATE_FORMAT(NOW() ,'%Y-01-01') - INTERVAL 1 YEAR + INTERVAL 1 DAY ORDER BY timestamp ASC LIMIT 1"))
+                        {
+                                $row = $result->fetch_object();
+                                if ($row)
+                                {
+                                	$newdata['lastyear']['kwh'] = round($newdata['total']['kwh'] - $row->m3 - $newdata['year']['kwh'], 3);
+                                	$mqtt->publishwhenchanged ($topicprefix."sdm120/lastyear/kwh", $newdata["lastyear"]["kwh"],0,1);
+				}
+                        }
+                        else
+                        {
+                                echo "error reading sdm120 values from database ".$mysqli->error."\n";
                         }
         }
         $mysqli->close();
