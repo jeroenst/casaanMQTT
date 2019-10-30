@@ -1,2 +1,2 @@
-var mqttusername = "jeroen";
-var mqttpassword = "d88990!";
+var mqttusername = "webpage";
+var mqttpassword = "49uiJD0";

@@ -1,23 +1,21 @@
-// version: 2017-01-02
-    /**
-    * o--------------------------------------------------------------------------------o
-    * | This file is part of the RGraph package - you can learn more at:               |
-    * |                                                                                |
-    * |                          http://www.rgraph.net                                 |
-    * |                                                                                |
-    * | RGraph is licensed under the Open Source MIT license. That means that it's     |
-    * | totally free to use!                                                           |
-    * o--------------------------------------------------------------------------------o
-    */
+// version: 2019-10-11
+    // o--------------------------------------------------------------------------------o
+    // | This file is part of the RGraph package - you can learn more at:               |
+    // |                                                                                |
+    // |                         https://www.rgraph.net                                 |
+    // |                                                                                |
+    // | RGraph is licensed under the Open Source MIT license. That means that it's     |
+    // | totally free to use and there are no restrictions on what you can do with it!  |
+    // o--------------------------------------------------------------------------------o
 
-    /**
-    * This is a library of a few functions that make it easier to do
-    * effects like fade-ins or eaxpansion.
-    */
+    //
+    // This is a library of a few functions that make it easier to do
+    // effects like fade-ins or eaxpansion.
+    //
 
-    /**
-    * Initialise the various objects
-    */
+    //
+    // Initialise the various objects
+    //
     RGraph        = window.RGraph || {isRGraph: true};
     RGraph.SVG    = RGraph.SVG    || {};
     RGraph.SVG.FX = RGraph.SVG.FX || {};
@@ -25,27 +23,16 @@
 // Module pattern
 (function (win, doc, undefined)
 {
-    var RG = RGraph,
-        ua = navigator.userAgent,
-        ma = Math;
-
-
-
-
-
-
-
-
-    /**
-    * This functions adds the generic effects to thechart object
-    * 
-    * @param object obj The chart object
-    */
-    RG.SVG.FX.decorate = function (obj)
+    //
+    // This functions adds the generic effects to thechart object
+    // 
+    // @param object obj The chart object
+    //
+    RGraph.SVG.FX.decorate = function (obj)
     {
-        for (i in RG.SVG.FX) {
-            if (typeof RG.SVG.FX[i] === 'function') {
-                obj[i] = RG.SVG.FX[i];
+        for (i in RGraph.SVG.FX) {
+            if (typeof RGraph.SVG.FX[i] === 'function') {
+                obj[i] = RGraph.SVG.FX[i];
             }
         }
     };
@@ -57,13 +44,13 @@
 
 
 
-    /**
-    * fadeIn
-    * 
-    * This function simply uses the CSS opacity property - initially set to zero and
-    * increasing to 1 over the period of 0.5 second
-    */
-    RG.SVG.FX.fadein = function ()
+    //
+    // fadeIn
+    // 
+    // This function simply uses the CSS opacity property - initially set to zero and
+    // increasing to 1 over the period of 0.5 second
+    //
+    RGraph.SVG.FX.fadein = function ()
     {
         // This function gets added to the chart object - so the this
         // variable is the chart object
@@ -79,7 +66,7 @@
         obj.svg.style.opacity = 0;
         
         // Draw the chart
-        RG.SVG.redraw(this.svg);
+        RGraph.SVG.redraw(this.svg);
 
         // Now fade the chart in
         for (var i=1; i<=frames; ++i) {
@@ -108,12 +95,12 @@
 
 
 
-    /**
-    * fadeOut
-    * 
-    * This function is a reversal of the above function - fading out instead of in
-    */
-    RG.SVG.FX.fadeout = function ()
+    //
+    // fadeOut
+    // 
+    // This function is a reversal of the above function - fading out instead of in
+    //
+    RGraph.SVG.FX.fadeout = function ()
     {
         // This function gets added to the chart object - so the this
         // variable is the chart object
@@ -124,7 +111,7 @@
             frame    = 0,
             callback = opt.callback || function () {};
         
-         //RG.SVG.redraw()
+         //RGraph.SVG.redraw()
 
         // Now fade the chart out
         for (var i=1; i<=frames; ++i) {
@@ -151,12 +138,12 @@
 
 
 
-    /**
-    * fadeSlideIn
-    * 
-    * This function fades the canvas in in a sliding motion
-    */
-    RG.SVG.FX.fadeslidein = function ()
+    //
+    // fadeSlideIn
+    // 
+    // This function fades the canvas in in a sliding motion
+    //
+    RGraph.SVG.FX.fadeslidein = function ()
     {
         // This function gets added to the chart object - so the this
         // variable is the chart object
@@ -173,7 +160,7 @@
 
         
         // Draw the chart
-        RG.SVG.redraw(this.svg);
+        RGraph.SVG.redraw(this.svg);
 
 
         // Create the cover
@@ -194,7 +181,7 @@
                     background: 'linear-gradient(135deg, rgba(255,255,255,0) ' + pc + '%, ' + color + ' ' + (pc + 20) + '%)'
                 });
                 pc += step;
-                RG.SVG.FX.update(iterator);
+                RGraph.SVG.FX.update(iterator);
             
             } else {
             
@@ -221,7 +208,7 @@
     // Fades the canvas out in a sliding motion. This function gets added
     // to the chart object - so the this variable is the chart object
     //
-    RG.SVG.FX.fadeslideout = function ()
+    RGraph.SVG.FX.fadeslideout = function ()
     {
         var obj      = this,
             opt      = arguments[0] || {},
@@ -229,7 +216,7 @@
             frame    = 0,
             pc       = -20,
             step     = (120 - pc) / frames,
-            canvasXY = RG.SVG.getSVGXY(obj.svg),
+            canvasXY = RGraph.SVG.getSVGXY(obj.svg),
             color    = opt.color || 'white',
             width    = this.container.offsetWidth,
             height   = this.container.offsetHeight,
@@ -237,7 +224,7 @@
 
 
         // Draw the chart
-        //RG.SVG.redraw(this.svg);
+        //RGraph.SVG.redraw(this.svg);
 
         // Create the cover
         $('<div id="rgraph_fadeslide_cover_' + obj.id + '"></div>').css({
@@ -256,11 +243,11 @@
                                                                background: 'linear-gradient(135deg, ' + color + ' ' + pc + '%, rgba(255,255,255,0) ' + (pc + 20) + '%)'
                                                               });
                 pc += step;
-                RG.SVG.FX.update(iterator);
+                RGraph.SVG.FX.update(iterator);
             
             } else {
 
-                RG.SVG.clear(obj.svg);
+                RGraph.SVG.clear(obj.svg);
             
                 $('div#rgraph_fadeslide_cover_' + obj.id).remove();
 
@@ -286,7 +273,7 @@
     // This function uses radial CSS gradients to cover the canvas with a radial fade in effect
     // (from the center outwards)
     //
-    RG.SVG.FX.fadecircularinoutwards = function ()
+    RGraph.SVG.FX.fadecircularinoutwards = function ()
     {
         // This function gets added to the chart object - so the 'this'
         // variable is the chart object
@@ -295,7 +282,7 @@
             frames   = opt.frames || 90,
             frame    = 1,
             radius   = 0,
-            svgXY    = RG.SVG.getSVGXY(obj.svg),
+            svgXY    = RGraph.SVG.getSVGXY(obj.svg),
             color    = opt.color || 'white',
             callback = opt.callback || function () {};
 
@@ -303,7 +290,7 @@
 
 
         // Draw the chart
-        RG.SVG.redraw(this.svg);
+        RGraph.SVG.redraw(this.svg);
 
 
 
@@ -328,7 +315,7 @@
                         background: 'radial-gradient(rgba(255,255,255,0) ' + ((frame++ / frames) * 100) + '%, ' + color + ' ' + ((frame++ / frames) * 150) + '%)'
                     });
 
-                    RG.SVG.FX.update(iterator);
+                    RGraph.SVG.FX.update(iterator);
             
             } else {
             
@@ -356,7 +343,7 @@
     // This function uses radial CSS gradients to cover the canvas with a radial fade out effect
     // (from the center outwards)
     //
-    RG.SVG.FX.fadecircularoutoutwards = function ()
+    RGraph.SVG.FX.fadecircularoutoutwards = function ()
     {
         // This function gets added to the chart object - so the this
         // variable is the chart object
@@ -366,7 +353,7 @@
             frame    = 0,
             width    = this.container.offsetWidth,
             height   = this.container.offsetHeight,
-            canvasXY = RG.SVG.getSVGXY(obj.svg),
+            canvasXY = RGraph.SVG.getSVGXY(obj.svg),
             color    = opt.color || 'white',
             callback = opt.callback || function () {};
 
@@ -375,7 +362,7 @@
 
 
         // Draw the chart
-        //RG.SVG.redraw(this.svg);
+        //RGraph.SVG.redraw(this.svg);
 
 
 
@@ -401,11 +388,11 @@
                     $('div#rgraph_fadeslide_cover_' + obj.id).css({
                         background: 'radial-gradient(' + color + ' ' + ((frame++ / frames) * 100) + '%, rgba(255,255,255,0) ' + ((frame++ / frames) * 150) + '%)'
                     });
-                    RG.SVG.FX.update(iterator);
+                    RGraph.SVG.FX.update(iterator);
             
             } else {
 
-                RG.SVG.clear(obj.svg);
+                RGraph.SVG.clear(obj.svg);
 
                 $('div#rgraph_fadeslide_cover_' + obj.id).remove();
 
@@ -431,13 +418,13 @@
     // This function gets added to the chart object - so the 'this'
     // variable is the chart object
     //
-    RG.SVG.FX.fadecircularininwards = function ()
+    RGraph.SVG.FX.fadecircularininwards = function ()
     {
         var obj      = this,
             opt      = arguments[0] || {},
             frames   = opt.frames || 90,
             frame    = 0,
-            radius   = ma.max(
+            radius   = Math.max(
                 obj.container.offsetWidth,
                 obj.container.offsetHeight
             ),
@@ -446,7 +433,7 @@
 
 
         // Draw the chart
-        RG.SVG.redraw(this.svg);
+        RGraph.SVG.redraw(this.svg);
 
 
 
@@ -467,7 +454,7 @@
                     $('div#rgraph_fadeslide_cover_' + obj.id).css({
                         background: 'radial-gradient(' + color + ' ' + (( (frames - frame++) / frames) * 100) + '%, rgba(255,255,255,0) ' + (( (frames - frame++) / frames) * 120) + '%)'
                     });
-                    RG.SVG.FX.update(iterator);
+                    RGraph.SVG.FX.update(iterator);
             
             } else {
             
@@ -495,13 +482,13 @@
     // This function gets added to the chart object - so the this
     // variable is the chart object
     //
-    RG.SVG.FX.fadecircularoutinwards = function ()
+    RGraph.SVG.FX.fadecircularoutinwards = function ()
     {
         var obj      = this,
             opt      = arguments[0] || {},
             frames   = opt.frames || 90,
             frame    = 0,
-            radius   = ma.max(
+            radius   = Math.max(
                 this.container.offsetWidth,
                 this.container.offsetHeight
             ),
@@ -511,7 +498,7 @@
 
 
         // Draw the chart
-        //RG.SVG.redraw(this.svg);
+        //RGraph.SVG.redraw(this.svg);
 
 
 
@@ -533,11 +520,11 @@
                         background: 'radial-gradient(rgba(255,255,255,0) ' + (( (frames - frame++) / frames) * 100) + '%, ' + color + ' ' + (( (frames - frame++) / frames) * 120) + '%)'
                     });
                     
-                    RG.SVG.FX.update(iterator);
+                    RGraph.SVG.FX.update(iterator);
             
             } else {
             
-                RG.SVG.clear(obj.svg);
+                RGraph.SVG.clear(obj.svg);
 
                 $('div#rgraph_fadeslide_cover_' + obj.id).remove();
 
@@ -563,7 +550,7 @@
     // @param object    Options for the effect. You can give frames here
     // @param function  An optional callback function
     //
-    RG.SVG.FX.reveal = function ()
+    RGraph.SVG.FX.reveal = function ()
     {
         var obj       = this,
             opt       = arguments[0] || {}
@@ -593,7 +580,7 @@
 
 
         // Redraw
-        RG.SVG.redraw(obj.svg);
+        RGraph.SVG.redraw(obj.svg);
 
 
         // Animate the shrinking of the DIVs
@@ -633,7 +620,7 @@
     // 
     // @param object obj The chart object
     ///
-    RG.SVG.FX.conceal = function ()
+    RGraph.SVG.FX.conceal = function ()
     {
         var obj      = this,
             opt      = arguments[0] || {},
@@ -681,7 +668,7 @@
                 obj.container.removeChild(doc.getElementById("rgraph_conceal_left_" + obj.id));
                 obj.container.removeChild(doc.getElementById("rgraph_conceal_right_" + obj.id));
                 
-                RG.SVG.clear(obj.svg);
+                RGraph.SVG.clear(obj.svg);
                 
                 callback(obj);
             
@@ -704,7 +691,7 @@
     // 
     // @params object obj The graph object
     //
-    RG.SVG.FX.hblindsopen = function ()
+    RGraph.SVG.FX.hblindsopen = function ()
     {
         // This function gets added to the chart object - so the this
         // variable is the chart object
@@ -720,7 +707,7 @@
         //
         // First draw the chart
         //
-        RG.SVG.redraw(this.svg);
+        RGraph.SVG.redraw(this.svg);
 
         for (var i=0; i<5; ++i) {
             var div = doc.createElement('DIV');
@@ -736,11 +723,11 @@
             jQuery('#rgraph_hblinds_' + i + '_' + obj.id).animate({height: 0}, duration);
         }
 
-        setTimeout(function () {this.container.removeChild(doc.getElementById('rgraph_hblinds_0_' + obj.id));}, duration);
-        setTimeout(function () {this.container.removeChild(doc.getElementById('rgraph_hblinds_1_' + obj.id));}, duration);
-        setTimeout(function () {this.container.removeChild(doc.getElementById('rgraph_hblinds_2_' + obj.id));}, duration);
-        setTimeout(function () {this.container.removeChild(doc.getElementById('rgraph_hblinds_3_' + obj.id));}, duration);
-        setTimeout(function () {this.container.removeChild(doc.getElementById('rgraph_hblinds_4_' + obj.id));}, duration);
+        setTimeout(function () {obj.container.removeChild(doc.getElementById('rgraph_hblinds_0_' + obj.id));}, duration);
+        setTimeout(function () {obj.container.removeChild(doc.getElementById('rgraph_hblinds_1_' + obj.id));}, duration);
+        setTimeout(function () {obj.container.removeChild(doc.getElementById('rgraph_hblinds_2_' + obj.id));}, duration);
+        setTimeout(function () {obj.container.removeChild(doc.getElementById('rgraph_hblinds_3_' + obj.id));}, duration);
+        setTimeout(function () {obj.container.removeChild(doc.getElementById('rgraph_hblinds_4_' + obj.id));}, duration);
         setTimeout(function () {callback(obj);}, duration);
         
         return this;
@@ -761,7 +748,7 @@
     //
     // @params object obj The graph object
     //
-    RG.SVG.FX.hblindsclose = function ()
+    RGraph.SVG.FX.hblindsclose = function ()
     {
         var obj      = this,
             opt      = arguments[0] || {},
@@ -793,7 +780,7 @@
 
 
 
-        setTimeout(function () {RG.SVG.clear(obj.svg);}, duration + 100);
+        setTimeout(function () {RGraph.SVG.clear(obj.svg);}, duration + 100);
         setTimeout(function () {obj.container.removeChild(doc.getElementById('rgraph_hblinds_0_' + obj.id));}, duration + 100);
         setTimeout(function () {obj.container.removeChild(doc.getElementById('rgraph_hblinds_1_' + obj.id));}, duration + 100);
         setTimeout(function () {obj.container.removeChild(doc.getElementById('rgraph_hblinds_2_' + obj.id));}, duration + 100);
@@ -816,7 +803,7 @@
     //
     // This function gets added to the chart object - so the this
     // variable is the chart object
-    RG.SVG.FX.vblindsopen = function ()
+    RGraph.SVG.FX.vblindsopen = function ()
     {
         var obj      = this,
             opt      = arguments[0] || {},
@@ -830,7 +817,7 @@
         //
         // First draw the chart
         //
-        RG.SVG.redraw(obj.svg);
+        RGraph.SVG.redraw(obj.svg);
 
         for (var i=0; i<10; ++i) {
             var div = doc.createElement('DIV');
@@ -841,21 +828,21 @@
                 div.style.top             = 0;
                 div.style.position        = 'absolute';
                 div.style.backgroundColor = color;
-            this.container.appendChild(div);
+            obj.container.appendChild(div);
 
             jQuery('#rgraph_vblinds_' + i + '_' + obj.id).animate({width: 0}, duration);
         }
 
-        setTimeout(function () {doc.body.removeChild(doc.getElementById('rgraph_vblinds_0_' + obj.id));}, duration + 100);
-        setTimeout(function () {doc.body.removeChild(doc.getElementById('rgraph_vblinds_1_' + obj.id));}, duration + 100);
-        setTimeout(function () {doc.body.removeChild(doc.getElementById('rgraph_vblinds_2_' + obj.id));}, duration + 100);
-        setTimeout(function () {doc.body.removeChild(doc.getElementById('rgraph_vblinds_3_' + obj.id));}, duration + 100);
-        setTimeout(function () {doc.body.removeChild(doc.getElementById('rgraph_vblinds_4_' + obj.id));}, duration + 100);
-        setTimeout(function () {doc.body.removeChild(doc.getElementById('rgraph_vblinds_5_' + obj.id));}, duration + 100);
-        setTimeout(function () {doc.body.removeChild(doc.getElementById('rgraph_vblinds_6_' + obj.id));}, duration + 100);
-        setTimeout(function () {doc.body.removeChild(doc.getElementById('rgraph_vblinds_7_' + obj.id));}, duration + 100);
-        setTimeout(function () {doc.body.removeChild(doc.getElementById('rgraph_vblinds_8_' + obj.id));}, duration + 100);
-        setTimeout(function () {doc.body.removeChild(doc.getElementById('rgraph_vblinds_9_' + obj.id));}, duration + 100);
+        setTimeout(function () {obj.container.removeChild(doc.getElementById('rgraph_vblinds_0_' + obj.id));}, duration + 100);
+        setTimeout(function () {obj.container.removeChild(doc.getElementById('rgraph_vblinds_1_' + obj.id));}, duration + 100);
+        setTimeout(function () {obj.container.removeChild(doc.getElementById('rgraph_vblinds_2_' + obj.id));}, duration + 100);
+        setTimeout(function () {obj.container.removeChild(doc.getElementById('rgraph_vblinds_3_' + obj.id));}, duration + 100);
+        setTimeout(function () {obj.container.removeChild(doc.getElementById('rgraph_vblinds_4_' + obj.id));}, duration + 100);
+        setTimeout(function () {obj.container.removeChild(doc.getElementById('rgraph_vblinds_5_' + obj.id));}, duration + 100);
+        setTimeout(function () {obj.container.removeChild(doc.getElementById('rgraph_vblinds_6_' + obj.id));}, duration + 100);
+        setTimeout(function () {obj.container.removeChild(doc.getElementById('rgraph_vblinds_7_' + obj.id));}, duration + 100);
+        setTimeout(function () {obj.container.removeChild(doc.getElementById('rgraph_vblinds_8_' + obj.id));}, duration + 100);
+        setTimeout(function () {obj.container.removeChild(doc.getElementById('rgraph_vblinds_9_' + obj.id));}, duration + 100);
         
         setTimeout(function () {callback(obj);}, duration + 100);
 
@@ -877,7 +864,7 @@
     // 
     // @params object obj The graph object
     //
-    RG.SVG.FX.vblindsclose = function ()
+    RGraph.SVG.FX.vblindsclose = function ()
     {
         var obj      = this,
             opt      = arguments[0] || {},
@@ -903,7 +890,7 @@
             jQuery('#rgraph_vblinds_' + i + '_' + obj.id).animate({width: width}, duration);
         }
 
-        setTimeout(function () {RG.SVG.clear(obj.svg);}, duration + 100);
+        setTimeout(function () {RGraph.SVG.clear(obj.svg);}, duration + 100);
 
         setTimeout(function () {obj.container.removeChild(doc.getElementById('rgraph_vblinds_0_' + obj.id));}, duration + 100);
         setTimeout(function () {obj.container.removeChild(doc.getElementById('rgraph_vblinds_1_' + obj.id));}, duration + 100);
@@ -939,7 +926,7 @@
     // 
     // @param object obj The graph object
     //
-    RG.SVG.FX.slidein = function ()
+    RGraph.SVG.FX.slidein = function ()
     {
         var obj      = this,
             opt      = arguments[0] || {},
@@ -953,7 +940,7 @@
 
         this.container.style.overflow = 'hidden';
 
-        RG.SVG.redraw(this.svg);
+        RGraph.SVG.redraw(this.svg);
 
         this.svg.style.position = 'relative';
         
@@ -973,7 +960,7 @@
         
         jQuery(this.svg).animate({left:0,top:0}, duration, function ()
         {
-            callback(this);
+            callback(obj);
         });
         
         return this;
@@ -994,7 +981,7 @@
     // @param object   Optional object containing configuration.
     // @param function Optional callback function
     //
-    RG.SVG.FX.slideout = function ()
+    RGraph.SVG.FX.slideout = function ()
     {
         // This function gets added to the chart object - so the this
         // variable is the chart object
@@ -1043,7 +1030,7 @@
     // @param function     Optional callback function
     // 
     //
-    RG.SVG.FX.hscissorsopen = function ()
+    RGraph.SVG.FX.hscissorsopen = function ()
     {
         var opt      = arguments[0] || {},
             obj      = this,
@@ -1060,7 +1047,7 @@
         //
         // First draw the chart
         //
-        RG.SVG.redraw(this.svg);
+        RGraph.SVG.redraw(this.svg);
 
 
         for (var i=0; i<5; ++i) {
@@ -1116,7 +1103,7 @@
     // @param function     Optional callback function
     // 
     //
-    RG.SVG.FX.hscissorsclose = function ()
+    RGraph.SVG.FX.hscissorsclose = function ()
     {
         var obj      = this,
             opt      = arguments[0] || {},
@@ -1148,7 +1135,7 @@
         
         setTimeout(function ()
         {
-            RG.SVG.clear(obj.svg);
+            RGraph.SVG.clear(obj.svg);
             jQuery('#' + 'rgraph_hscissors_' + 0 + '_' + obj.id).remove();
             jQuery('#' + 'rgraph_hscissors_' + 1 + '_' + obj.id).remove();
             jQuery('#' + 'rgraph_hscissors_' + 2 + '_' + obj.id).remove();
@@ -1177,7 +1164,7 @@
     //                  o callback - A function that's called when the effect is
     //                               finished
     //
-    RG.SVG.FX.vscissorsopen = function ()
+    RGraph.SVG.FX.vscissorsopen = function ()
     {
         // This function gets added to the chart object - so the this
         // variable is the chart object
@@ -1195,7 +1182,7 @@
         //
         // First (re)draw the chart
         //
-        RG.SVG.redraw(this.svg);
+        RGraph.SVG.redraw(this.svg);
 
 
 
@@ -1223,13 +1210,13 @@
 
         setTimeout(function ()
         {
-            this.container.removeChild(doc.getElementById('rgraph_vscissors_0' + '_' + this.id));
-            this.container.removeChild(doc.getElementById('rgraph_vscissors_1' + '_' + this.id));
-            this.container.removeChild(doc.getElementById('rgraph_vscissors_2' + '_' + this.id));
-            this.container.removeChild(doc.getElementById('rgraph_vscissors_3' + '_' + this.id));
-            this.container.removeChild(doc.getElementById('rgraph_vscissors_4' + '_' + this.id));
+            obj.container.removeChild(doc.getElementById('rgraph_vscissors_0' + '_' + obj.id));
+            obj.container.removeChild(doc.getElementById('rgraph_vscissors_1' + '_' + obj.id));
+            obj.container.removeChild(doc.getElementById('rgraph_vscissors_2' + '_' + obj.id));
+            obj.container.removeChild(doc.getElementById('rgraph_vscissors_3' + '_' + obj.id));
+            obj.container.removeChild(doc.getElementById('rgraph_vscissors_4' + '_' + obj.id));
             
-            callback(this);
+            callback(obj);
 
         }, duration);
 
@@ -1246,7 +1233,7 @@
     //
     // Vertical Scissors (close)
     //
-    RG.SVG.FX.vscissorsclose = function ()
+    RGraph.SVG.FX.vscissorsclose = function ()
     {
         // This function gets added to the chart object - so the this
         // variable is the chart object
@@ -1283,7 +1270,7 @@
         
         setTimeout(function ()
         {
-            RG.SVG.clear(obj.svg);
+            RGraph.SVG.clear(obj.svg);
             for (var i=0; i<10; i++) {
                 jQuery('#rgraph_vscissors_' + i + '_' + obj.id).remove();
             }

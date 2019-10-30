@@ -1,14 +1,12 @@
-// version: 2017-01-02
-    /**
-    * o--------------------------------------------------------------------------------o
-    * | This file is part of the RGraph package - you can learn more at:               |
-    * |                                                                                |
-    * |                          http://www.rgraph.net                                 |
-    * |                                                                                |
-    * | RGraph is licensed under the Open Source MIT license. That means that it's     |
-    * | totally free to use!                                                           |
-    * o--------------------------------------------------------------------------------o
-    */
+// version: 2019-10-11
+    // o--------------------------------------------------------------------------------o
+    // | This file is part of the RGraph package - you can learn more at:               |
+    // |                                                                                |
+    // |                         https://www.rgraph.net                                 |
+    // |                                                                                |
+    // | RGraph is licensed under the Open Source MIT license. That means that it's     |
+    // | totally free to use and there are no restrictions on what you can do with it!  |
+    // o--------------------------------------------------------------------------------o
 
     RGraph     = window.RGraph || {isRGraph: true};
     RGraph.SVG = RGraph.SVG || {};
@@ -16,25 +14,86 @@
 // Module pattern
 (function (win, doc, undefined)
 {
-    var RG  = RGraph,
-        ua  = navigator.userAgent,
-        ma  = Math,
-        win = window,
-        doc = document;
-
-
-
-    RG.SVG.Radar = function (conf)
+    RGraph.SVG.Radar = function (conf)
     {
+        //
+        // A setter that the constructor uses (at the end)
+        // to set all of the properties
+        //
+        // @param string name  The name of the property to set
+        // @param string value The value to set the property to
+        //
+        this.set = function (name, value)
+        {
+            if (arguments.length === 1 && typeof name === 'object') {
+                for (i in arguments[0]) {
+                    if (typeof i === 'string') {
+                        
+                        name  = ret.name;
+                        value = ret.value;
+
+                        this.set(name, value);
+                    }
+                }
+            
+            } else {
+
+                var ret = RGraph.SVG.commonSetter({
+                    object: this,
+                    name:   name,
+                    value:  value
+                });
+                
+                name  = ret.name;
+                value = ret.value;
+
+                this.properties[name] = value;
+
+                // If setting the colors, update the originalColors
+                // property too
+                if (name === 'colors') {
+                    this.originalColors = RGraph.SVG.arrayClone(value);
+                    this.colorsParsed = false;
+                }
+            }
+
+            return this;
+        };
+
+
+
+
+
+
+
+
+        //
+        // A getter.
+        // 
+        // @param name  string The name of the property to get
+        //
+        this.get = function (name)
+        {
+            return this.properties[name];
+        };
+
+
+
+
+
+
+
+
         this.id              = conf.id;
-        this.uid             = RG.SVG.createUID();
+        this.uid             = RGraph.SVG.createUID();
         this.container       = document.getElementById(this.id);
-        this.svg             = RG.SVG.createSVG({container: this.container});
+        this.layers          = {}; // MUST be before the SVG tag is created!
+        this.svg             = RGraph.SVG.createSVG({object: this,container: this.container});
         this.isRGraph        = true;
         this.width           = Number(this.svg.getAttribute('width'));
         this.height          = Number(this.svg.getAttribute('height'));
-        this.data            = RG.SVG.arrayClone(conf.data);
-        this.originalData    = RG.SVG.arrayClone(conf.data);
+        this.data            = RGraph.SVG.arrayClone(conf.data);
+        this.originalData    = RGraph.SVG.arrayClone(conf.data);
         this.type            = 'radar';
         this.coords          = [];
         this.coords2         = [];
@@ -47,10 +106,16 @@
         this.shadowNodes     = [];
         this.max             = 0;
         this.redraw          = false;
-        this.highlight_hotspot = null;
-        
+        this.highlight_node  = null;
+
+
+
+
+
+
+
         // Add this object to the ObjectRegistry
-        RG.SVG.OR.add(this);
+        RGraph.SVG.OR.add(this);
         
         // Set the DIV container to be inline-block
         this.container.style.display = 'inline-block';
@@ -65,16 +130,17 @@
             centery: null,
             radius:  null,
             
-            gutterLeft:    35,
-            gutterRight:   35,
-            gutterTop:     35,
-            gutterBottom:  35,
+            marginLeft:    35,
+            marginRight:   35,
+            marginTop:     35,
+            marginBottom:  35,
             
             backgroundGrid: true,
-            backgroundGridColor: '#ddd',
-            backgroundGridRadialsCount: null,
+            backgroundGridColor:            '#ddd',
+            backgroundGridRadialsCount:     null,
             backgroundGridConcentricsCount: 5,
-            backgroundGridLinewidth: 1,
+            backgroundGridLinewidth:        1,
+            backgroundGridPoly:             true,
 
             colors: [
                 'red', 'black', 'orange', 'green', '#6ff', '#ccc',
@@ -85,12 +151,17 @@
             filledAccumulative: true,
             
             textColor:  'black',
-            textFont:   'sans-serif',
+            textFont:   'Arial, Verdana, sans-serif',
             textSize:   12,
             textBold:   false,
             textItalic: false,
 
             labels: [],
+            labelsFont:   null,
+            labelsColor:  null,
+            labelsSize:   null,
+            labelsBold:   null,
+            labelsItalic: null,
 
             scaleVisible:     true,
             scaleUnitsPre:    '',
@@ -121,95 +192,81 @@
             highlightFill: 'rgba(255,255,255,0.7)',
             highlightLinewidth: 1,
             
-            tickmarks: 'circle',
+            tickmarksStyle: 'circle',
             tickmarksLinewidth: 1,
             tickmarksSize: 6,
             tickmarksFill: 'white',
             
             title: '',
-            titleSize: 16,
             titleX: null,
             titleY: null,
             titleHalign: 'center',
-            titleValign: 'bottom',
-            titleColor:  'black',
+            titleValign: null,
+            titleSize:   null,
+            titleColor:  null,
             titleFont:   null,
-            titleBold:   false,
-            titleItalic: false,
+            titleBold:   null,
+            titleItalic: null,
             
-            titleSubtitle: '',
-            titleSubtitleSize: 10,
-            titleSubtitleX: null,
-            titleSubtitleY: null,
-            titleSubtitleHalign: 'center',
-            titleSubtitleValign: 'top',
+            titleSubtitle: null,
+            titleSubtitleSize:   null,
             titleSubtitleColor:  '#aaa',
             titleSubtitleFont:   null,
-            titleSubtitleBold:   false,
-            titleSubtitleItalic: false,
-            
-            grouping: 'normal', // Can also be stcked
+            titleSubtitleBold:   null,
+            titleSubtitleItalic: null,
             
             shadow: false,
             shadowOffsetx: 2,
             shadowOffsety: 2,
             shadowBlur: 2,
             shadowOpacity: 0.25,
-            
-            attribution:        true,
-            attributionX:       null,
-            attributionY:       null,
-            attributionHref:    'http://www.rgraph.net/svg/index.html',
-            attributionHalign:  'right',
-            attributionValign:  'bottom',
-            attributionSize:    8,
-            attributionColor:   'gray',
-            attributionFont:    'sans-serif',
-            attributionItalic:  false,
-            attributionBold:    false
+
+
+
+            key:            null,
+            keyColors:      null,
+            keyOffsetx:     0,
+            keyOffsety:     0,
+            keyLabelsOffsetx: 0,
+            keyLabelsOffsety: -1,
+            keyLabelsSize:    null,
+            keyLabelsBold:    null,
+            keyLabelsItalic:  null,
+            keyLabelsFont:  null,
+            keyLabelsColor:  null
         };
 
 
 
 
+        //
+        // Copy the global object properties to this instance
+        //
+        RGraph.SVG.getGlobals(this);
 
 
-        /**
-        * "Decorate" the object with the generic effects if the effects library has been included
-        */
-        if (RG.SVG.FX && typeof RG.SVG.FX.decorate === 'function') {
-            RG.SVG.FX.decorate(this);
+
+
+
+
+        //
+        // "Decorate" the object with the generic effects if the effects library has been included
+        //
+        if (RGraph.SVG.FX && typeof RGraph.SVG.FX.decorate === 'function') {
+            RGraph.SVG.FX.decorate(this);
         }
 
 
 
 
+
+        // Add the responsive function to the object
+        this.responsive = RGraph.SVG.responsive;
+
+
+
+
         var prop = this.properties;
-
-
-
-
-        //
-        // A setter that the constructor uses (at the end)
-        // to set all of the properties
-        //
-        // @param string name  The name of the property to set
-        // @param string value The value to set the property to
-        //
-        this.set = function (name, value)
-        {
-            if (arguments.length === 1 && typeof name === 'object') {
-                for (i in arguments[0]) {
-                    if (typeof i === 'string') {
-                        this.set(i, arguments[0][i]);
-                    }
-                }
-            } else {
-                this.properties[name] = value;
-            }
-
-            return this;
-        };
 
 
 
@@ -224,12 +281,41 @@
         this.draw = function ()
         {
             // Fire the beforedraw event
-            RG.SVG.fireCustomEvent(this, 'onbeforedraw');
-            
-            
-            
+            RGraph.SVG.fireCustomEvent(this, 'onbeforedraw');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            // Should the first thing that's done inthe.draw() function
+            // except for the onbeforedraw event
+            this.width  = Number(this.svg.getAttribute('width'));
+            this.height = Number(this.svg.getAttribute('height'));
+
+
+
+
+
+
+
+
+
+
+
+
             // Reset the data back to the original values
-            this.data = RG.SVG.arrayClone(this.originalData);
+            this.data = RGraph.SVG.arrayClone(this.originalData);
 
             //
             // The datasets have to have the same number of elements
@@ -249,6 +335,7 @@
 
             // Reset the coords array to stop them growing
             this.angles  = [];
+            this.angles2 = [];
             this.coords  = [];
             this.coords2 = [];
 
@@ -257,20 +344,20 @@
 
 
             // Create the defs tag if necessary
-            RG.SVG.createDefs(this);
+            RGraph.SVG.createDefs(this);
 
 
 
 
-            this.graphWidth  = this.width - prop.gutterLeft - prop.gutterRight;
-            this.graphHeight = this.height - prop.gutterTop - prop.gutterBottom;
+            this.graphWidth  = this.width - prop.marginLeft - prop.marginRight;
+            this.graphHeight = this.height - prop.marginTop - prop.marginBottom;
 
 
 
             // Work out the center point
-            this.centerx = (this.graphWidth / 2) + prop.gutterLeft;
-            this.centery = (this.graphHeight / 2) + prop.gutterTop;
-            this.radius  = ma.min(this.graphWidth, this.graphHeight) / 2;
+            this.centerx = (this.graphWidth / 2) + prop.marginLeft;
+            this.centery = (this.graphHeight / 2) + prop.marginTop;
+            this.radius  = Math.min(this.graphWidth, this.graphHeight) / 2;
 
 
 
@@ -290,13 +377,13 @@
 
 
 
-            /**
-            * Add the data to the .originalData array and work out the max value
-            * 
-            * 2/5/14 Now also use this loop to ensure that the data pieces
-            *        are numbers
-            */
-            if (RG.SVG.isArray(this.data) && (typeof this.data[0] === 'number' || typeof this.data[0] === 'string')) {
+            //
+            // Add the data to the .originalData array and work out the max value
+            // 
+            // 2/5/14 Now also use this loop to ensure that the data pieces
+            //        are numbers
+            //
+            if (RGraph.SVG.isArray(this.data) && (typeof this.data[0] === 'number' || typeof this.data[0] === 'string')) {
                 this.data = [this.data];
             }
 
@@ -306,7 +393,7 @@
                 for (var j=0; j<this.data[i].length; ++j) {
             
                     if (typeof this.data[i][j] === 'string') {
-                        this.data[i][j] = RG.SVG.stringsToNumbers(this.data[i][j]);
+                        this.data[i][j] = RGraph.SVG.stringsToNumbers(this.data[i][j]);
                     }
                 }
             }
@@ -339,23 +426,15 @@
 
 
 
-            /**
-            * Parse the colors. This allows for simple gradient syntax
-            * 
-            * ** must be after the cx/cy/r has been calcuated **
-            */
-            if (!this.colorsParsed) {
-                this.parseColors();
-                
-                // Don't want to do this again
-                this.colorsParsed = true;
-            }
+            // Parse the colors for gradients
+            RGraph.SVG.resetColorsToOriginalValues({object:this});
+            this.parseColors();
 
             //
             // Get the scale
             //
 
-            this.scale = RG.SVG.getScale({
+            this.scale = RGraph.SVG.getScale({
                 object:    this,
                 numlabels: typeof prop.scaleLabelsCount === 'number' ? prop.scaleLabelsCount : prop.backgroundGridConcentricCount,
                 unitsPre:  prop.scaleUnitsPre,
@@ -395,7 +474,7 @@
 
 
             // Draw the title and subtitle
-            RG.SVG.drawTitle(this);
+            RGraph.SVG.drawTitle(this);
 
 
 
@@ -403,16 +482,29 @@
             this.addTooltipHotspots();
 
 
+
+
+
+
+            // Draw the key
+            if (typeof prop.key !== null && RGraph.SVG.drawKey) {
+                RGraph.SVG.drawKey(this);
+            } else if (!RGraph.SVG.isNull(prop.key)) {
+                alert('The drawKey() function does not exist - have you forgotten to include the key library?');
+            }
+
+
+
             
             
             // Add the attribution link. If you're adding this elsewhere on your page/site
             // and you don't want it displayed then there are options available to not
             // show it.
-            RG.SVG.attribution(this);
+            RGraph.SVG.attribution(this);
 
             // Create the shadow definition if needed
             if (prop.shadow) {
-                RG.SVG.setShadow({
+                RGraph.SVG.setShadow({
                     object:  this,
                     offsetx: prop.shadowOffsetx,
                     offsety: prop.shadowOffsety,
@@ -429,13 +521,13 @@
             var obj = this;
             document.body.addEventListener('mousedown', function (e)
             {
-                RG.SVG.removeHighlight(obj);
+                obj.hideHighlight(obj);
             }, false);
 
 
 
             // Fire the draw event
-            RG.SVG.fireCustomEvent(this, 'ondraw');
+            RGraph.SVG.fireCustomEvent(this, 'ondraw');
 
 
 
@@ -457,8 +549,9 @@
             if (prop.backgroundGrid) {
             
                 // Create the background grid group tag
-                var grid = RG.SVG.create({
+                var grid = RGraph.SVG.create({
                     svg: this.svg,
+                    parent: this.svg.all,
                     type: 'g',
                     attr: {
                         className: 'rgraph_radar_grid',
@@ -468,12 +561,13 @@
                 });
             
                 // Draw the concentric "rings" grid lines that are
-                // arranged around the centerx/centery
+                // arranged around the centerx/centery along with
+                // the radials that eminate from the center outwards
 
-                var origin      = 0 - (RG.SVG.TRIG.PI / 2),
+                var origin      = 0 - (RGraph.SVG.TRIG.PI / 2),
                     radials     = (typeof prop.backgroundGridRadialsCount === 'number' ? prop.backgroundGridRadialsCount :  this.data[0].length),
                     concentrics = prop.backgroundGridConcentricsCount,
-                    step        = RG.SVG.TRIG.TWOPI / radials;
+                    step        = RGraph.SVG.TRIG.TWOPI / radials;
 
 
 
@@ -485,7 +579,7 @@
 
                     for (var i=0,len=radials; i<len; ++i) {
     
-                        var coords = RG.SVG.TRIG.toCartesian({
+                        var coords = RGraph.SVG.TRIG.toCartesian({
                             cx: this.centerx,
                             cy: this.centery,
                             r: this.radius,
@@ -499,7 +593,7 @@
                             coords.y
                         );
     
-                        RG.SVG.create({
+                        RGraph.SVG.create({
                             svg: this.svg,
                             type: 'path',
                             parent: grid,
@@ -518,36 +612,69 @@
 
                 // Draw the concentrics
                 if (concentrics > 0) {
-                    for (var j=1; j<=concentrics; j++) {
-                        for (var i=0,len=radials,path=[]; i<len; ++i) {
-    
-                            var coords = RG.SVG.TRIG.toCartesian({
-                                cx: this.centerx,
-                                cy: this.centery,
-                                r: this.radius * (j/concentrics),
-                                angle: origin + (i * step)
-                            });
+
+                    if (prop.backgroundGridPoly) {
+                        for (var j=1; j<=concentrics; j++) {
+                            for (var i=0,len=radials,path=[]; i<len; ++i) {
         
-                            path.push('{1} {2} {3}'.format(
-                                i === 0 ? 'M' : 'L',
-                                coords.x,
-                                coords.y
-                            ));
-    
-                        }
+                                var coords = RGraph.SVG.TRIG.toCartesian({
+                                    cx: this.centerx,
+                                    cy: this.centery,
+                                    r: this.radius * (j/concentrics),
+                                    angle: origin + (i * step)
+                                });
+            
+                                path.push('{1} {2} {3}'.format(
+                                    i === 0 ? 'M' : 'L',
+                                    coords.x,
+                                    coords.y
+                                ));
         
-                        // Now add the path to the scene
-                        RG.SVG.create({
-                            svg: this.svg,
-                            type: 'path',
-                            parent: grid,
-                            attr: {
-                                d: path.join(' ') + ' z',
-                                fill: 'transparent',
-                                stroke: prop.backgroundGridColor,
-                                'stroke-width': prop.backgroundGridLinewidth
                             }
-                        });
+            
+                            // Now add the path to the scene
+                            RGraph.SVG.create({
+                                svg: this.svg,
+                                type: 'path',
+                                parent: grid,
+                                attr: {
+                                    d: path.join(' ') + ' z',
+                                    fill: 'transparent',
+                                    stroke: prop.backgroundGridColor,
+                                    'stroke-width': prop.backgroundGridLinewidth
+                                }
+                            });
+                        }
+
+
+
+
+
+                    // Draw the background "grid" as concentric circles
+                    } else {
+
+
+
+
+
+
+                        for (var j=1; j<=concentrics; j++) {
+
+                            // Add circle to the scene
+                            RGraph.SVG.create({
+                                svg: this.svg,
+                                type: 'circle',
+                                parent: grid,
+                                attr: {
+                                    cx: this.centerx,
+                                    cy: this.centery,
+                                    r: this.radius * (j/concentrics),
+                                    fill: 'transparent',
+                                    stroke: prop.backgroundGridColor,
+                                    'stroke-width': prop.backgroundGridLinewidth
+                                }
+                            });
+                        }
                     }
                 }
             }
@@ -578,15 +705,15 @@
                 
                     var value = this.data[dataset][i];
 
-                    var xy = RG.SVG.TRIG.toCartesian({
+                    var xy = RGraph.SVG.TRIG.toCartesian({
                         cx: this.centerx,
                         cy: this.centery,
                         r: this.getRadius(this.data[dataset][i]),
-                        angle: (RG.SVG.TRIG.TWOPI / len2) * i - RG.SVG.TRIG.HALFPI
+                        angle: (RGraph.SVG.TRIG.TWOPI / len2) * i - RGraph.SVG.TRIG.HALFPI
                     });
 
                     xy.r     = (( (value - prop.scaleMin) / (this.max - prop.scaleMin) ) ) * this.radius;
-                    xy.angle = (RG.SVG.TRIG.TWOPI / len2) * i - RG.SVG.TRIG.HALFPI;
+                    xy.angle = (RGraph.SVG.TRIG.TWOPI / len2) * i - RGraph.SVG.TRIG.HALFPI;
 
                     path.push('{1}{2} {3}'.format(
                         i === 0 ? 'M' : 'L',
@@ -596,18 +723,29 @@
 
                     // Save the coordinates and angle
                     this.angles.push({
-                        cx:    this.centerx,
-                        cy:    this.centery,
-                        r:     xy.r,
-                        angle: xy.angle
+                        object:  this,
+                        dataset: dataset,
+                        index:   i,
+                        x:       xy.x,
+                        y:       xy.y,
+                        cx:      this.centerx,
+                        cy:      this.centery,
+                        r:       xy.r,
+                        angle:   xy.angle
                     });
                     this.angles2[dataset].push({
-                        cx:    this.centerx,
-                        cy:    this.centery,
-                        r:     xy.r,
-                        angle: xy.angle
+                        object:  this,
+                        dataset: dataset,
+                        index:   i,
+                        x:       xy.x,
+                        y:       xy.y,
+                        cx:      this.centerx,
+                        cy:      this.centery,
+                        r:       xy.r,
+                        angle:   xy.angle
                     });
 
+                    // These coords arrays just store the coordinates of the points.
                     this.coords.push([
                         xy.x,
                         xy.y
@@ -649,15 +787,17 @@
                 }
 
 
-                var path = RG.SVG.create({
+                var path = RGraph.SVG.create({
                     svg: this.svg,
                     type: 'path',
+                    parent: this.svg.all,
                     attr: {
                         d: path.join(" "),
                         stroke: prop.colors[dataset],
                         fill: prop.filled ? prop.colors[dataset] : 'transparent',
                         'fill-opacity': prop.filledOpacity,
                         'stroke-width': prop.linewidth,
+                        'clip-path': this.isTrace ? 'url(#trace-effect-clip)' : '',
                         filter: prop.shadow ? 'url(#dropShadow)' : '',
                     }
                 });
@@ -707,9 +847,10 @@
                         
                     path.push('z')
 
-                    RG.SVG.create({
+                    RGraph.SVG.create({
                         svg: this.svg,
                         type: 'path',
+                        parent: this.svg.all,
                         attr: {
                             d: path.join(" "),
                             stroke: prop.colors[dataset],
@@ -733,27 +874,30 @@
         //
         this.drawTickmarks = function ()
         {
-            var group = RG.SVG.create({
+            var group = RGraph.SVG.create({
                 svg:  this.svg,
+                parent: this.svg.all,
                 type: 'g',
                 attr: {
+                    className: 'rgraph_radar_tickmarks'
                 }
             });
 
             for (var i=0; i<this.coords2.length; ++i) {
                 for (var j=0; j<this.coords2[i].length; ++j) {
-                    if (prop.tickmarks === 'circle' || prop.tickmarks === 'filledcircle' ) {
-                        var c = RG.SVG.create({
+                    if (prop.tickmarksStyle === 'circle' || prop.tickmarksStyle === 'filledcircle' ) {
+                        var c = RGraph.SVG.create({
                             svg:  this.svg,
                             type: 'circle',
-                            fparent: group,
+                            parent: group,
                             attr: {
                                 cx: this.coords2[i][j][0],
                                 cy: this.coords2[i][j][1],
                                 r: prop.tickmarksSize,
-                                fill: prop.tickmarks === 'filledcircle' ? prop.colors[i] : prop.tickmarksFill,
+                                fill: prop.tickmarksStyle === 'filledcircle' ? prop.colors[i] : prop.tickmarksFill,
                                 stroke: prop.colors[i],
-                                'stroke-width': prop.tickmarksLinewidth
+                                'stroke-width': prop.tickmarksLinewidth,
+                                'clip-path': this.isTrace ? 'url(#trace-effect-clip)' : ''
                             }
                         });
                         
@@ -761,21 +905,21 @@
                         c.setAttribute('data-index', j);
                     
                     
-                    } else if (prop.tickmarks === 'rect' || prop.tickmarks === 'filledrect') {
+                    } else if (prop.tickmarksStyle === 'rect' || prop.tickmarksStyle === 'filledrect') {
                         
                         var halfTickmarkSize = prop.tickmarksSize / 2;
                         var fill = typeof prop.tickmarksFill === 'object' && prop.tickmarksFill[i] ? prop.tickmarksFill[i] : prop.tickmarksFill;
                         
-                        var s = RG.SVG.create({
+                        var s = RGraph.SVG.create({
                             svg:  this.svg,
                             type: 'rect',
-                            fparent: group,
+                            parent: group,
                             attr: {
                                 x: this.coords2[i][j][0] - halfTickmarkSize,
                                 y: this.coords2[i][j][1] - halfTickmarkSize,
                                 width: prop.tickmarksSize,
                                 height: prop.tickmarksSize,
-                                fill: prop.tickmarks === 'filledrect' ? prop.colors[i] : fill,
+                                fill: prop.tickmarksStyle === 'filledrect' ? prop.colors[i] : fill,
                                 stroke: prop.colors[i],
                                 'stroke-width': prop.tickmarksLinewidth
                             }
@@ -810,8 +954,8 @@
                     continue;
                 }
 
-                var endpoint = RG.SVG.TRIG.getRadiusEndPoint({
-                    angle: RG.SVG.TRIG.TWOPI / labels.length * i - RG.SVG.TRIG.HALFPI,
+                var endpoint = RGraph.SVG.TRIG.getRadiusEndPoint({
+                    angle: RGraph.SVG.TRIG.TWOPI / labels.length * i - RGraph.SVG.TRIG.HALFPI,
                     r: this.radius + 15
                 });
                 
@@ -843,15 +987,18 @@
                 if ( (i / len) === 0.75 ) {valign = 'center';}
 
 
-                RG.SVG.text({
+                RGraph.SVG.text({
                     object: this,
                     svg:    this.svg,
+                    parent: this.svg.all,
+                    tag:    'labels',
                     text:   labels[i],
-                    size:   typeof prop.labelsSize === 'number' ? prop.labelsSize : prop.textSize,
-                    x:       x,
-                    y:       y,
+                    x:      x,
+                    y:      y,
                     halign: halign,
                     valign: 'center',
+
+                    size:   typeof prop.labelsSize === 'number' ? prop.labelsSize : prop.textSize,
                     color:  prop.labelsColor || prop.textColor,
                     bold:   typeof prop.labelsBold   === 'boolean' ? prop.labelsBold   : prop.textBold,
                     italic: typeof prop.labelsItalic === 'boolean' ? prop.labelsItalic : prop.textItalic,
@@ -877,18 +1024,24 @@
                     var x = this.centerx;
                     var y = this.centery - (this.radius / this.scale.labels.length * (i+1) );
     
-    
-                    RG.SVG.text({
+
+                    RGraph.SVG.text({
+                        
                         object: this,
-                        svg:    this.svg,
+                        parent: this.svg.all,
+                        
+                        tag:    'labels.scale',
+                        
                         text:   this.scale.labels[i],
-                        size:   prop.scaleSize || prop.textSize - 2,
+                        
                         x:       x,
                         y:       y,
                         halign: 'center',
                         valign: 'center',
                         background: 'rgba(255,255,255,0.7)',
                         padding:2,
+                        
+                        size:   typeof prop.scaleSize === 'number' ? prop.scaleSize : prop.textSize - 2,
                         color:  prop.scaleColor  || prop.textColor,
                         bold:   typeof prop.scaleBold   === 'boolean' ? prop.scaleBold   : prop.textBold,
                         italic: typeof prop.scaleItalic === 'boolean' ? prop.scaleItalic : prop.textItalic,
@@ -897,7 +1050,7 @@
                 }
     
                 // Draw the zero label
-                var str = RG.SVG.numberFormat({
+                var str = RGraph.SVG.numberFormat({
                     object:    this,
                     num:       this.scale.min.toFixed(prop.scaleDecimals),
                     prepend:   prop.scaleUnitsPre,
@@ -906,20 +1059,24 @@
                     thousand:  prop.scaleThousand,
                     formatter: prop.scaleFormatter
                 });
-    
-    
-                RG.SVG.text({
+
+                RGraph.SVG.text({
                     object: this,
-                    svg:    this.svg,
+                    parent: this.svg.all,
+
+                    tag:    'labels.scale',
+
                     text:   str,
-                    size:   prop.scaleSize || prop.textSize - 2,
+
                     x:      this.centerx,
                     y:      this.centery,
                     halign: 'center',
                     valign: 'center',
                     background: 'rgba(255,255,255,0.7)',
                     padding:2,
+
                     color:  prop.scaleColor  || prop.textColor,
+                    size:   typeof prop.scaleSize   === 'number'  ? prop.scaleSize   : prop.textSize - 2,
                     bold:   typeof prop.scaleBold   === 'boolean' ? prop.scaleBold   : prop.textBold,
                     italic: typeof prop.scaleItalic === 'boolean' ? prop.scaleItalic : prop.textItalic,
                     font:   prop.scaleFont  || prop.textFont
@@ -934,30 +1091,20 @@
 
 
 
-        /**
-        * This function can be used to highlight a segment on the chart
-        * 
-        * @param object segment The segment to highlight
-        */
+        //
+        // This function can be used to highlight a segment on the chart
+        // 
+        // @param object circle The circle to highlight
+        //
         this.highlight = function (circle)
-        {
-            if (typeof prop.tickmarks === 'string' && prop.tickmarks) {
+        {                
+            circle.setAttribute('fill', prop.highlightFill);
+            circle.setAttribute('stroke', prop.highlightStroke);
+            circle.setAttribute('stroke-width', prop.highlightLinewidth);
                 
-                circle.setAttribute('fill', prop.highlightFill);
-                circle.setAttribute('stroke', prop.highlightStroke);
-                circle.setAttribute('stroke-width', prop.highlightLinewidth);
-                
-                window.addEventListener ('mousedown', function (e)
-                {
-                    circle.setAttribute('fill', 'transparent');
-                    circle.setAttribute('stroke', 'transparent');
-                    circle.setAttribute('stroke-width', 0);
-                    
-                    RG.SVG.REG.set('highlight', this);
-                }, false);
-                
-                this.highlight_hotspot = circle;
-            }
+            this.highlight_node = circle;
+
+            RGraph.SVG.REG.set('highlight', circle);
         };
 
 
@@ -968,17 +1115,15 @@
 
 
         // Add the hide function
-        this.hideHighlight = function ()
-        {
-            if (this.highlight_hotspot) {
-                this.highlight_hotspot.setAttribute('fill', 'transparent');
-                this.highlight_hotspot.setAttribute('stroke', 'transparent');
-                this.highlight_hotspot.setAttribute('stroke-width', 0);
+        //this.hideHighlight = function ()
+        //{
+        //    var highlight = RGraph.SVG.REG.get('highlight');
 
-                this.highlight_hotspot = null
-            }
-        };
-
+        //    if (highlight) {
+        //        highlight.setAttribute('fill', 'transparent');
+        //        highlight.setAttribute('stroke', 'transparent');
+        //    }
+        //};
 
 
 
@@ -986,16 +1131,17 @@
 
 
 
-        /**
-        * This allows for easy specification of gradients
-        */
+
+        //
+        // This allows for easy specification of gradients
+        //
         this.parseColors = function () 
         {
             // Save the original colors so that they can be restored when the canvas is reset
             if (!Object.keys(this.originalColors).length) {
                 this.originalColors = {
-                    colors:        RG.SVG.arrayClone(prop.colors),
-                    highlightFill: RG.SVG.arrayClone(prop.highlightFill)
+                    colors:        RGraph.SVG.arrayClone(prop.colors),
+                    highlightFill: RGraph.SVG.arrayClone(prop.highlightFill)
                 }
             }
             
@@ -1005,7 +1151,7 @@
 
             if (colors) {
                 for (var i=0; i<colors.length; ++i) {
-                    colors[i] = RG.SVG.parseColorRadial({
+                    colors[i] = RGraph.SVG.parseColorRadial({
                         object: this,
                         color: colors[i]
                     });
@@ -1013,7 +1159,7 @@
             }
             
             // Highlight fill
-            prop.highlightFill = RG.SVG.parseColorRadial({
+            prop.highlightFill = RGraph.SVG.parseColorRadial({
                 object: this,
                 color: prop.highlightFill
             });
@@ -1034,10 +1180,10 @@
             var max = 0;
 
             if (prop.filled && prop.filledAccumulative) {
-                this.max = RG.SVG.arrayMax(this.data[this.data.length - 1]);
+                this.max = RGraph.SVG.arrayMax(this.data[this.data.length - 1]);
             } else {
                 for (var dataset=0,max=0; dataset<this.data.length; ++dataset) {
-                    this.max = ma.max(this.max, RG.SVG.arrayMax(this.data[dataset]));
+                    this.max = Math.max(this.max, RGraph.SVG.arrayMax(this.data[dataset]));
                 }
             }
         };
@@ -1079,9 +1225,10 @@
                     prop.tooltipsEvent = 'click';
                 }
                 
-                var group = RG.SVG.create({
+                var group = RGraph.SVG.create({
                     svg: this.svg,
                     type: 'g',
+                    parent: this.svg.all,
                     attr: {
                         className: 'rgraph-radar-tooltip-hotspots'
                     }
@@ -1090,7 +1237,7 @@
                 for (var dataset=0,seq=0; dataset<this.coords2.length; ++dataset) {
                     for (var i=0; i<this.coords2[dataset].length; ++i) {
 
-                        var circle = RG.SVG.create({
+                        var circle = RGraph.SVG.create({
                             svg:  this.svg,
                             type: 'circle',
                             parent: group,
@@ -1100,52 +1247,50 @@
                                 r: prop.tickmarksSize,
                                 fill: 'transparent',
                                 stroke: 'transparent',
-                                'stroke-width': 0
+                                'stroke-width': 0,
+                                'data-sequential-index': seq
                             },
                             style: {
-                                cursor: 'pointer'
+                                cursor: prop['tooltips'][seq] ? 'pointer' : 'default'
                             }
                         });
 
                         (function (dataset, index, seq, obj)
                         {
-                            circle.addEventListener(prop.tooltipsEvent, function (e)
-                            {
-                                var tooltip = RG.SVG.REG.get('tooltip');
-                                
-                                if (tooltip && tooltip.__sequentialIndex__ === seq) {
-                                    return;
-                                }
-                                
-                                RG.SVG.hideTooltip();
-                                obj.hideHighlight();
-
-                                // Show the tooltip
-                                RG.SVG.tooltip({
-                                    object: obj,
-                                    dataset: dataset,
-                                    index: index,
-                                    sequentialIndex: seq,
-                                    text: prop.tooltips[seq],
-                                    event: e
-                                });
-                                
-                                // Highlight the rect that has been clicked on
-                                obj.highlight(this);
-
-                                if (prop.tooltipsEvent === 'mousemove') {
-                                    highlight.style.cursor = 'pointer';
-                                }
-                                
-                            }, false);
-        
-                            // Install the event listener that changes the
-                            // cursor if necessary
-                            if (prop.tooltipsEvent === 'click') {
-                                circle.addEventListener('mousemove', function (e)
+                            if (prop.tooltips[seq]) {
+                                circle.addEventListener(prop.tooltipsEvent, function (e)
                                 {
-                                    e.target.style.cursor = 'pointer';
+                                    var tooltip = RGraph.SVG.REG.get('tooltip');
+    
+                                    //obj.hideHighlight();
+                                    
+                                    if (tooltip && tooltip.__sequentialIndex__ === seq) {
+                                        return;
+                                    }
+    
+                                    // Show the tooltip
+                                    RGraph.SVG.tooltip({
+                                        object: obj,
+                                        dataset: dataset,
+                                        index: index,
+                                        sequentialIndex: seq,
+                                        text: prop.tooltips[seq],
+                                        event: e
+                                    });
+    
+                                    // Highlight the shape that has been clicked on
+                                    obj.highlight(this);
+                                    
                                 }, false);
+            
+                                // Install the event listener that changes the
+                                // cursor if necessary
+                                if (prop.tooltipsEvent === 'click') {
+                                    circle.addEventListener('mousemove', function (e)
+                                    {
+                                        e.target.style.cursor = 'pointer';
+                                    }, false);
+                                }
                             }
                             
                         }(dataset, i, seq++, this));
@@ -1173,12 +1318,12 @@
 /*
             var obj       = this,
                 opt       = arguments[0] || {},
-                data      = RG.SVG.arrayClone(this.data),
+                data      = RGraph.SVG.arrayClone(this.data),
                 prop      = this.properties,
                 frame     = 1,
                 frames    = opt.frames || 30,
                 callback  = typeof opt.callback === 'function' ? opt.callback : function () {},
-                dataSum   = RG.SVG.arraySum(this.data),
+                dataSum   = RGraph.SVG.arraySum(this.data),
                 textColor = prop.textColor;
             
             // Set the text color to transparent
@@ -1189,7 +1334,7 @@
             obj.draw();
             
             // Now get the resulting angles
-            angles = RG.SVG.arrayClone(obj.angles);
+            angles = RGraph.SVG.arrayClone(obj.angles);
 
 
             function iterator ()
@@ -1209,14 +1354,14 @@
                     obj.angles[i].start = angles[i].start * prop.roundRobinMultiplier;
                     obj.angles[i].end   = angles[i].end   * prop.roundRobinMultiplier;
 
-                    //var segment = (((value * prop.roundRobinMultiplier) / dataSum) * RG.SVG.TRIG.TWOPI);
+                    //var segment = (((value * prop.roundRobinMultiplier) / dataSum) * RGraph.SVG.TRIG.TWOPI);
                     var segment = ((obj.angles[i].end - obj.angles[i].start) / 2);
-                    var explodedX = ma.cos(obj.angles[i].start + segment - RG.SVG.TRIG.HALFPI) * (prop.exploded[i] || 0);
-                    var explodedY = ma.sin(obj.angles[i].start + segment - RG.SVG.TRIG.HALFPI) * (prop.exploded[i] || 0);
+                    var explodedX = Math.cos(obj.angles[i].start + segment - RGraph.SVG.TRIG.HALFPI) * (prop.exploded[i] || 0);
+                    var explodedY = Math.sin(obj.angles[i].start + segment - RGraph.SVG.TRIG.HALFPI) * (prop.exploded[i] || 0);
 
 
 
-                    var path = RG.SVG.TRIG.getArcPath({
+                    var path = RGraph.SVG.TRIG.getArcPath({
                         cx:    obj.centerx + explodedX,
                         cy:    obj.centery + explodedY,
                         r:     obj.radius,// * prop.roundRobinMultiplier,
@@ -1237,11 +1382,11 @@
 
 
                 if (frame <= frames) {
-                    RG.SVG.FX.update(iterator);
+                    RGraph.SVG.FX.update(iterator);
                 } else {
                     prop.textColor = textColor;
 
-                    RG.SVG.redraw(obj.svg);
+                    RGraph.SVG.redraw(obj.svg);
 
                     callback(obj);
                 }
@@ -1260,20 +1405,20 @@
 
 
 
-        /**
-        * Using a function to add events makes it easier to facilitate method
-        * chaining
-        * 
-        * @param string   type The type of even to add
-        * @param function func 
-        */
+        //
+        // Using a function to add events makes it easier to facilitate method
+        // chaining
+        // 
+        // @param string   type The type of even to add
+        // @param function func 
+        //
         this.on = function (type, func)
         {
             if (type.substr(0,2) !== 'on') {
                 type = 'on' + type;
             }
             
-            RG.SVG.addCustomEventListener(this, type, func);
+            RGraph.SVG.addCustomEventListener(this, type, func);
     
             return this;
         };
@@ -1297,6 +1442,108 @@
             
             return this;
         };
+
+
+
+
+
+
+
+
+        //
+        // Removes the tooltip highlight from the chart
+        //
+        this.removeHighlight =
+        this.hideHighlight   = function ()
+        {
+            var highlight = RGraph.SVG.REG.get('highlight');
+
+            if (highlight && this.highlight_node) {
+                this.highlight_node.setAttribute('fill','transparent');
+                this.highlight_node.setAttribute('stroke','transparent');
+                
+                RGraph.SVG.REG.set('highlight', null);
+            }
+        };
+
+
+
+
+
+
+
+
+    //
+    // The trace effect
+    //
+    // @param ... object Options to the effect
+    // @param ... function A callback function to run when the effect finishes
+    //
+    this.trace = function ()
+    {
+        var opt      = arguments[0] || {},
+            frame    = 1,
+            frames   = opt.frames || 120,
+            obj      = this
+            step     = 360 / frames;
+
+        this.isTrace = true;
+
+        this.draw();
+
+        // Create the clip area
+        var clipPath = RGraph.SVG.create({
+            svg: this.svg,
+            parent: this.svg.defs,
+            type: 'clipPath',
+            attr: {
+                id: 'trace-effect-clip'
+            }
+        });
+        
+        clipPathArcPath = RGraph.SVG.TRIG.getArcPath2({
+            cx:    this.angles[0].cx,
+            cy:    this.angles[0].cy,
+            r:     this.angles[0].r * 2,
+            start: 0,
+            end:   0
+        });
+
+        var clipPathArc = RGraph.SVG.create({
+            svg: this.svg,
+            parent: clipPath,
+            type: 'path',
+            attr: {
+                d: clipPathArcPath
+            }
+        });
+        
+        
+        var iterator = function ()
+        {
+            var width = (frame++) / frames * obj.width;
+            var deg   = (360 / frames) * frame++,
+                rad   = (RGraph.SVG.TRIG.TWOPI / 360) * deg
+
+            clipPathArc.setAttribute('d', RGraph.SVG.TRIG.getArcPath2({
+                cx:    obj.angles[0].cx,
+                cy:    obj.angles[0].cy,
+                r:     obj.angles[0].r * 2,
+                start: 0,
+                end:   rad
+            }));
+            
+            if (frame <= frames) {
+                RGraph.SVG.FX.update(iterator);
+            } else if (opt.callback) {
+                (opt.callback)(obj);
+            }
+        };
+        
+        iterator();
+        
+        return this;
+    };
 
 
 

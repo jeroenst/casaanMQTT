@@ -3,12 +3,14 @@ RGraph is licensed under the Open Source MIT license. Feel free
 to use it and/or change it as you wish.
 
 If you wish to contribute to the development of RGraph or make a donation, you can
-do so here (thanks!): http://www.rgraph.net/donate
+do so here (thanks!): https://www.rgraph.net/donate
 
 
 Support
 =======
-Support is available using the support forum: http://www.rgraph.net/forum
+Support is available via email and you send me a request by using the form on this
+page: https://www.rgraph.net/support.html or you can ask on stackoverflow.com -
+your choice.
 
 
 The MIT license

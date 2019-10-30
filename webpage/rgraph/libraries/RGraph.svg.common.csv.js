@@ -1,35 +1,105 @@
-// version: 2017-01-02
-    /**
-    * o--------------------------------------------------------------------------------o
-    * | This file is part of the RGraph package - you can learn more at:               |
-    * |                                                                                |
-    * |                          http://www.rgraph.net                                 |
-    * |                                                                                |
-    * | RGraph is licensed under the Open Source MIT license. That means that it's     |
-    * | totally free to use!                                                           |
-    * o--------------------------------------------------------------------------------o
-    */
+// version: 2019-10-11
+    // o--------------------------------------------------------------------------------o
+    // | This file is part of the RGraph package - you can learn more at:               |
+    // |                                                                                |
+    // |                         https://www.rgraph.net                                 |
+    // |                                                                                |
+    // | RGraph is licensed under the Open Source MIT license. That means that it's     |
+    // | totally free to use and there are no restrictions on what you can do with it!  |
+    // o--------------------------------------------------------------------------------o
 
-    /**
-    * Initialise the various objects
-    */
-    RGraph = window.RGraph || {isRGraph: true};
+    //
+    // Initialise the various objects
+    //
+    RGraph     = window.RGraph || {isRGraph: true};
+    RGraph.SVG = RGraph.SVG || {};
+    
+
+
+
+
+
+
+
+    //
+    // This function has been taken out of the RGraph.svg.common.ajax.js file to
+    // enable the CSV reader to work standalone.
+    //
+    if (!RGraph.SVG.AJAX) RGraph.SVG.AJAX = function (url, callback)
+    {
+        // Mozilla, Safari, ...
+        if (window.XMLHttpRequest) {
+            var httpRequest = new XMLHttpRequest();
+
+        // MSIE
+        } else if (window.ActiveXObject) {
+            var httpRequest = new ActiveXObject("Microsoft.XMLHTTP");
+        }
+
+        httpRequest.onreadystatechange = function ()
+        {
+            if (this.readyState == 4 && this.status == 200) {
+                this.__user_callback__ = callback;
+
+                this.__user_callback__(this.responseText);
+            }
+        }
+
+        httpRequest.open('GET', url, true);
+        httpRequest.send();
+    };
+
+
+
+
+
+
+
+
+    //
+    // Use the AJAX function above to fetch a string
+    //
+    if (!RGraph.SVG.getString) RGraph.SVG.AJAX.getString = function (url, callback)
+    {
+        RGraph.SVG.AJAX(url, function ()
+        {
+            var str = String(this.responseText);
+
+            callback(str);
+        });
+    };
+
+
+
+
+
+
+
+
+    // This function simply creates UID. Formerly the function in
+    // RGraph.common.core.js was being used - but now the CSV code
+    // is now standalone, hence this function
+    if (!RGraph.SVG.createUID) RGraph.SVG.createUID = function ()
+    {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c)
+        {
+            var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+            return v.toString(16);
+        });
+    };
+
+
+
+
 
 
 
 
     RGraph.CSV = function (url, func)
     {
-        var RG  = RGraph,
-            ua  = navigator.userAgent,
-            ma  = Math;
-
-
-
-
-        /**
-        * Some default values
-        */
+        //
+        // Some default values
+        //
         this.url       = url;
         this.ready     = func;
         this.data      = null;
@@ -41,16 +111,16 @@
 
 
 
-        /**
-        * A Custom split function
-        * 
-        * @param string str  The CSV string to split
-        * @param mixed  char The character to split on - or it can also be an object like this:
-        *                    {
-        *                        preserve: false, // Whether to preserve whitespace
-        *                        char: ','        // The character to split on
-        *                    }
-        */
+        //
+        // A Custom split function
+        // 
+        // @param string str  The CSV string to split
+        // @param mixed  char The character to split on - or it can also be an object like this:
+        //                    {
+        //                        preserve: false, // Whether to preserve whitespace
+        //                        char: ','        // The character to split on
+        //                    }
+        //
         this.splitCSV = function (str, split)
         {
             // Defaults
@@ -118,9 +188,9 @@
 
 
 
-        /**
-        * This function splits the CSV data into an array so that it can be useful.
-        */
+        //
+        // This function splits the CSV data into an array so that it can be useful.
+        //
         this.fetch = function ()
         {
             var sep = this.seperator,
@@ -146,9 +216,9 @@
                 for (var i=0,len=obj.data.length; i<len; i+=1) {
 
 
-                    /**
-                    * Split the individual line
-                    */
+                    //
+                    // Split the individual line
+                    //
                     //var row = obj.data[i].split(sep);
                     var row = obj.splitCSV(obj.data[i], {preserve: false, char: sep});
 
@@ -157,9 +227,9 @@
                         obj.numcols = row.length;
                     }
 
-                    /**
-                    * If the cell is purely made up of numbers - convert it
-                    */
+                    //
+                    // If the cell is purely made up of numbers - convert it
+                    //
                     for (var j=0; j<row.length; j+=1) {
                         if ((/^\-?[0-9.]+$/).test(row[j])) {
                             row[j] = parseFloat(row[j]);
@@ -179,25 +249,25 @@
                 {
                     data = data.replace(/(\r?\n)+$/, '');
 
-                    /**
-                    * Split the lines in the CSV
-                    */
+                    //
+                    // Split the lines in the CSV
+                    //
                     obj.data = data.split(eol);
 
-                    /**
-                    * Store the number of rows
-                    */
+                    //
+                    // Store the number of rows
+                    //
                     obj.numrows = obj.data.length;
 
 
 
-                    /**
-                    * Loop thru each lines in the CSV file
-                    */
+                    //
+                    // Loop thru each lines in the CSV file
+                    //
                     for (var i=0,len=obj.data.length; i<len; i+=1) {
-                        /**
-                        * Use the new split function to split each row NOT preserving whitespace
-                        */
+                        //
+                        // Use the new split function to split each row NOT preserving whitespace
+                        //
                         //var row = obj.data[i].split(sep);
                         var row = obj.splitCSV(obj.data[i], {preserve: false, char: sep});
 
@@ -205,9 +275,9 @@
                             obj.numcols = row.length;
                         }
 
-                        /**
-                        * If the cell is purely made up of numbers - convert it
-                        */
+                        //
+                        // If the cell is purely made up of numbers - convert it
+                        //
                         for (var j=0; j<row.length; j+=1) {
                             if ((/^\-?[0-9.]+$/).test(row[j])) {
                                 row[j] = parseFloat(row[j]);
@@ -228,12 +298,12 @@
 
 
 
-        /**
-        * Returns a row of the CSV file
-        * 
-        * @param number index The index of the row to fetch
-        * @param        start OPTIONAL If desired you can specify a column to start at (which starts at 0 by default)
-        */
+        //
+        // Returns a row of the CSV file
+        // 
+        // @param number index The index of the row to fetch
+        // @param        start OPTIONAL If desired you can specify a column to start at (which starts at 0 by default)
+        //
         this.getRow = function (index)
         {
             var row   = [];
@@ -249,12 +319,12 @@
 
 
 
-        /**
-        * Returns a column of the CSV file
-        * 
-        * @param number index The index of the column to fetch
-        * @param        start OPTIONAL If desired you can specify a row to start at (which starts at 0 by default)
-        */
+        //
+        // Returns a column of the CSV file
+        // 
+        // @param number index The index of the column to fetch
+        // @param        start OPTIONAL If desired you can specify a row to start at (which starts at 0 by default)
+        //
         this.getCol =
         this.getColumn = function (index)
         {

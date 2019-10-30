@@ -1,18 +1,16 @@
-// version: 2017-01-02
-    /**
-    * o--------------------------------------------------------------------------------o
-    * | This file is part of the RGraph package - you can learn more at:               |
-    * |                                                                                |
-    * |                          http://www.rgraph.net                                 |
-    * |                                                                                |
-    * | RGraph is licensed under the Open Source MIT license. That means that it's     |
-    * | totally free to use!                                                           |
-    * o--------------------------------------------------------------------------------o
-    */
+// version: 2019-10-11
+    // o--------------------------------------------------------------------------------o
+    // | This file is part of the RGraph package - you can learn more at:               |
+    // |                                                                                |
+    // |                         https://www.rgraph.net                                 |
+    // |                                                                                |
+    // | RGraph is licensed under the Open Source MIT license. That means that it's     |
+    // | totally free to use and there are no restrictions on what you can do with it!  |
+    // o--------------------------------------------------------------------------------o
 
-    /**
-    * Initialise the various objects
-    */
+    //
+    // Initialise the various objects
+    //
     RGraph = window.RGraph || {isRGraph: true};
 
 // Module pattern
@@ -28,7 +26,7 @@
         if (arguments.length === 3) {
             worksheet = Number(arguments[1]);
             callback  = arguments[2];
-        
+
         // 2 arguments
         } else {
             worksheet = 1;
@@ -37,9 +35,9 @@
         
         var url = 'https://spreadsheets.google.com/feeds/cells/[KEY]/[WORKSHEET]/public/full?alt=json-in-script&callback=__rgraph_JSONPCallback'.replace(/\[KEY\]/, key).replace(/\[WORKSHEET\]/, worksheet);
         
-        /*
-        * https://spreadsheets.google.com/feeds/cells/1q_BMjvKO_kKbAO3VjoaITSDyrLAk8f0SK5UFMmE3oRs/2/public/full?alt=json-in-script
-        */
+        //
+        // https://spreadsheets.google.com/feeds/cells/1q_BMjvKO_kKbAO3VjoaITSDyrLAk8f0SK5UFMmE3oRs/2/public/full?alt=json-in-script
+        //
     
 
         
@@ -170,7 +168,7 @@
 
             // Trim the array if required
             if (opt.trim) {
-                row = RGraph.SVG.arrayTrim(row);
+                row = RGraph.Sheets.arrayRTrim(row);
             }
 
             return row;
@@ -206,7 +204,7 @@
 
             // Trim the array if required
             if (opt.trim) {
-                col = RGraph.SVG.arrayTrim(col);
+                col = RGraph.Sheets.arrayRTrim(col);
             }
 
             // Now account for the start index
@@ -253,7 +251,10 @@
             //
             // Handle the style of .get('C') or .get('AA'
             //
-            if (str.match(/^[a-z]+$/i)) {
+            if (str.match(/^\s*([a-z]+)\s*$/i)) {
+            
+                str = RegExp.$1;
+            
                 if (str.length === 1) {
                     var index = letters.indexOf(str) + 1;
                     return this.col(index, 1, arguments[1]);
@@ -271,7 +272,7 @@
             // Handle the style of .get('2');
             //(fetching a whole row
             //
-            if (str.match(/^[0-9]+$/i)) {
+            if (str.match(/^\s*[0-9]+\s*$/i)) {
                 return this.row(str, null, arguments[1]);
             }
             
@@ -282,7 +283,7 @@
             // Handle the style of .get('E2');
             //(fetching a single cell)
             //
-            if (str.match(/^([a-z]{1,2})([0-9]+)$/i)) {
+            if (str.match(/^\s*([a-z]{1,2})([0-9]+)\s*$/i)) {
                 
                 var letter = RegExp.$1,
                     number = RegExp.$2,
@@ -299,14 +300,15 @@
             // Handle the style of .get('B2:E2');
             //(fetching the E2 cell to the E2 cell)
             //
-            if (str.match(/^([a-z]{1,2})([0-9]+):([a-z]{1,2})([0-9]+)$/i)) {
+            if (str.match(/^\s*([a-z]{1,2})([0-9]+)\s*:\s*([a-z]{1,2})([0-9]+)\s*$/i)) {
 
                 var letter1 = RegExp.$1,
-                    number1 = RegExp.$2,
                     letter2 = RegExp.$3,
-                    number2 = RegExp.$4
+                    number1 = parseInt(RegExp.$2),
+                    number2 = parseInt(RegExp.$4)
 
 
+                // A column
                 if (letter1 === letter2) {
                     var cells = [],
                         index = this.getIndexOfLetters(letter1),
@@ -316,6 +318,7 @@
                         cells.push(col[i]);
                     }
 
+                // A row
                 } else if (number1 === number2) {
 
                     var cells = [],
@@ -326,13 +329,26 @@
                     for (var i=(index1 - 1); i<=(index2 - 1); ++i) {
                         cells.push(row[i]);
                     }
+
+                // A matrix
+                } else if (letter1 !== letter2 && number1 !== number2) {
+
+                    var cells  = [],
+                        index1 = this.getIndexOfLetters(letter1),
+                        index2 = this.getIndexOfLetters(letter2),
+                        row    = [];
+
+                    for (var i=number1; i<=number2; ++i) {
+                        row = this.row(i).slice(index1 - 1, index2 /* Don't need to subtract 1 here as we want to be inclusive*/ );
+                        cells.push(row);
+                    }
                 }
 
                 // Trim the results
                 if (arguments[1] && arguments[1].trim === false) {
                     // Nada
                 } else {
-                    cells = RGraph.SVG.arrayTrim(cells);
+                    cells = RGraph.Sheets.arrayRTrim(cells);
                 }
 
                 return cells;
@@ -348,6 +364,39 @@
         //
         this.load(url, callback);
     };
+
+
+
+
+    // This function trims an array of empty values. Its here so that the Google
+    // Sheets code can be used with the RGraph.common.core file
+
+    //
+    // An array_trim function that removes the empty elements off
+    // both ends
+    //
+    // @param  array arr The array to trim.
+    // @return array     The array
+    //
+    RGraph.Sheets.arrayRTrim = function (arr)
+    {
+        var out = [], content = false;
+
+        // Trim the end
+        for (var i=(arr.length - 1); i>=0; i--) {
+            if (arr[i] || content) {
+                out.push(arr[i]);
+                content = true;
+            }
+        }
+        
+        arr = out.reverse();
+        
+        return out;
+    };
+
+
+
 
 // End module pattern
 })(window, document);

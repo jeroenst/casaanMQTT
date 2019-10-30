@@ -1,14 +1,12 @@
-// version: 2017-01-02
-    /**
-    * o--------------------------------------------------------------------------------o
-    * | This file is part of the RGraph package - you can learn more at:               |
-    * |                                                                                |
-    * |                          http://www.rgraph.net                                 |
-    * |                                                                                |
-    * | RGraph is licensed under the Open Source MIT license. That means that it's     |
-    * | totally free to use!                                                           |
-    * o--------------------------------------------------------------------------------o
-    */
+// version: 2019-10-11
+    // o--------------------------------------------------------------------------------o
+    // | This file is part of the RGraph package - you can learn more at:               |
+    // |                                                                                |
+    // |                         https://www.rgraph.net                                 |
+    // |                                                                                |
+    // | RGraph is licensed under the Open Source MIT license. That means that it's     |
+    // | totally free to use and there are no restrictions on what you can do with it!  |
+    // o--------------------------------------------------------------------------------o
 
     RGraph     = window.RGraph || {isRGraph: true,isRGraphSVG: true};
     RGraph.SVG = RGraph.SVG || {};
@@ -16,20 +14,15 @@
 // Module pattern
 (function (win, doc, undefined)
 {
-    var RG  = RGraph,
-        ua  = navigator.userAgent,
-        ma  = Math;
-
-
-
-    /**
-    * This is used in two functions, hence it's here
-    */
-    RG.SVG.tooltips       = {};
-    RG.SVG.tooltips.style = {
+    //
+    // This is used in two functions, hence it's here
+    //
+    RGraph.SVG.tooltips       = {};
+    RGraph.SVG.tooltips.style = {
         display:    'inline-block',
         position:   'absolute',
         padding:    '6px',
+        lineHeight: 'initial',
         fontFamily: 'Arial',
         fontSize:   '12pt',
         fontWeight: 'normal',
@@ -42,7 +35,7 @@
         zIndex:     3,
         borderRadius: '5px',
         boxShadow:  'rgba(96,96,96,0.5) 0 0 5px',
-        opacity:    0
+        transition: 'left ease-out .25s, top ease-out .25s'
     };
 
 
@@ -52,17 +45,15 @@
     // @param obj The chart object
     // @param opt The options
     //
-    RG.SVG.tooltip = function (opt)
+    RGraph.SVG.tooltip = function (opt)
     {
         var obj = opt.object;
 
         // Fire the beforetooltip event
-        RG.SVG.fireCustomEvent(obj, 'onbeforetooltip');
+        RGraph.SVG.fireCustomEvent(obj, 'onbeforetooltip');
 
 
-
-
-        if (RG.SVG.trim(opt.text).length === 0) {
+        if (!opt.text || typeof opt.text === 'undefined' || RGraph.SVG.trim(opt.text).length === 0) {
             return;
         }
 
@@ -72,28 +63,77 @@
 
 
 
-        /**
-        * chart.tooltip.override allows you to totally take control of rendering the tooltip yourself
-        */
+        //
+        // chart.tooltip.override allows you to totally take control of rendering the tooltip yourself
+        //
         if (typeof prop.tooltipsOverride === 'function') {
+
+            // Add the body click handler that clears the highlight if necessary
+            //
+            document.body.addEventListener('mouseup', function (e)
+            {
+                obj.removeHighlight();
+            }, false);
+
             return (prop.tooltipsOverride)(obj, opt);
         }
 
 
 
+
+
+
+
+
         // Create the tooltip DIV element
-        var tooltipObj       = document.createElement('DIV');
-        tooltipObj.className = prop.tooltipsCssClass;
+        if (!RGraph.SVG.REG.get('tooltip')) {
 
-
-
-        // Add the default CSS to the tooltip
-        for (var i in RG.SVG.tooltips.style) {
-            if (typeof i === 'string') {
-                tooltipObj.style[i] = RG.SVG.tooltips.style[i];
+            var tooltipObj        = document.createElement('DIV');
+            tooltipObj.className  = prop.tooltipsCssClass;
+    
+    
+    
+    
+            // Add the default CSS to the tooltip
+            for (var i in RGraph.SVG.tooltips.style) {
+                if (typeof i === 'string') {
+                    tooltipObj.style[i] = RGraph.SVG.tooltips.style[i];
+                }
             }
+
+
+
+
+
+        // Reuse an existing tooltip
+        } else {
+            var tooltipObj = RGraph.SVG.REG.get('tooltip');
+            tooltipObj.__object__.removeHighlight();
+            
+            // This prevents the object from continuously growing
+            tooltipObj.style.width = '';
         }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        if (RGraph.SVG.REG.get('tooltip-lasty')) {
+            tooltipObj.style.left = RGraph.SVG.REG.get('tooltip-lastx') + 'px';
+            tooltipObj.style.top  = RGraph.SVG.REG.get('tooltip-lasty') + 'px';
+        }
 
         tooltipObj.innerHTML  = opt.text;
         tooltipObj.__text__   = opt.text; // This is set because the innerHTML can change when it's set
@@ -112,7 +152,7 @@
         }
 
         // Add the group
-        if (typeof opt.group === 'number' || RG.SVG.isNull(opt.group)) {
+        if (typeof opt.group === 'number' || RGraph.SVG.isNull(opt.group)) {
             tooltipObj.__group__ = opt.group;
         }
 
@@ -130,7 +170,7 @@
         
         var width  = tooltipObj.offsetWidth,
             height = tooltipObj.offsetHeight;
-        
+
         // Move the tooltip into position
         tooltipObj.style.left = opt.event.pageX - (width / 2) + 'px';
         tooltipObj.style.top  = opt.event.pageY - height - 15 + 'px';
@@ -138,14 +178,13 @@
 
 
 
-        /**
-        * Set the width on the tooltip so it doesn't resize if the window is resized
-        */
+        //
+        // Set the width on the tooltip so it doesn't resize if the window is resized
+        //
         tooltipObj.style.width = width + 'px';
-        
-        
-        // Fade the tooltip in if the tooltip effect is "fade"
-        if (prop.tooltipsEffect === 'fade') {
+
+        // Fade the tooltip in if the tooltip is not the first view
+        if (!RGraph.SVG.REG.get('tooltip-lastx')) {
             for (var i=0; i<=30; ++i) {
                 (function (idx)
                 {
@@ -155,9 +194,6 @@
                     }, (idx / 30) * 200);
                 })(i);
             }
-        } else {
-            tooltipObj.style.opacity  = 1;
-            tooltipObj.style.display  = 'inline-block';
         }
 
 
@@ -180,7 +216,7 @@
 
         // If the canvas has fixed positioning then set the tooltip position to
         // fixed too
-        if (RG.SVG.isFixed(obj.svg)) {
+        if (RGraph.SVG.isFixed(obj.svg)) {
             var scrollTop = window.scrollY || document.documentElement.scrollTop;
 
             tooltipObj.style.position = 'fixed';
@@ -202,7 +238,7 @@
         };
 
         // Cancel the click event
-        tooltipObj.onclick = function (e)
+        tooltipObj.onclick  = function (e)
         {
             if (e.button == 0) {
                 e.stopPropagation();
@@ -210,21 +246,27 @@
         };
         
         // Add the body click handler that clears the tooltip
-        document.body.addEventListener('mousedown', function (e)
+        document.body.addEventListener('mouseup', function (e)
         {
-            RG.SVG.hideTooltip();
+            RGraph.SVG.hideTooltip();
         }, false);
 
 
-        /**
-        * Keep a reference to the tooltip in the registry
-        */
-        RG.SVG.REG.set('tooltip', tooltipObj);
+
+
+
+        //
+        // Keep a reference to the tooltip in the registry
+        //
+        RGraph.SVG.REG.set('tooltip', tooltipObj);
+        RGraph.SVG.REG.set('tooltip-lastx', parseFloat(tooltipObj.style.left));
+        RGraph.SVG.REG.set('tooltip-lasty', parseFloat(tooltipObj.style.top));
+
 
         //
         // Fire the tooltip event
         //
-        RG.SVG.fireCustomEvent(obj, 'ontooltip');
+        RGraph.SVG.fireCustomEvent(obj, 'ontooltip');
     };
 
 

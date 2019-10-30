@@ -1,0 +1,143 @@
+<!DOCTYPE html >
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="demos.css" type="text/css" media="screen" />
+    
+    <script src="../libraries/RGraph.common.core.js" ></script>
+    <script src="../libraries/RGraph.rose.js" ></script>
+    <script src="../libraries/RGraph.pie.js" ></script>
+    <script src="demos.js" ></script>
+    
+    <title>RGraph demo: A progress-bar Pie/Donut chart</title>
+
+
+    
+    <meta name="description" content="A progress bar Pie/Donut chart. It takes a fair amount of configuration but all the code to do it is shown below." />
+     
+    <!-- <RGRAPH_REMOVE> -->
+    <meta name="robots" content="noindex, nofollow" />
+    <!-- </RGRAPH_REMOVE> -->
+
+</head>
+<body>    
+
+    <h1>A progress-bar Pie/Donut chart</h1>
+
+    <canvas id="cvs" width="400" height="400" style="float: right">[No canvas support]</canvas>
+    
+    <p>
+        Here's an interesting variation on a Pie chart/Progress bar. It's one way to show
+        multiple progress values that might make more sense when they're circular.
+    </p>
+    
+    <p>
+        All the code is below and it might make sense to put it all in a function in a library file
+        so that you can call it multiple times as necessary.
+    </p>
+    
+    <p>
+        As well as the Pie chart the code also uses the Rose chart in order to draw the
+        background grid - not something that the Pie chart has or does.
+    </p>
+    
+    <p>
+        Basically after the Rose chart has drawn the grid the Pie charts are then drawn on
+        top of it and a custom label is drawn by using the API function
+        <code>RGraph.text2()</code> (which is a function that makes adding text to the canvas a
+        breeze).
+    </p>
+    
+    <p>
+        If you wanted to add animation then the <code>roundrobin()</code> effect looks nice
+        though because there's 12 Pie charts in total and they'll all be animating at once
+        you might find that a CSS based effect is smoother.
+    </p>
+
+    <br clear="all" />
+    
+    <script>
+        // Some variables to play with
+        data   = [0,0,3,2,1,6,4,5,3,6,8,7,8,9];
+        labels = ['','','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        color  = '#22B573';
+
+        // The Rose chart is used to draw the background grid only
+        rose = new RGraph.Rose({
+            id: 'cvs',
+            data: [0],
+            options: {
+                colors: ['rgba(0,0,0,0)'],
+                labelsAxes: '',
+                backgroundGridCirclesCount: data.length
+            }
+        }).on('draw', function (obj)
+        {
+            // This path hides the inner-most grid circle - that's all
+            RGraph.path2(
+                obj.context,
+                'b a % % 30 0 6.28 false f white',
+                obj.centerx,
+                obj.centery
+            );
+        }).draw();
+
+        // Now draw the "bars" which are Pie charts where the colors are set to
+        // the desired color and transparent
+        for (var i=0; i<data.length; i++) {
+            var pie = new RGraph.Pie({
+                data: [data[i],10 - data[i]],
+                id: 'cvs',
+                options: {
+                    variant: 'donut',
+                    variantDonutWidth: (rose.radius / (data.length) ) - 5,
+                    radius: ((rose.radius / data.length) * (i+1) ) - 2,
+                    shadow: false,
+                    colors: [color, 'rgba(0,0,0,0)'],
+                    colorsStroke: 'rgba(0,0,0,0)'
+               }
+           }).draw();
+           
+           // These are the text labels that sit on the left of the 'North' axis.
+           RGraph.text2(rose.context, {
+                x: rose.centerx - 2,
+                y: pie.centery - pie.radius + 3,
+                text: labels[i],
+                halign: 'right',
+                valign: 'center',
+                size: 8,
+                bounding: true,
+                boundingFill: 'rgba(255,255,255,0.25)',
+                boundingStroke: 'rgba(255,255,255,0)'
+           });
+        }
+    </script>
+
+
+
+
+
+    <p></p>
+
+    This goes in the documents header:
+    <pre class="code">
+&lt;script src="RGraph.common.core.js"&gt;&lt;/script&gt;
+&lt;script src="RGraph.rose.js"&gt;&lt;/script&gt;
+</pre>
+    
+    Put this where you want the chart to show up:
+    <pre class="code">
+&lt;canvas id="cvs" width="600" height="600"&gt;
+    [No canvas support]
+&lt;/canvas&gt;
+</pre>
+
+    This is the code that generates the chart:
+    <div id="dynamic-source-code"></div>
+    <script>showSource()</script>
+    
+
+
+    
+
+</body>
+</html>

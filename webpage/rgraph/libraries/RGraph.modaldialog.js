@@ -1,14 +1,12 @@
-// version: 2017-01-02
-    /**
-    * o--------------------------------------------------------------------------------o
-    * | This file is part of the RGraph package - you can learn more at:               |
-    * |                                                                                |
-    * |                          http://www.rgraph.net                                 |
-    * |                                                                                |
-    * | RGraph is licensed under the Open Source MIT license. That means that it's     |
-    * | totally free to use!                                                           |
-    * o--------------------------------------------------------------------------------o
-    */
+// version: 2019-10-11
+    // o--------------------------------------------------------------------------------o
+    // | This file is part of the RGraph package - you can learn more at:               |
+    // |                                                                                |
+    // |                         https://www.rgraph.net                                 |
+    // |                                                                                |
+    // | RGraph is licensed under the Open Source MIT license. That means that it's     |
+    // | totally free to use and there are no restrictions on what you can do with it!  |
+    // o--------------------------------------------------------------------------------o
     
     ModalDialog =
     {
@@ -20,12 +18,12 @@
 
 
 
-        /**
-        * Shows the dialog with the supplied DIV acting as the contents
-        * 
-        * @param string id    The ID of the DIV to use as the dialogs contents
-        * @param int    width The width of the dialog
-        */
+        //
+        // Shows the dialog with the supplied DIV acting as the contents
+        // 
+        // @param string id    The ID of the DIV to use as the dialogs contents
+        // @param int    width The width of the dialog
+        //
         Show: function (id, width)
         {
             ModalDialog.id    = id;
@@ -59,9 +57,9 @@
 
 
 
-        /**
-        * Shows the background semi-transparent darkened DIV
-        */
+        //
+        // Shows the background semi-transparent darkened DIV
+        //
         ShowBackground: function ()
         {
             // Create the background if neccessary
@@ -85,9 +83,9 @@
 
 
 
-        /**
-        * Shows the dialog itself
-        */
+        //
+        // Shows the dialog itself
+        //
         ShowDialog: function ()
         {
             // Create the DIV if necessary
@@ -195,9 +193,9 @@
 
 
 
-        /**
-        * Hides everything
-        */
+        //
+        // Hides everything
+        //
         Close: function ()
         {
             if (ModalDialog.dialog) {
@@ -224,9 +222,9 @@
 
 
 
-        /**
-        * Accommodate the window being resized
-        */
+        //
+        // Accommodate the window being resized
+        //
         Resize: function ()
         {
             if (ModalDialog.dialog) {
@@ -240,11 +238,11 @@
 
 
     
-        /**
-        * Returns the page height
-        * 
-        * @return int The page height
-        */
+        //
+        // Returns the page height
+        // 
+        // @return int The page height
+        //
         AddCustomEventListener: function (name, func)
         {
             if (typeof(ModalDialog.events) == 'undefined') {
@@ -257,12 +255,12 @@
     
     
     
-        /**
-        * Used to fire the ModalDialog custom event
-        * 
-        * @param object obj   The graph object that fires the event
-        * @param string event The name of the event to fire
-        */
+        //
+        // Used to fire the ModalDialog custom event
+        // 
+        // @param object obj   The graph object that fires the event
+        // @param string event The name of the event to fire
+        //
         FireCustomEvent: function (name)
         {
             for (var i=0; i<ModalDialog.events.length; ++i) {
@@ -275,9 +273,9 @@
 
     
     
-        /**
-        * Returns true if the browser is IE8
-        */
+        //
+        // Returns true if the browser is IE8
+        //
         isIE8: function ()
         {
             return document.all && (navigator.userAgent.indexOf('MSIE 8') > 0);

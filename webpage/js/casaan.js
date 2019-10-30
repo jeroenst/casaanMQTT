@@ -1,4 +1,5 @@
 // The object casaandata is filled with data from the casaan server
+
 var casaandata = {};
 var currentpage = ""; 
 var mqttdata = {};
@@ -19,6 +20,17 @@ weekday[3] = "Woendag";
 weekday[4] = "Donderdag";
 weekday[5] = "Vrijdag";
 weekday[6] = "Zaterdag";
+
+// Create a client instance
+client = new Paho.MQTT.Client("wss://" + window.location.hostname + "/wsmqtt", "browser_" + Math.random().toString(36).substr(2, 9));
+
+// set callback handlers
+client.onConnectionLost = onConnectionLost;
+client.onMessageArrived = onMessageArrived;
+
+// connect the client
+connectMQTT();
+
 
 function autochangesizes()
 {
@@ -261,14 +273,16 @@ max: 10,
 value: 0,
 options: {
 textAccessible: true,
-tickmarks: false,
+tickmarksOuter: false,
 shadow: false,
 colors: ['#5ff'],
+colorsStrokeInner: ['#5ff'],
+colorsStrokeOuter: ['#000'],
 backgroundColor: barbgcolor,
-gutterTop: 0,
-gutterBottom: 0,
-gutterLeft: 0,
-gutterRight: 0
+marginTop: 0,
+marginBottom: 0,
+marginLeft: 0,
+marginRight: 0
 			
 		}
 	}).draw();
@@ -281,14 +295,16 @@ max: 22,
 value: 0,
 options: {
 textAccessible: true,
-tickmarks: false,
+tickmarksOuter: false,
 shadow: false,
 colors: ['#f55'],
+colorsStrokeInner: ['#f55'],
+colorsStrokeOuter: ['#000'],
 backgroundColor: barbgcolor,
-gutterTop: 0,
-gutterBottom: 0,
-gutterLeft: 0,
-gutterRight: 0
+marginTop: 0,
+marginBottom: 0,
+marginLeft: 0,
+marginRight: 0
 			
 		}
 	}).draw();
@@ -301,14 +317,16 @@ max: 1,
 value: 0,
 options: {
 textAccessible: true,
-tickmarks: false,
+tickmarksOuter: false,
 shadow: false,
 colors: ['#ff5'],
+colorsStrokeInner: ['#ff5'],
+colorsStrokeOuter: ['#000'],
 backgroundColor: barbgcolor,
-gutterTop: 0,
-gutterBottom: 0,
-gutterLeft: 0,
-gutterRight: 0
+marginTop: 0,
+marginBottom: 0,
+marginLeft: 0,
+marginRight: 0
 			
 		}
 	}).draw();
@@ -321,14 +339,16 @@ max: 2500,
 value: 0,
 options: {
 textAccessible: true,
-tickmarks: false,
+tickmarksOuter: false,
 shadow: false,
 colors: ['#fff'],
+colorsStrokeInner: ['#fff'],
+colorsStrokeOuter: ['#000'],
 backgroundColor: barbgcolor,
-gutterTop: 0,
-gutterBottom: 0,
-gutterLeft: 0,
-gutterRight: 0
+marginTop: 0,
+marginBottom: 0,
+marginLeft: 0,
+marginRight: 0
 			
 		}
 	}).draw();
@@ -341,14 +361,16 @@ max: 2600,
 value: 0,
 options: {
 textAccessible: true,
-tickmarks: false,
+tickmarksOuter: false,
 shadow: false,
 colors: ['#7d7'],
+colorsStrokeInner: ['#7d7'],
+colorsStrokeOuter: ['#000'],
 backgroundColor: barbgcolor,
-gutterTop: 0,
-gutterBottom: 0,
-gutterLeft: 0,
-gutterRight: 0
+marginTop: 0,
+marginBottom: 0,
+marginLeft: 0,
+marginRight: 0
 			
 		}
 	}).draw();
@@ -363,14 +385,16 @@ max: 10,
 value: 0,
 options: {
 textAccessible: true,
-tickmarks: false,
+tickmarksOuter: false,
 shadow: false,
 colors: ['#5ff'],
+colorsStrokeInner: ['#5ff'],
+colorsStrokeOuter: ['#000'],
 backgroundColor: barbgcolor,
-gutterTop: 0,
-gutterBottom: 0,
-gutterLeft: 0,
-gutterRight: 0
+marginTop: 0,
+marginBottom: 0,
+marginLeft: 0,
+marginRight: 0
 				
 			}
 		}).draw();
@@ -436,6 +460,16 @@ function toggletuinrelay(relayid)
 		console.log("MQTT-Sending:"+topic+"="+value); 
 		client.send (topic, value, 0, true);
 	}
+}
+
+function toggleluifelrelay(relayid)
+{
+	topic="home/SONOFF_LUIFEL/setrelay/"+relayid;
+
+	newvalue=mqttdata["home/SONOFF_LUIFEL/relay/"+relayid] == "0" ? "1" : "0"; 
+
+	console.log("MQTT-Sending:"+topic+"="+newvalue); 
+	client.send (topic, newvalue, 0, true);
 }
 
 
@@ -516,29 +550,38 @@ function createDomoticaPage()
 	domoticapagestring += '<button class="domoticabutton" id="sonoff1_0" onclick="toggletuinrelay(0);">Pomp1</button>';
 	domoticapagestring += '<button class="domoticabutton" id="sonoff1_1" onclick="toggletuinrelay(1);">Pomp2</button><br>';
 	domoticapagestring += '<button class="domoticabutton" id="sonoff1_2" onclick="toggletuinrelay(2);">UV</button>';
-	domoticapagestring += '<button class="domoticabutton" id="sonoff1_3" onclick="toggletuinrelay(3);">Vogel<BR>verjager</button>';
+	domoticapagestring += '<button class="domoticabutton" id="sonoff1_3" onclick="toggletuinrelay(3);">-</button>';
 	domoticapagestring += '</div></div><div class="domoticainfo"></div></div>';
 	
 	domoticapagestring += '<div class="floating-box"><div class="boxtitle">Sproeiers</div><div class="domoticabuttons"><div>';
 	domoticapagestring += '<button class="domoticabutton" id="sonoff2_0" onclick="togglesproeierrelay(0);">Voortuin</button>';
 	domoticapagestring += '<button class="domoticabutton" id="sonoff2_1" onclick="togglesproeierrelay(1);">Achtertuin<br>';
 	domoticapagestring += 'Achter</button><br><button class="domoticabutton" id="sonoff2_2" onclick="togglesproeierrelay(2);">Achtertuin<BR>voor</button>';
-	domoticapagestring += '<button class="domoticabutton" id="sonoff2_3" onclick="togglesproeierrelay(3);">-</button>';
+	domoticapagestring += '<button class="domoticabutton" id="sonoff2_3" onclick="togglesproeierrelay(3);">Buiten<BR>kraan</button>';
 	domoticapagestring += '</div></div><div class="domoticainfo"></div></div>';
 	
-	domoticapagestring += '<BR><div class="floating-box"><div class="boxtitle">Overige</div><div class="domoticabuttons"><div>';
-	domoticapagestring += '<button class="domoticabutton" id="buttonmqtt2" onclick="mqtttoggle(2)">Was<br>machine</button>';
-	domoticapagestring += '<button class="domoticabutton" id="buttonmqtt3" onclick="mqtttoggle(3)">Pellet<BR>Kachel</button><BR>';
-	domoticapagestring += '<button class="domoticabutton" id="vaatwasser" onclick="">Vaat<BR>wasser</button>';
-	domoticapagestring += '<button class="domoticabutton" id="serverrack" onclick="">Server<BR>Rack<BR>-W</button>';
-	domoticapagestring += '</div></div><div class="domoticainfo"></div></div>';
 	
-	domoticapagestring += '<div class="floating-box"><div class="boxtitle">Stalamp Huiskamer</div><div class="domoticabuttons"><div>';
+	domoticapagestring += '<BR><div class="floating-box"><div class="boxtitle">Luifel</div><div class="domoticabuttons"><div>';
+	domoticapagestring += '<button class="domoticabutton" id="sonoff_luifel_0" onclick="toggleluifelrelay(0);">Lampen</button>';
+	domoticapagestring += '<button class="domoticabutton" id="sonoff_luifel_1" onclick="toggleluifelrelay(1);">Heater 1</button><br>';
+	domoticapagestring += '<button class="domoticabutton" id="sonoff_luifel_2" onclick="toggleluifelrelay(2);">Heater 2</button>';
+	domoticapagestring += '<button class="domoticabutton" id="sonoff_luifel_3" onclick="toggleluifelrelay(3);">-</button>';
+	domoticapagestring += '</div></div><div class="domoticainfo"></div></div>';
+
+	domoticapagestring += '<div class="floating-box"><div class="boxtitle">Overige</div><div class="domoticabuttons"><div>';
+	domoticapagestring += '<button class="domoticabutton" id="buttonwasmachine" onclick="mqtttoggle(2)">Was<br>machine</button>';
+	domoticapagestring += '<button class="domoticabutton" id="buttonpelletstove" onclick="mqtttoggle(3)">Pellet<BR>Kachel</button><BR>';
+	domoticapagestring += '<button class="domoticabutton" id="vaatwasser" onclick="zwavetoggle(5)">Vaat<BR>wasser</button>';
+	domoticapagestring += '<button class="domoticabutton" id="server" onclick="">Server<BR>rack<BR>-W</button>';
+	domoticapagestring += '</div></div><div class="domoticainfo"></div></div>';
+
+
+/*	domoticapagestring += '<div class="floating-box"><div class="boxtitle">Stalamp Huiskamer</div><div class="domoticabuttons"><div>';
 	domoticapagestring += '<button class="domoticabutton" id="buttonzwave6off" onclick="sonoffsetcolor(\'FF00000000\');">Rood</button>';
 	domoticapagestring += '<button class="domoticabutton" id="buttonzwave6ww" onclick="sonoffsetcolor(\'00FF000000\');">Groen</button><br>';
 	domoticapagestring += '<button class="domoticabutton" id="buttonzwave6ww" onclick="sonoffsetcolor(\'0000FF0000\');">Blauw</button>';
 	domoticapagestring += '<button class="domoticabutton" id="buttonzwave6ww" onclick="sonoffsetcolor(\'5522FF0000\');">Paars</button>';
-	domoticapagestring += '</div></div><div class="domoticainfo"></div></div>';
+	domoticapagestring += '</div></div><div class="domoticainfo"></div></div>';*/
 	
 	domoticapagestring += '<span class="portraitbr"></span><div class="floating-box"><div class="boxtitle">Scenes</div><div class="domoticabuttons"><div>';
 	domoticapagestring += '<button class="domoticabutton" id="buttonzwavescene1" onclick="zwavescene(\'avond\');">Avond</button>';
@@ -608,13 +651,17 @@ function mqtttoggle(id)
 			readtopic = "home/SONOFF_TV/relay/0";
 			readoff = "0";
 		break;
+		case 2: writetopic = "home/washing_machine/setrelay/0";
+			readtopic = "home/washing_machine/relay/0";
+			readoff = "0";
+		break;
 		case 3: writetopic = "home/ESP_PELLETSTOVE/setpower";
 			readtopic = "home/ESP_PELLETSTOVE/power/value";
 			readoff = "0";
 			on = "3";
 			off = "0";
 			retain = 0;
-			sendmqtt('home/ESP_PELLETSTOVE/settemperature','21',1,retain);
+			sendmqtt('home/ESP_PELLETSTOVE/settemperature','22',1,retain);
 		break;
 		case 4: writetopic = "home/SONOFFS20_001/setrelay/0";
 			readtopic = "home/SONOFFS20_001/relay/0";
@@ -759,15 +806,6 @@ function zwavescene(sceneid)
 }
 
 
-// Create a client instance
-client = new Paho.MQTT.Client("wss://" + window.location.hostname + "/wsmqtt", "browser_" + Math.random().toString(36).substr(2, 9));
-
-// set callback handlers
-client.onConnectionLost = onConnectionLost;
-client.onMessageArrived = onMessageArrived;
-
-// connect the client
-connectMQTT();
 
 // called when the client connects
 function onConnect() {
@@ -785,6 +823,8 @@ function onConnect() {
   client.subscribe("home/ESP_GROWATT/status");
   client.subscribe("home/ESP_GROWATT/grid/#");
   client.subscribe("home/ESP_GROWATT/pv/#");
+  client.subscribe("home/ESP_GROWATT/temperature");
+  client.subscribe("home/ESP_GROWATT/fanspeed");
 
   client.subscribe("home/ESP_OPENTHERM/status");
   client.subscribe("home/ESP_OPENTHERM/boiler/#");
@@ -836,6 +876,9 @@ function onConnect() {
   client.subscribe("home/ESP_TUIN/status");
   client.subscribe("home/ESP_TUIN/relay/#");
 
+  client.subscribe("home/SONOFF_LUIFEL/status");
+  client.subscribe("home/SONOFF_LUIFEL/relay/#");
+
   client.subscribe("home/ESP_IRRIGATION/status");
   client.subscribe("home/ESP_IRRIGATION/relay/#");
 
@@ -848,6 +891,8 @@ function onConnect() {
   client.subscribe("home/SONOFF_TV/voltage");
   client.subscribe("home/SONOFF_TV/current");
   client.subscribe("home/SONOFF_TV/power");
+  client.subscribe("home/SONOFF_SERVER/relay/0");
+  client.subscribe("home/SONOFF_SERVER/power");
   client.subscribe("home/washing_machine/relay/0");
   client.subscribe("home/washing_machine/voltage");
   client.subscribe("home/washing_machine/current");
@@ -866,7 +911,8 @@ function onConnect() {
   client.subscribe("home/ESP_SDM120/power/apparant");
   client.subscribe("home/ESP_SDM120/powerfactor");
   client.subscribe("home/ESP_SDM120/frequency");
-  client.subscribe("home/casaan/sdm120/today/kwh");
+//  client.subscribe("home/casaan/sdm120/today/kwh");
+//  client.subscribe("home/casaan/weather/today/rain/mm");
   
 //  message = new Paho.MQTT.Message("Hello");
 //  message.destinationName = "World";
@@ -880,17 +926,21 @@ function onConnectionLost(responseObject) {
     mqttdata = {};
     onMessageArrived({payloadString: "disconnected", destinationName: "mqtt"});
   }
+  connectMQTT();
+}
+
+function onFailure(err) {
+//	if (err == 0x04) window.location = window.location.protocol + "//" + window.location.hostname + window.location.pathname + "?incorrectpassword";
 }
 
 function connectMQTT()
 {
    try
    {
-   	if (!client.isConnected()) client.connect({onSuccess:onConnect, userName: mqttusername, password: mqttpassword});
+   	if (!client.isConnected()) client.connect({onSuccess:onConnect, onFailure:onFailure, userName: mqttusername, password: mqttpassword});
    }
    catch (err)
    {
-
    }
 }
 
@@ -936,6 +986,7 @@ function getwindicon(winddirection)
 // called when a message arrives
 function onMessageArrived(message) {
   buttononcolor = "#66ff66";
+  buttonredcolor = "#ff6666";
   buttonsceneoncolor = "#00ccff";
   buttonoffcolor = "";
   var value = message.payloadString;
@@ -952,19 +1003,16 @@ function onMessageArrived(message) {
   document.getElementById('domoticabox').getElementsByClassName('boxtitle')[0].innerHTML =   
     "<font color=\""+(((dv(mqttdata["home/zwave/status"]) == "offline" || dv(mqttdata["home/zwave/status"]) == "-")) ? "#ff0000" : "#00ee00")+"\">Domotica</font>";
  
+ 
   switch (message.destinationName)
   {
-  	case "home/ESP_SMARTMETER/electricity/kw_providing":
-  	case "home/ESP_SMARTMETER/electricity/kw_using":
-  	/*		value = dv(Math.round((mqttdata["home/ESP_SMARTMETER/electricity/kw_using"]-mqttdata["home/ESP_SMARTMETER/electricity/kw_providing"])*1000));
-	 		document.getElementById('electricitycurrent').innerHTML = value + " watt";
-	 		if (value >= 0) electricitybar.value = parseInt(value);
-	 		else electricitybar.value = 0;
-	 		electricitybar.grow();*/
-	break;
+//  	case "home/ESP_SMARTMETER/electricity/kw_providing":
+// 	case "home/ESP_SMARTMETER/electricity/kw_using":
 	case "home/ESP_SDM120/power":
-	 		document.getElementById('electricitycurrent').innerHTML = dv(value,0) + " watt";
-	 		if (value >= 0) electricitybar.value = parseInt(value);
+  			smartmeterwatt = dv((mqttdata["home/ESP_SMARTMETER/electricity/kw_using"]-mqttdata["home/ESP_SMARTMETER/electricity/kw_providing"])*1000,0);
+  			sdm120watt = dv(mqttdata["home/ESP_SDM120/power"],0);
+	 		document.getElementById('electricitycurrent').innerHTML = sdm120watt + " watt";//<BR>" + smartmeterwatt + " watt";
+	 		if (sdm120watt >= 0) electricitybar.value = parseInt(sdm120watt);
 	 		else electricitybar.value = 0;
 	 		electricitybar.grow();
 	break;
@@ -979,10 +1027,8 @@ function onMessageArrived(message) {
 	break;
 	
 	case "home/casaan/electricitymeter/today/kwh":
-//		document.getElementById('electricityusedtoday').innerHTML = dv(parseFloat(value).toFixed(3)) + " kwh";
-	break;
 	case "home/casaan/sdm120/today/kwh":
-		document.getElementById('electricityusedtoday').innerHTML = dv(value,3) + " kwh";
+		document.getElementById('electricityusedtoday').innerHTML = dv(mqttdata["home/casaan/sdm120/today/kwh"], 3) + " kwh<BR>" + dv(mqttdata["home/casaan/electricitymeter/today/kwh"], 3) + " kwh";
 	break;
 	case "home/casaan/gasmeter/today/m3":
 		document.getElementById('gastoday').innerHTML = dv(value,3) + " m3";
@@ -997,15 +1043,29 @@ function onMessageArrived(message) {
 
 
   	case "home/ESP_GROWATT/grid/watt":
-                document.getElementById('sunelectricitycurrent').innerHTML = dv(value, 0) + " watt";
+                document.getElementById('sunelectricitycurrent').innerHTML = dv(value, 0, "0") + " watt";
                 sunelectricitybar.value = parseInt(value);
                 sunelectricitybar.grow();
+                if (currentpage == "sunelectricity") fillSunElectricityPage();
 	break;
 	
 	
 	case "home/ESP_GROWATT/grid/today/kwh":
-		document.getElementById('sunelectricitytoday').innerHTML = dv(value,1) + " kwh" + "<BR>" + dv((100/18.900)*value,1) + "%";
+		document.getElementById('sunelectricitytoday').innerHTML = dv(value, 1, "0") + " kwh" + "<BR>" + dv((100/16)*value,0) + "%";
+                if (currentpage == "sunelectricity") fillSunElectricityPage();
 	break;
+
+	
+
+	case "home/ESP_GROWATT/grid/volt":
+	case "home/ESP_GROWATT/grid/frequency":
+	case "home/ESP_GROWATT/pv/watt":
+	case "home/ESP_GROWATT/pv/1/volt":
+	case "home/ESP_GROWATT/temperature":
+	case "home/ESP_GROWATT/fanspeed":
+                if (currentpage == "sunelectricity") fillSunElectricityPage();
+	break;
+
 	case "home/ESP_OPENTHERM/thermostat/temperature":
                 document.getElementById('livingroomtemperaturenow').innerHTML = dv(value,1);
                 temperaturebar.value = parseFloat(value).toFixed(1);
@@ -1022,10 +1082,11 @@ function onMessageArrived(message) {
 	case "home/buienradar/actueel_weer/weerstations/weerstation/6370/luchtdruk":
 	case "home/buienradar/actueel_weer/weerstations/weerstation/6370/windsnelheidMS": 
 	case "home/buienradar/actueel_weer/weerstations/weerstation/6370/windrichtingGR":
+	case "home/casaan/weather/today/rain/mm":
 		var icon = getwindicon(mqttdata["home/buienradar/actueel_weer/weerstations/weerstation/6370/windrichtingGR"]);
                 document.getElementsByClassName('boxweathericon')[2].innerHTML = "<span class=\"wi wi-wind "+icon+"\"></span>"+(icon == ""?value:"");
 
-		document.getElementsByClassName('weathertemptoday')[0].innerHTML = dv(mqttdata["home/ESP_WEATHER/temperature"],1) + " &deg;C<BR>" + dv(mqttdata["home/buienradar/actueel_weer/weerstations/weerstation/6370/windsnelheidBF"]) + " Bft - " + dv(mqttdata["home/buienradar/actueel_weer/weerstations/weerstation/6370/windrichting"]);
+		document.getElementsByClassName('weathertemptoday')[0].innerHTML = dv(mqttdata["home/ESP_WEATHER/temperature"],1) + " &deg;C<BR>" + dv(mqttdata["home/buienradar/actueel_weer/weerstations/weerstation/6370/windsnelheidBF"]) + " Bft - " + dv(mqttdata["home/buienradar/actueel_weer/weerstations/weerstation/6370/windrichting"]) + " - "+ mqttdata["home/buienradar/actueel_weer/weerstations/weerstation/6370/windrichtingGR"] +"&deg;<BR>"  + dv(mqttdata["home/casaan/weather/today/rain/mm"],1) + " mm";
 		document.getElementsByClassName('weathertemptoday')[1].innerHTML = dv(mqttdata["home/ESP_WEATHER/temperature"],1) + " &deg;C<BR>" + dv(mqttdata["home/buienradar/actueel_weer/weerstations/weerstation/6370/luchtdruk"]) + " mbar";
 		document.getElementById("windnow").innerHTML = dv(mqttdata["home/buienradar/actueel_weer/weerstations/weerstation/6370/windsnelheidBF"]) + " Bft - " + dv(mqttdata["home/buienradar/actueel_weer/weerstations/weerstation/6370/windsnelheidMS"] * 3.6, 0) + " km/h<BR>" + dv(mqttdata["home/buienradar/actueel_weer/weerstations/weerstation/6370/windrichting"]) + " - " + dv(mqttdata["home/buienradar/actueel_weer/weerstations/weerstation/6370/windrichtingGR"]) + "&deg;"; 
 	break;
@@ -1123,19 +1184,20 @@ function onMessageArrived(message) {
 	case "home/zwave/2/switchmultilevel/1/level":
 		document.getElementById('keuken_spots').style.backgroundColor = value > 0 ? buttononcolor : buttonoffcolor;
 	case "home/zwave/2/sensormultilevel/1/power":
-		document.getElementById('keuken_spots').innerHTML = "Spots<BR>" + dv(mqttdata["home/zwave/2/switchmultilevel/1/level"]) + "%";// - " + dv(mqttdata["home/zwave/2/sensormultilevel/1/power"]) + " watt";
+		document.getElementById('keuken_spots').innerHTML = "Spots<BR>" + dv(mqttdata["home/zwave/2/switchmultilevel/1/level"]) + "%<BR>" + dv(mqttdata["home/zwave/2/sensormultilevel/1/power"]) + "W";
 	break;
 
 	case "home/zwave/3/switchmultilevel/1/level":
 		document.getElementById('eethoek_eettafel').style.backgroundColor = value > 0 ? buttononcolor : buttonoffcolor;
 	case "home/zwave/3/sensormultilevel/1/power":
-		document.getElementById('eethoek_eettafel').innerHTML = "Eettafel<BR>" + dv(mqttdata["home/zwave/3/switchmultilevel/1/level"]) + "%";//+" - " + dv(mqttdata["home/zwave/9/sensormultilevel/1/power"]) + " watt";
+		document.getElementById('eethoek_eettafel').innerHTML = "Eettafel<BR>" + dv(mqttdata["home/zwave/3/switchmultilevel/1/level"]) + "%<BR>" + dv(mqttdata["home/zwave/3/sensormultilevel/1/power"]) + "W";
 	break;
 
 
 	case "home/zwave/4/switchmultilevel/1/level":
 		document.getElementById('zithoek_spots').style.backgroundColor = value > 0 ? buttononcolor : buttonoffcolor;
-		document.getElementById('zithoek_spots').innerHTML = "Spots<BR>" + dv(mqttdata["home/zwave/4/switchmultilevel/1/level"]) + "%";//+" - " + dv(mqttdata["home/zwave/10/sensormultilevel/1/power"]) + " watt";
+	case "home/zwave/4/sensormultilevel/1/power":
+		document.getElementById('zithoek_spots').innerHTML = "Spots<BR>" + dv(mqttdata["home/zwave/4/switchmultilevel/1/level"]) + "%<BR>" + dv(mqttdata["home/zwave/4/sensormultilevel/1/power"]) + "W";
 	break;
 
 	case "home/SONOFF_BULB/color":
@@ -1176,21 +1238,28 @@ function onMessageArrived(message) {
 		document.getElementById('zithoek_tv').innerHTML = "TV<BR>" + dv(Math.round(value) + "W");
 	break;
 
+	case "home/SONOFF_SERVER/relay/0":
+		document.getElementById('server').style.backgroundColor = value == "1" ? buttononcolor : buttonoffcolor;
+	break;
+	case "home/SONOFF_SERVER/power":
+		document.getElementById('server').innerHTML = "Server<BR>rack<BR>" + dv(Math.round(value) + "W");
+	break;
+
 	case "home/washing_machine/relay/0":
-		document.getElementsByClassName('domoticabutton')[16].style.backgroundColor = value == "1" ? buttononcolor : buttonoffcolor;
+		document.getElementById('buttonwasmachine').style.backgroundColor = value == "1" ? buttononcolor : buttonoffcolor;
 	break;
 
 	case "home/ESP_PELLETSTOVE/phase/value":
-		document.getElementsByClassName('domoticabutton')[17].style.backgroundColor = value == "513" ? buttononcolor : (value != "0" ? "#ffff66" : buttonoffcolor);
+		document.getElementById('buttonpelletstove').style.backgroundColor = value == "513" ? buttononcolor : (value != "0" ? "#ffff66" : buttonoffcolor);
 	break;
 
 	case "home/ESP_PELLETSTOVE/exhaust/temperature":
 	case "home/ESP_PELLETSTOVE/power/value":
-		document.getElementsByClassName('domoticabutton')[17].innerHTML = "Pellet<BR>kachel<BR>" + dv(mqttdata["home/ESP_PELLETSTOVE/power/value"]) + "-" + dv(mqttdata["home/ESP_PELLETSTOVE/exhaust/temperature"]) + "&deg;C";
+		document.getElementById('buttonpelletstove').innerHTML = "Pellet<BR>kachel<BR>" + dv(mqttdata["home/ESP_PELLETSTOVE/power/value"]) + "-" + dv(mqttdata["home/ESP_PELLETSTOVE/exhaust/temperature"]) + "&deg;C";
 	break;
 	
 	case "home/washing_machine/power":
-		document.getElementsByClassName('domoticabutton')[16].innerHTML = "Was<BR>machine<BR>" + dv(Math.round(value) + "W");
+		document.getElementById('buttonwasmachine').innerHTML = "Was<BR>machine<BR>" + dv(Math.round(value) + "W");
 	break;
 
 	case "home/ESP_DIMMER/dimvalue":
@@ -1224,6 +1293,18 @@ function onMessageArrived(message) {
 		document.getElementById('sonoff2_3').style.backgroundColor = value != "0"   ? buttononcolor : buttonoffcolor;
 	break;
 
+	case "home/SONOFF_LUIFEL/relay/0":
+		document.getElementById('sonoff_luifel_0').style.backgroundColor = value != "0"   ? buttononcolor : buttonoffcolor;
+	break;
+	case "home/SONOFF_LUIFEL/relay/1":
+		document.getElementById('sonoff_luifel_1').style.backgroundColor = value != "0"   ? buttonredcolor : buttonoffcolor;
+	break;
+	case "home/SONOFF_LUIFEL/relay/2":
+		document.getElementById('sonoff_luifel_2').style.backgroundColor = value != "0"   ? buttonredcolor : buttonoffcolor;
+	break;
+	case "home/SONOFF_LUIFEL/relay/3":
+		document.getElementById('sonoff_luifel_3').style.backgroundColor = value != "0"   ? buttononcolor : buttonoffcolor;
+	break;
 
 	case "home/SONOFF_COFFEELAMP/relay/0":
 		document.getElementById('keuken_coffeelamp').style.backgroundColor = value != "0"   ? buttononcolor : buttonoffcolor;
@@ -1262,13 +1343,17 @@ function onMessageArrived(message) {
 	break;	
   }
   
-  if (message.destinationName.search("home/ESP_DUCOBOX") == 0) if (currentpage == "climatecontrol") fillClimateControlPage();
-  if (message.destinationName.search("home/esp8266") == 0) if (currentpage == "climatecontrol") fillClimateControlPage();
-  if (message.destinationName.search("home/ESP_OPENTHERM") == 0) if (currentpage == "climatecontrol") fillClimateControlPage();
-  if (message.destinationName.search("home/growatt") == 0) if (currentpage == "sunelectricity") fillSunElectricityPage();
-  if (message.destinationName.search("home/zwave/4/meter/1/voltage") == 0) if (currentpage == "electricity") fillElectricityPage();
-  if (message.destinationName.search("home/ESP_SDM120") == 0) if (currentpage == "electricity") fillElectricityPage();
-  
+  if (message.destinationName.startsWith("home/ESP_DUCOBOX")) if (currentpage == "climatecontrol") fillClimateControlPage();
+  if (message.destinationName.startsWith("home/ESP_SLAAPKAMER2")) if (currentpage == "climatecontrol") fillClimateControlPage();
+  if (message.destinationName.startsWith("home/ESP_BADKAMER")) if (currentpage == "climatecontrol") fillClimateControlPage();
+  if (message.destinationName.startsWith("home/ESP_OPENTHERM")) if (currentpage == "climatecontrol") fillClimateControlPage();
+  if (message.destinationName.startsWith("home/growatt")) if (currentpage == "sunelectricity") fillSunElectricityPage();
+  if (message.destinationName.startsWith("home/casaan/growatt")) if (currentpage == "sunelectricity") fillSunElectricityPage();
+  if (message.destinationName.startsWith("home/zwave/4/meter/1/voltage")) if (currentpage == "electricity") fillElectricityPage();
+  if (message.destinationName.startsWith("home/casaan/electricity")) if (currentpage == "electricity") fillElectricityPage();
+  if (message.destinationName.startsWith("home/ESP_SDM120")) if (currentpage == "electricity") fillElectricityPage();
+  if (message.destinationName.startsWith("home/casaan/gasmeter/")) if (currentpage == "gas") fillOverviewPage("gasmeter");
+  if (message.destinationName.startsWith("home/casaan/watermeter/")) if (currentpage == "water") fillOverviewPage("watermeter");
 }
 
 var pageTimer;
@@ -1367,8 +1452,10 @@ function fillClimateControlPage()
 		titel = "";
 		label1= "";
 		value1 = "";
+		unit1 = "";
 		label2 = "";
 		value2 = "";
+		unit2 = "";
 		    
 		switch (key)
 		{
@@ -1383,7 +1470,7 @@ function fillClimateControlPage()
 				value2 = dv(mqttdata["home/ESP_OPENTHERM/ow/ch/returnwatertemperature"],1) + " &deg;C";  
 			break;  
 			case 1:
-                	        titel = "<font color=\""+(dv(mqttdata["home/ESP_OPENTHERM/status"]) == "online" ? "#00ee00" : "#ff0000")+"\">CV Ketel</font>";
+        titel = "<font color=\""+(dv(mqttdata["home/ESP_OPENTHERM/status"]) == "online" ? "#00ee00" : "#ff0000")+"\">CV Ketel</font>";
 				label1 = "Warmwater"
 				value1 = dv(mqttdata["home/ESP_OPENTHERM/dhw/temperature"],1) + " &deg;C";  
 				overviewpagebar[key].max = 50;
@@ -1394,7 +1481,7 @@ function fillClimateControlPage()
 				value2 = dv(mqttdata["home/ESP_OPENTHERM/ow/dcw/temperature"],1) + " &deg;C";
 			break;  
 			case 2:
-                	        titel = "<font color=\""+(dv(mqttdata["home/ESP_OPENTHERM/status"]) == "online" ? "#00ee00" : "#ff0000")+"\">CV ketel</font>";
+        titel = "<font color=\""+(dv(mqttdata["home/ESP_OPENTHERM/status"]) == "online" ? "#00ee00" : "#ff0000")+"\">CV ketel</font>";
 				label1 = "Vlam"
 				value1 = mqttdata["home/ESP_OPENTHERM/burner/modulation/level"] + " %";  
 				overviewpagebar[key].max = 100;
@@ -1404,8 +1491,7 @@ function fillClimateControlPage()
 				value2 = dv(mqttdata["home/ESP_OPENTHERM/ch/water/pressure"],1) + " bar";
 			break;  
 			case 3:
-
-                	        titel = "<font color=\""+(dv(mqttdata["home/ESP_OPENTHERM/status"]) != "offline" && dv(mqttdata["home/ESP_OPENTHERM/status"]) != "" ? "#00ee00" : "#ff0000")+"\">Thermostaat</font>";
+        titel = "<font color=\""+(dv(mqttdata["home/ESP_OPENTHERM/status"]) != "offline" && dv(mqttdata["home/ESP_OPENTHERM/status"]) != "" ? "#00ee00" : "#ff0000")+"\">Thermostaat</font>";
 				label1 = "Water Instelling"
 				value1 = dv(mqttdata["home/ESP_OPENTHERM/thermostat/ch/water/setpoint"],1) + " &deg;C";    
 				overviewpagebar[key].max = 60;
@@ -1415,7 +1501,7 @@ function fillClimateControlPage()
 				value2 = parseFloat(mqttdata["home/ESP_OPENTHERM/thermostat/temperature"] - mqttdata["home/ESP_OPENTHERM/thermostat/setpoint"]).toFixed(1);
 			break;
 			case 4:
-                	        titel = "<font color=\""+(dv(mqttdata["home/ESP_DUCOBOX/status"]) != "offline" && dv(mqttdata["home/ESP_DUCOBOX/status"]) != "" ? "#00ee00" : "#ff0000")+"\">Centrale Afzuiging</font>";
+        titel = "<font color=\""+(dv(mqttdata["home/ESP_DUCOBOX/status"]) != "offline" && dv(mqttdata["home/ESP_DUCOBOX/status"]) != "" ? "#00ee00" : "#ff0000")+"\">Centrale Afzuiging</font>";
 				label1 = "Ventilator"
 				value1 = dv(mqttdata["home/ESP_DUCOBOX/1/fanspeed"]) + " rpm";
 				overviewpagebar[key].max = 2500;
@@ -1425,46 +1511,50 @@ function fillClimateControlPage()
 				value2 = "";
 				break;  
 			case 5:
-                	        titel = "<font color=\""+(dv(mqttdata["home/ESP_DUCOBOX/status"]) != "offline" && dv(mqttdata["home/ESP_DUCOBOX/status"]) != "" ? "#00ee00" : "#ff0000")+"\">Centrale Afzuiging</font>";
-                	        label1 = "CO2"
- 	                      	if ((mqttdata["home/ESP_DUCOBOX/2/co2"] != "") && (mqttdata["home/ESP_DUCOBOX/2/co2"] != undefined)) value1 = mqttdata["home/ESP_DUCOBOX/2/co2"] + " ppm";
- 	                      	else value1 = "- ppm";
-       	                        overviewpagebar[key].max = 1200;
-       	                        overviewpagebar[key].min = 400;
-               	                overviewpagebar[key].value = parseInt(mqttdata["home/ESP_DUCOBOX/2/co2"]);
+                	        titel = "<font color=\""+(dv(mqttdata["home/ESP_DUCOBOX/status"]) != "offline" && dv(mqttdata["home/ESP_DUCOBOX/status"]) != "" ? "#00ee00" : "#ff0000")+"\">Klimaat Huiskamer</font>";
+	                        label1 = "Temperatuur"
+	                        value1 = dv(mqttdata["home/ESP_OPENTHERM/thermostat/temperature"],1);
+        	                unit1 = "&deg;C";
+                	        label2 = "CO2"
+ 	                      	value2 = dv(mqttdata["home/ESP_DUCOBOX/2/co2"]);
+ 	                      	unit2 = "ppm"
+       	                        overviewpagebar[key].max = 22;
+       	                        overviewpagebar[key].min = 18;
+               	                overviewpagebar[key].value = parseInt(value1);
                        	        overviewpagebar[key].grow();
-	                        label2 = "Temperatuur"
-        	                if ((mqttdata["home/ESP_DUCOBOX/2/temperature"] != "") && (mqttdata["home/ESP_DUCOBOX/2/temperature"] != undefined)) value2 = (mqttdata["home/ESP_DUCOBOX/2/temperature"]) + " &deg;C";
-        	                else value2 = "- &deg;C";
                         break;
 			case 6:
                 	        titel = "<font color=\""+(dv(mqttdata["home/ESP_SLAAPKAMER2/status"]) == "online" ? "#00ee00" : "#ff0000")+"\">Klimaat Slaapkamer</font>";
-                	        label1 = "CO2";
-                	        value1 = dv(mqttdata["home/ESP_SLAAPKAMER2/mhz19/co2"]) + " ppm";
-       	                        overviewpagebar[key].max = 1200;
-       	                        overviewpagebar[key].min = 400;
-               	                overviewpagebar[key].value = dv(mqttdata["home/ESP_SLAAPKAMER2/mhz19/co2"]);
+	                        label1 = "Temperatuur"
+                          value1 = dv(mqttdata["home/ESP_SLAAPKAMER2/dht22/temperature"],1);
+                          unit1 = "&deg;C";
+                	        label2 = "CO2";
+                	        value2 = dv(mqttdata["home/ESP_SLAAPKAMER2/mhz19/co2"]);
+                	        unit2 = "ppm";
+       	                        overviewpagebar[key].max = 22;
+       	                        overviewpagebar[key].min = 18;
+               	                overviewpagebar[key].value = parseInt(value1);
                        	        overviewpagebar[key].grow();
-	                        label2 = "Temperatuur"
-                                value2 = dv(mqttdata["home/ESP_SLAAPKAMER2/dht22/temperature"],1) + " &deg;C";
                         break;
 			case 7:
 				elements[key].getElementsByClassName("boxverticalbar")[0].style = "visibility: visible;";
                 	        titel = "<font color=\""+(dv(mqttdata["home/ESP_BADKAMER/status"]) == "online" ? "#00ee00" : "#ff0000")+"\">Klimaat Badkamer</font>";
-                	        label1 = "Luchtvochtigheid";
-                	        value1 = dv(mqttdata["home/ESP_BADKAMER/dht22/humidity"],1)  + " %";
-       	                        overviewpagebar[key].max = 100;
-       	                        overviewpagebar[key].min = 0;
-               	                overviewpagebar[key].value = parseInt(mqttdata["home/ESP_BADKAMER/dht22/humidity"]);
+	                        label1 = "Temperatuur"
+													value1 = dv(mqttdata["home/ESP_BADKAMER/dht22/temperature"],1);
+													unit1 = "&deg;C";
+                	        label2 = "Luchtvochtigheid";
+                	        value2 = dv(mqttdata["home/ESP_BADKAMER/dht22/humidity"],1);
+                	        unit2 = "%";
+       	                        overviewpagebar[key].max = 22;
+       	                        overviewpagebar[key].min = 18;
+               	                overviewpagebar[key].value = parseInt(value1);
                        	        overviewpagebar[key].grow();
-	                        label2 = "Temperatuur"
-                                value2 = dv(mqttdata["home/ESP_BADKAMER/dht22/temperature"],1) + " &deg;C";
                         break;
 
 		}
 		elements[key].getElementsByClassName("boxtitle")[0].innerHTML = titel;
-		elements[key].getElementsByClassName("boxvalue")[0].innerHTML = value1;
-		elements[key].getElementsByClassName("boxvalue2")[0].innerHTML = value2;
+		elements[key].getElementsByClassName("boxvalue")[0].innerHTML = value1 + " " + unit1;
+		elements[key].getElementsByClassName("boxvalue2")[0].innerHTML = value2 + " " + unit2;
 		elements[key].getElementsByClassName("boxlabelsmall")[0].innerHTML = label1;
 		elements[key].getElementsByClassName("boxlabel2small")[0].innerHTML = label2;
 	}
@@ -1481,23 +1571,27 @@ function fillSunElectricityPage()
 	"<TR><TD>Frequentie</TD><TD style=\"width: 50%; text-align:right\">" + mqttdata["home/ESP_GROWATT/grid/frequency"] + " Hz</TD></TR>" + 
 	"<TR><TD>PVvermogen</TD><TD style=\"width: 50%; text-align:right\">" + mqttdata["home/ESP_GROWATT/pv/watt"] + " W</TD></TR>" + 
 	"<TR><TD>PVspanning</TD><TD style=\"width: 50%; text-align:right\">" + mqttdata["home/ESP_GROWATT/pv/1/volt"] + " V</TD></TR>" + 
+	"<TR><TD>Temperatuur</TD><TD style=\"width: 50%; text-align:right\">" + mqttdata["home/ESP_GROWATT/temperature"] + " &deg;C</TD></TR>" + 
+	"<TR><TD>Fanspeed</TD><TD style=\"width: 50%; text-align:right\">" + mqttdata["home/ESP_GROWATT/fanspeed"] + " %</TD></TR>" + 
 	"</TABLE>";
 }
 
 
-function dv(value, precision = 0)
+function dv(value, precision = 0, nodatastring = "-")
 {
-  if (typeof value == 'undefined') return "-";
+  if (typeof value == 'undefined') return nodatastring;
   if (isNaN(value))
   {
-  	if ((value == null) || (value == "") || (value == "NaN")) return "-";
-	  else return value;
+  	if ((value == null) || (value == "") || (value == "NaN") || value == "-") return nodatastring;
+	return value;
   }
   else
   {
-        console.log ("VALUE="+value);
-  	if (value == null) return "-";
-	return parseFloat(value).toFixed(precision);
+//        console.log ("VALUE="+value);
+  	if (value == null) return nodatastring;
+	value =  parseFloat(value).toFixed(precision);
+	value = value.replace(".",",");
+	return value;	
   }
 }
 
@@ -1563,9 +1657,9 @@ function fillOverviewPage(nodename)
 	
 	if (nodename == "watermeter")
 	{
-		titels = ["Vandaag", "Deze Maand", "Dit Jaar", "Totaal", "Gisteren", "Vorige Maand", "Vorig Jaar", "Waterontharder Resterend"];
+		titels = ["Vandaag", "Deze Maand", "Dit Jaar", "Totaal", "Gisteren", "Vorige Maand", "Vorig Jaar", ""];
 		unit = "m3"
-		mqttitems1 = ["home/casaan/watermeter/today/m3", "home/casaan/watermeter/month/m3", "home/casaan/watermeter/year/m3", "home/ESP_WATERMETER/water/m3",  "home/casaan/watermeter/yesterday/m3", "home/casaan/watermeter/lastmonth/m3", "home/casaan/watermeter/lastyear/m3", "home/watersoftner/m3"];
+		mqttitems1 = ["home/casaan/watermeter/today/m3", "home/casaan/watermeter/month/m3", "home/casaan/watermeter/year/m3", "home/ESP_WATERMETER/water/m3",  "home/casaan/watermeter/yesterday/m3", "home/casaan/watermeter/lastmonth/m3", "home/casaan/watermeter/lastyear/m3", ""];
 		jsonunit = "m3";
 	}
 
@@ -1616,7 +1710,9 @@ function fillOverviewPage(nodename)
 			else value2 = "";
 		}
 		else value2="";
-		
+
+		if (typeof titels[key] !== 'undefined')
+		{
 		if (value1 != "")
 		{
 			elements[key].getElementsByClassName("boxtitle")[0].innerHTML = titels[key];
@@ -1625,7 +1721,6 @@ function fillOverviewPage(nodename)
 			elements[key].getElementsByClassName("boxlabelsmall")[0].innerHTML = label1;
 			elements[key].getElementsByClassName("boxlabel2small")[0].innerHTML = label2;
 			elements[key].getElementsByClassName("boxverticalbar")[0].style = "visibility: visible;";
-
 		}
 		else
 		{
@@ -1636,10 +1731,10 @@ function fillOverviewPage(nodename)
 			elements[key].getElementsByClassName("boxlabel2small")[0].innerHTML = "";
 			elements[key].getElementsByClassName("boxverticalbar")[0].style = "visibility: hidden;";
 		}
+			if (key == 7) elements[key].getElementsByClassName("boxtoptext")[0].innerHTML = ""; 
+		}
 	}
-//	elements[7].getElementsByClassName("boxtitle")[0].innerHTML = "Info";
-//	elements[7].getElementsByClassName("boxtoptext")[0].innerHTML = ""; 
-	
+
 }
 
 //

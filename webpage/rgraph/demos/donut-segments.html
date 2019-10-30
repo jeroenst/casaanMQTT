@@ -1,0 +1,166 @@
+<!DOCTYPE html >
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="demos.css" type="text/css" media="screen" />
+    
+    <script src="../libraries/RGraph.common.core.js" ></script>
+    <script src="../libraries/RGraph.drawing.text.js" ></script>
+    <script src="../libraries/RGraph.pie.js" ></script>
+    <script src="demos.js" ></script>
+
+    <title>RGraph demo: A segmented Donut chart</title>
+    <meta name="description" content="A segmented (done by using the draw event) Donut chart that uses the roundRobin() effect, and which could act as a very effective meter." />
+    
+    <!-- <RGRAPH_REMOVE> -->
+    <meta name="robots" content="noindex, nofollow" />
+    <!-- </RGRAPH_REMOVE> -->
+
+</head>
+<body>
+
+    <h1>A segmented Donut chart</h1>
+    
+    <canvas id="cvs" width="350" height="350" style="background-color: black; float: right">[No canvas support]</canvas>
+    
+    <p>
+        This is an example of using the Pie chart that's customised to such a degree
+        that it appears as more like a progress meter or a "percent complete" style meter.
+    </p>
+    
+    <p>
+        The segmentation effect is achieved by using the <code>draw</code> event. This
+        event is used by code that draws lines from outside the Donut chart back to
+        the center, drawing them every 10-15 degrees. In this custom code the RGraph
+        API function <code>RGraph.degrees2Radians()</code> is used to do the necessary conversion
+        and the <code>RGraph.path2()</code> function is used to handle the pathing of these lines.
+    </p>
+    
+    <p>
+        The text in the center of the Donut chart is added by using the RGraph
+        drawing API - the <code>Text</code> object. On each frame of the
+        <code>roundRobin()</code> effect the object is updated with the new percentage and it then
+        gets redrawn. This gives you an effect of the text constantly changing.
+    </p>
+    
+    <p>
+        The chart is quite small and fits well on smaller devices so it doesn't need a lot changing
+        with the <code>responsive()</code> function. The only thing that's done is the CSS
+        <code>float</code> of the canvas tag is removed.
+    </p>
+
+    
+    
+    <script>
+        /// This is the value that's shown on the chart
+        value = 70;
+
+        // Create the Pie chart. Without the draw event it looks just like a
+        // regular donut chart. There's two datapoints so it becomes a
+        // progress bar like Donut chart
+        pie = new RGraph.Pie({
+            id: 'cvs',
+
+            // The value variable is the value that's shown on the chart.
+            // The maximum value is 100 so create two elements based on
+            // that.
+            data: [value, 100 - value],
+
+            options: {
+                variant: 'donut',
+                variantDonutWidth: 50,
+                colors: ['red', 'white'],
+                colorsStroke: 'transparent',
+                shadow: false
+            }
+        // Use the roundRobin() effect and add a draw event listener - which
+        // is then called on every frame of the animation.
+        }).roundRobin({frames: 60}).on('draw', function (obj)
+        {
+            // This controls the width of the segments
+            var width = 5;
+
+            // Go around in a circle and add lines that emanate from the
+            // center and go outwards. The RGraph path function is used here
+            // which makes manipulating canvas paths (which can be quite
+            // verbose) more easy.
+            for (var i=0; i<360; i+=10) {
+                RGraph.path({
+                    context: obj.context,
+                    path:    'b a % % % % % false l % % c f black',
+                    args:    [
+                        obj.centerx,
+                        obj.centery,
+                        obj.radius + 2,
+                    
+                        // Convert the degrees values to radians
+                        RGraph.degrees2Radians(i - (width / 2)),
+                        RGraph.degrees2Radians(i + (width / 2)),
+    
+                        obj.centerx,
+                        obj.centery
+                    ]
+                });
+            }
+
+            // If the text drawing API object exists (which will only be on
+            // the second iteration of the loop of the roundRobin() effect
+            // or later) set the text property to an updated value
+            if (text) {
+                text.text = parseInt(value * obj.get('effectRoundrobinMultiplier')) + '%';
+            }
+        });
+
+
+        // Set the text variable to a drawing API text object. This
+        // is the object that gets updated on each frame of the
+        // roundRobin() effect (except the first iteration).
+        text = new RGraph.Drawing.Text({
+            id: 'cvs',
+            x: pie.centerx,
+            y: pie.centery,
+            text: pie.data[0] + '%',
+            options: {
+                textFont: 'Arial',
+                textSize: 64,
+                halign: 'center',
+                'valign': 'center',
+                colors: ['#aaa']
+            }
+        }).draw();
+        
+        // Add some responsiveness to the chart - simply change the canvas tags
+        // CSS float: parameter
+        pie.responsive([
+            {maxWidth: 700,css:{'float':'none'}},
+            {maxWidth: null,css:{'float':'right'}}
+        ])
+    </script>
+
+
+
+
+
+
+
+    <p></p>
+
+    This goes in the documents header:
+    <pre class="code">
+&lt;script src="RGraph.common.core.js"&gt;&lt;/script&gt;
+&lt;script src="RGraph.drawing.text.js"&gt;&lt;/script&gt;
+&lt;script src="RGraph.pie.js"&gt;&lt;/script&gt;
+</pre>
+    
+    Put this where you want the chart to show up:
+    <pre class="code">
+&lt;canvas id="cvs" width="350" height="350"&gt;
+    [No canvas support]
+&lt;/canvas&gt;
+</pre>
+
+    This is the code that generates the chart:
+    <div id="dynamic-source-code"></div>
+    <script>showSource()</script>
+    
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html >
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="demos.css" type="text/css" media="screen" />
+    
+    <script src="../libraries/RGraph.common.core.js" ></script>
+    <script src="../libraries/RGraph.line.js" ></script>
+    <script src="demos.js" ></script>
+    
+    <title>RGraph demo: A Line chart with color bands</title>
+    
+    
+    <meta name="description" content="A Line chart with color bands" />
+     
+    <meta name="robots" content="noindex, nofollow" />
+
+</head>
+<body>
+
+    
+
+    <h1>A Line chart with color bands</h1>
+    
+    <p>
+        This is a demo that uses a gradient to achieve a banded look. Previously this demo used custom
+        coding to achieve the same effect.
+    </p>
+    
+    <p>
+        This is much easier and less code than the previous version.
+    </p>
+
+    <canvas id="cvs" width="950" height="350">[No canvas support]</canvas>
+    
+    <script>
+        // Draw a Line chart
+        line = new RGraph.Line({
+            id: 'cvs',
+            data: [80,90,70,90,80,80,70,20,10,60,95,97,90,50,20,85,70,80,80,70,90,80,90,90],
+            options: {
+                xaxisLabels: [
+                    '','Q1\n2014','',
+                    '','Q2\n2014','',
+                    '','Q3\n2014','',
+                    '','Q4\n2014','',
+                    '','Q1\n2015','',
+                    '','Q2\n2015','',
+                    '','Q3\n2015','',
+                    '','Q4\n2015',''
+                ],
+                filled: true,
+                backgroundGridColor: '#eee',
+                backgroundGridVlines: false,
+                backgroundGridBorder: false,
+                backgroundGridHlinesCount: 4,
+                axes: false,
+                spline: true,
+                yaxisScaleUnitsPost: '%',
+                marginLeft: 50,
+                xaxisTickmarksCount: 7,
+                yaxisLabelsCount: 4,
+                textColor: 'gray',
+                colors: ['black'],
+                linewidth: 5,
+                shadow: false
+            }
+        }).draw();
+        
+        
+        // Create the gradient
+        grad = line.context.createLinearGradient(0,25,0,325);
+        grad.addColorStop(0, 'rgba(255,0,0,0.3)');
+        grad.addColorStop(0.2, 'rgba(255,0,0,0.3)');
+        grad.addColorStop(0.2, 'rgba(255,255,0,0.3)');
+        grad.addColorStop(0.4, 'rgba(255,255,0,0.3)');
+        grad.addColorStop(0.4, 'rgba(0,255,0,0.3)');
+        grad.addColorStop(0.6, 'rgba(0,255,0,0.3)');
+        grad.addColorStop(0.6, 'rgba(0,0,255,0.3)');
+        grad.addColorStop(0.8, 'rgba(0,0,255,0.3)');
+        grad.addColorStop(0.8, 'rgba(0,0,0,0.3)');
+        grad.addColorStop(1, 'rgba(0,0,0,0.3)');
+        
+        // Apply the gradient to the chart
+        line.set('filledColors', [grad]);
+        
+        // Redraw the canvas
+        RGraph.redraw();
+    </script>
+
+
+
+
+
+
+
+    <p></p>
+
+    This goes in the documents header:
+    <pre class="code">
+&lt;script src="RGraph.common.core.js"&gt;&lt;/script&gt;
+&lt;script src="RGraph.line.js"&gt;&lt;/script&gt;
+</pre>
+    
+    Put this where you want the chart to show up:
+    <pre class="code">
+&lt;canvas id="cvs" width="950" height="350"&gt;
+    [No canvas support]
+&lt;/canvas&gt;
+</pre>
+
+    This is the code that generates the chart:
+    <div id="dynamic-source-code"></div>
+    <script>showSource()</script>
+
+
+</body>
+</html>

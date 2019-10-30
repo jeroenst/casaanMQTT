@@ -1,14 +1,12 @@
-// version: 2017-01-02
-    /**
-    * o--------------------------------------------------------------------------------o
-    * | This file is part of the RGraph package - you can learn more at:               |
-    * |                                                                                |
-    * |                          http://www.rgraph.net                                 |
-    * |                                                                                |
-    * | RGraph is licensed under the Open Source MIT license. That means that it's     |
-    * | totally free to use!                                                           |
-    * o--------------------------------------------------------------------------------o
-    */
+// version: 2019-10-11
+    // o--------------------------------------------------------------------------------o
+    // | This file is part of the RGraph package - you can learn more at:               |
+    // |                                                                                |
+    // |                         https://www.rgraph.net                                 |
+    // |                                                                                |
+    // | RGraph is licensed under the Open Source MIT license. That means that it's     |
+    // | totally free to use and there are no restrictions on what you can do with it!  |
+    // o--------------------------------------------------------------------------------o
 
     RGraph          = window.RGraph || {isRGraph: true,isRGraphSVG: true};
     RGraph.SVG      = RGraph.SVG || {};
@@ -17,20 +15,14 @@
 // Module pattern
 (function (win, doc, undefined)
 {
-    var RG  = RGraph,
-        ua  = navigator.userAgent,
-        ma  = Math;
-
-
-
-    /**
-    * Makes an AJAX call. It calls the given callback (a function) when ready
-    * 
-    * @param string   url      The URL to retrieve
-    * @param function callback A function that is called when the response is ready, there's an example below
-    *                          called "myCallback".
-    */
-    RG.SVG.AJAX = function (url, callback)
+    //
+    // Makes an AJAX call. It calls the given callback (a function) when ready
+    // 
+    // @param string   url      The URL to retrieve
+    // @param function callback A function that is called when the response is ready, there's an example below
+    //                          called "myCallback".
+    //
+    RGraph.SVG.AJAX = function (url, callback)
     {
         // Mozilla, Safari, ...
         if (window.XMLHttpRequest) {
@@ -62,15 +54,15 @@
 
 
 
-    /**
-    * Makes an AJAX POST request. It calls the given callback (a function) when ready
-    * 
-    * @param string   url      The URL to retrieve
-    * @param object   data     The POST data
-    * @param function callback A function that is called when the response is ready, there's an example below
-    *                          called "myCallback".
-    */
-    RG.SVG.AJAX.POST = function (url, data, callback)
+    //
+    // Makes an AJAX POST request. It calls the given callback (a function) when ready
+    // 
+    // @param string   url      The URL to retrieve
+    // @param object   data     The POST data
+    // @param function callback A function that is called when the response is ready, there's an example below
+    //                          called "myCallback".
+    //
+    RGraph.SVG.AJAX.POST = function (url, data, callback)
     {
         // Used when building the POST string
         var crumbs = [];
@@ -122,15 +114,15 @@
 
 
 
-    /**
-    * Uses the above function but calls the call back passing a number as its argument
-    * 
-    * @param url string The URL to fetch
-    * @param callback function Your callback function (which is passed the number as an argument)
-    */
-    RG.SVG.AJAX.getNumber = function (url, callback)
+    //
+    // Uses the above function but calls the call back passing a number as its argument
+    // 
+    // @param url string The URL to fetch
+    // @param callback function Your callback function (which is passed the number as an argument)
+    //
+    RGraph.SVG.AJAX.getNumber = function (url, callback)
     {
-        RG.SVG.AJAX(url, function ()
+        RGraph.SVG.AJAX(url, function ()
         {
             var num = parseFloat(this.responseText);
 
@@ -147,15 +139,15 @@
 
 
 
-    /**
-    * Uses the above function but calls the call back passing a string as its argument
-    * 
-    * @param url string The URL to fetch
-    * @param callback function Your callback function (which is passed the string as an argument)
-    */
-    RG.SVG.AJAX.getString = function (url, callback)
+    //
+    // Uses the above function but calls the call back passing a string as its argument
+    // 
+    // @param url string The URL to fetch
+    // @param callback function Your callback function (which is passed the string as an argument)
+    //
+    RGraph.SVG.AJAX.getString = function (url, callback)
     {
-        RG.SVG.AJAX(url, function ()
+        RGraph.SVG.AJAX(url, function ()
         {
             var str = String(this.responseText);
 
@@ -172,15 +164,15 @@
 
 
 
-    /**
-    * Uses the above function but calls the call back passing JSON (ie a JavaScript object ) as its argument
-    * 
-    * @param url string The URL to fetch
-    * @param callback function Your callback function (which is passed the JSON object as an argument)
-    */
-    RG.SVG.AJAX.getJSON = function (url, callback)
+    //
+    // Uses the above function but calls the call back passing JSON (ie a JavaScript object ) as its argument
+    // 
+    // @param url string The URL to fetch
+    // @param callback function Your callback function (which is passed the JSON object as an argument)
+    //
+    RGraph.SVG.AJAX.getJSON = function (url, callback)
     {
-        RG.SVG.AJAX(url, function ()
+        RGraph.SVG.AJAX(url, function ()
         {
             var json = eval('(' + this.responseText + ')');
 
@@ -197,19 +189,19 @@
 
 
 
-    /**
-    * Uses the above RGraph.AJAX function but calls the call back passing an array as its argument.
-    * Useful if you're retrieving CSV data
-    * 
-    * @param url string The URL to fetch
-    * @param callback function Your callback function (which is passed the CSV/array as an argument)
-    */
-    RG.SVG.AJAX.getCSV = function (url, callback)
+    //
+    // Uses the above RGraph.AJAX function but calls the call back passing an array as its argument.
+    // Useful if you're retrieving CSV data
+    // 
+    // @param url string The URL to fetch
+    // @param callback function Your callback function (which is passed the CSV/array as an argument)
+    //
+    RGraph.SVG.AJAX.getCSV = function (url, callback)
     {
         var seperator = (typeof arguments[2] === 'string'  ? arguments[2] : ','),
             lineSep   = (typeof arguments[3] === 'string' ? arguments[3] : "\r?\n");
 
-        RG.SVG.AJAX(url, function ()
+        RGraph.SVG.AJAX(url, function ()
         {
             var text   = this.responseText,
                 regexp = new RegExp(seperator),
