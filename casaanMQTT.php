@@ -12,13 +12,29 @@ var_dump($inisettings);
 
 $mqttdata = array();
 
+$starttime = time();
 $mqtt = new phpMQTT($inisettings["mqtt"]["server"], $inisettings["mqtt"]["port"], $client_id);
 
-$lastgasdatetime = "";
+$statustopic = "home/casaan/status";
+$will = array();
+$will["topic"] = $statustopic;
+$will["content"] = "offline";
+$will["qos"] = 1;
+$will["retain"] = 1;
 
-if(!$mqtt->connect(true, NULL, $inisettings["mqtt"]["username"], $inisettings["mqtt"]["password"])) {
-//	exit(1); // auto reconnect is implemented
+$lastgasdatetime = "";
+$lastmqttstate = "offline";
+$firstrun = true;
+
+while (1)
+{
+while (!$mqtt->connect(true, $will, $inisettings["mqtt"]["username"], $inisettings["mqtt"]["password"])) 
+{
+	sleep(5);
 }
+$firstrun = true;
+$mqtt->publish($statustopic, "online", 1, 1);
+
 
 echo "Connected to mqtt server...\n";
 $topics = array();
@@ -40,32 +56,50 @@ $topics['home/ESP_SDM120/energy/active'] = array("qos" => 0, "function" => "sdm1
 
 $topics['home/ESP_WEATHER/rain/pulse'] = array("qos" => 0, "function" => "rainpulsemessage");
 
+$topics['home/SONOFF_TV/energy/kwh'] = array("qos" => 0, "function" => "kwhdata");
+$topics['home/SONOFF_SERVER/energy/kwh'] = array("qos" => 0, "function" => "kwhdata");
+$topics['home/SONOFF_DISHWASHER/energy/kwh'] = array("qos" => 0, "function" => "kwhdata");
+$topics['home/SONOFF_WASHINGMACHINE/energy/kwh'] = array("qos" => 0, "function" => "kwhdata");
+
 $mysqli = false;
 
 $mqtt->subscribe($topics, 0);
 $oldtime = 0;
 $olddate = date('dmy');
-while(1)
+while($mqtt->proc())
 {
-  if ((!$mysqli) || ($mysqli->connect_errno))
+  if ((!$mysqli) || ($mysqli->connect_errno) || (!mysqli_ping($mysqli)))
   {
+  	if ($mysqli) mysqli_close($mysqli);
   	$mysqli = mysqli_connect($inisettings["mysql"]["server"],$inisettings["mysql"]["username"],$inisettings["mysql"]["password"],$inisettings["mysql"]["database"]);
-  	raincalculateandsend();
-	}
-	$mqtt->proc();
-	usleep(10000);
+  	if ((!$mysqli) || ($mysqli->connect_errno)) sleep (5);
+  	else raincalculateandsend();
+  }
+  usleep(10000);
+
   if(time() != $oldtime) 
   {
  		$oldtime = time();
 //		$mqtt->publishwhenchanged ("time/seconds", time(),0,1);
 //		$mqtt->publishwhenchanged ("time/ISO-8601", date("Y-m-d\TH:i:sO"),0,1);		
-	}
+  }
 	
-	if(date('dmy') != $olddate)
-	{
-		$olddate = date('dmy');
-		raincalculateandsend();
-	}
+  if(date('dmy') != $olddate)
+  {
+	$olddate = date('dmy');
+	raincalculateandsend();
+  }
+  
+        $uptime = time() - $starttime;
+        if (($uptime % 60 == 0) || $firstrun)
+        {
+                $s = time()-$starttime;
+                $uptimestr = sprintf('%d:%02d:%02d:%02d', $s/86400, $s/3600%24, $s/60%60, $s%60);
+                $mqtt->publishwhenchanged("home/casaan/system/uptime", $uptimestr, 1, 1);
+        }
+  
+  $firstrun = false;
+}
 }
 
 
@@ -98,15 +132,88 @@ function raincalculateandsend(){
 	global $mqtt;
   if (($mysqli) && (!$mysqli->connect_errno))
   {
-  	// Calculate rain for today
+    // Calculate rain for today
     if ($result = $mysqli->query("SELECT COUNT(id) AS numberofpulses FROM `rainsensor` WHERE timestamp >= CURDATE();"))
     {
     	$row = $result->fetch_object();
-      $mqtt->publishwhenchanged ($topicprefix."weather/today/rain/pulses", $row->numberofpulses,0,1);
-      $mqtt->publishwhenchanged ($topicprefix."weather/today/rain/mm", $row->numberofpulses*0.3636,0,1);
+	$mqtt->publishwhenchanged ($topicprefix."weather/today/rain/pulses", $row->numberofpulses,0,1);
+     	$mqtt->publishwhenchanged ($topicprefix."weather/today/rain/mm", $row->numberofpulses*0.3636,0,1);
+    }
+  }
+}
+
+function kwhdata($topic, $msg)
+{
+	global $mysqli;
+	$id = 0;
+	static $whprevarray = array();
+	
+	echo ("################################# Received whdata from ".$topic."=".$msg."\n");
+
+	if ($topic == "home/SONOFF_TV/energy/kwh")
+	{
+		$id = 1;
+		$name = "tv";
+	}
+	
+	if ($topic == "home/SONOFF_SERVER/energy/kwh")
+	{
+		$id = 2;
+		$name = "server";
+	}
+	
+	if ($topic == "home/SONOFF_DISHWASHER/energy/kwh")
+	{
+		$id = 3;
+		$name = "dishwasher";
+	}
+	
+	if ($topic == "home/SONOFF_WASHINGMACHINE/energy/kwh")
+	{
+		$id = 4;
+		$name = "washingmachine";
+	}
+	
+
+	if ($id > 0)
+	{
+		$wh = 0;
+		if (isset($whprevarray[$id])) $wh = ($msg * 1000) - $whprevarray[$id];
+		// Only record new data
+		if ($wh > 0)
+		{
+		    echo ("wh = ".$wh."\n");
+		    if ($result = $mysqli->query("SELECT wh FROM `whdata` WHERE id = ".$id.";"))
+		    {
+		    	$row = $result->fetch_object();
+		    	if (!$row)
+		    	{
+			    if ($result = $mysqli->query("INSERT INTO `whdata` (`id`, `name`, `wh`) VALUES ('".$id."', '".$name."', '".$wh."');"))
+			    {
+			    }
+			    else
+			    {
+			    	echo ("ERROR: INSERTING WHDATA FAILED!".$mysqli->error."\n");
+			    }
+		    	}
+		    	else
+		    	{
+			    	$dbwh = $row->wh;
+			    	echo ("dbwh = ".$dbwh."\n");
+				if ($result = $mysqli->query("UPDATE `whdata` SET `wh` = '".($dbwh + $wh)."' WHERE `whdata`.`id` = ".$id.";"))
+				{
+				}
+				else
+				{
+				    	echo ("ERROR: UPDATING WHDATA FAILED!".$mysqli->error."\n");
+				}
+			}
+		    }
 		}
+		$whprevarray[$id] = ($msg * 1000);
 	}
 }
+
 
 function smartmetermessage($topic, $msg){
 	echo "$topic = $msg\n";
