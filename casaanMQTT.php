@@ -555,6 +555,7 @@ function smartmetermessage($topic, $msg){
                                 }
                                 else
                                 {
+                                	echo ("Error getting gas value from database.\n");
                                         $newdata["m3h"] = "";
                                 }
                         }
@@ -916,24 +917,26 @@ function sdm120message($topic, $msg)
 	echo "$topic = $msg\n";
         
         $kwh = $msg;
-        if (($mysqli) && (!$mysqli->connect_errno) && ($topic == "home/ESP_SDM120/energy/active"))
+        if ((is_numeric($kwh)) && ($mysqli) && (!$mysqli->connect_errno) && ($topic == "home/ESP_SDM120/energy/active"))
         {
 		      	$mysqli->query("INSERT INTO `sdm120` (kwh) VALUES (".$kwh.");");
                 	
               		$newdata["total"]["kwh"] = $kwh;
+              		echo ("SDM120 KWH=".$kwh."\n");
                         $mqtt->publishwhenchanged ($topicprefix."sdm120/total/kwh", $newdata["total"]["kwh"],0,1);
 
                         // Read values from database
                 	if ($result = $mysqli->query("SELECT * FROM `sdm120` WHERE timestamp >= CURDATE() ORDER BY timestamp ASC LIMIT 1")) 
                 	{
                 		$row = $result->fetch_object();
-                		$newdata["today"]["kwh"] = round($kwh - $row->kwh,3);
+                		if (isset($row)) $newdata["today"]["kwh"] = round($kwh - $row->kwh,3);
+                		else $newdata["today"]["kwh"] = "-";
                 		//var_dump ($row);
 			}
 			else
 			{
                         	echo "error reading sdm120 values from database ".$mysqli->error."\n"; 
-                		$newdata["today"]["kwh"] = 0;
+                		$newdata["today"]["kwh"] = "-";
                         }
 			$mqtt->publishwhenchanged ($topicprefix."sdm120/today/kwh", $newdata["today"]["kwh"],0,1);
 
