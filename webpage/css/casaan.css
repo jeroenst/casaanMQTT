@@ -1,4 +1,4 @@
-*, *:before, *:after {
+*, *:before, *:ater {
  /*CSS transitions*/
  transition-property: none !important;
  /*CSS transforms*/
@@ -42,6 +42,12 @@ html, body {
 	align-items: center; /* align vertical */
 	cursor: pointer;
 	width: 80%;
+	border-left: 1px solid #666666; 
+	border-right: 1px solid #666666;
+}
+
+#footersceneoffbutton {
+	color: #FF2222;
 }
 
 .label {
@@ -228,6 +234,11 @@ vertical-align:middle;
     margin-top: 56%;
 }
 
+.boxlabel2smalldual
+{
+    margin-top: 50%;
+}
+
 
 .boxtext, .boxtexttabs, .fullscreen-boxtext, .wideboxtext
   {
@@ -407,7 +418,7 @@ ul.tab {
         padding: 0;
         overflow: hidden;
 	border: none;
-	border-width: 1px 0px 0px 0px;
+	border-width: 1px 0px 1px 0px;
 	border-style: solid;
 	border-color:  #666666;  
 	vertical-align: middle;

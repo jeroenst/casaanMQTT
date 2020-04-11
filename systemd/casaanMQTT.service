@@ -1,9 +1,9 @@
 [Unit]
 Description=Casaan MQTT
 After=network.target auditd.service
-WorkingDirectory=/opt/casaanMQTT
 
 [Service]
+WorkingDirectory=/opt/casaanMQTT
 ExecStart=/opt/casaanMQTT/casaanMQTT.php
 KillMode=process
 Restart=on-failure

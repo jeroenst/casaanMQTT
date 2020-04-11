@@ -105,11 +105,10 @@ if(!isset($password) || ($password == "") || isset($_GET["incorrectpassword"]))
 <div class="boxtitle">Klimaatbeheersing</div>
 <div class="boxlabelsmall">Huiskamer</div>
 <div class="boxvalue"><span id="livingroomtemperaturenow">-</span> &deg;C</div>
-<div class="boxlabel2small">Ingesteld</div>
+<div class="boxlabelsmall boxlabel2smalldual">Pelletkachel<BR>Ingesteld</div>
 <div class="boxvalue2"><span id="livingroomtemperatureset">-</span> &deg;C</div>
-<!--<div class="tempbuttons"><button class="tempbutton" onclick="settempup();">+</button><BR><button class="tempbutton" onclick="settempdown();">-</button></div> -->
-<!--<div class="tempbuttons"><button class="tempbutton"
-onclick="setpelletstoveon();">Pellet<BR>kachel</button></div>-->
+<div class="tempbuttons"><button class="tempbutton" onclick="settempup();">+</button><BR><button class="tempbutton" onclick="settempdown();">-</button></div>
+<!--<div class="tempbuttons"><button class="tempbutton" onclick="setpelletstoveon();">Pellet<BR>kachel</button></div>-->
 <canvas  id="temperaturebar" class="boxverticalbar"></canvas>
 </div><br><div id="sunelectricitybox" class="floating-box" style="cursor: pointer; cursor: hand;" onclick="window.location='#sunelectricity'">
 <div class="boxtitle">Zonnepanelen</div>
@@ -285,6 +284,12 @@ onclick="setpelletstoveon();">Pellet<BR>kachel</button></div>-->
 
 </div>
 <ul class="tab footer">
+		<li class="footerbutton" onclick='scene("evening");'>Avond</a></li>
+		<li class="footerbutton" onclick='scene("diner");'>Eten</a></li>
+		<li class="footerbutton"  id="footersceneoffbutton" onclick='scene("off");'>Uit</a></li>
+		<li class="footerbutton" onclick='scene("movie");'>Film</a></li>
+		<li class="footerbutton" onclick='scene("bright");'>Fel</a></li>
+
 	<div class="footersection">
 		<li class="menuitem" id="graphbuttons" style="display:none">
 			<a href="javascript:void(0)" onclick="showPage('graphdaypage')">Dag</a>
@@ -292,13 +297,11 @@ onclick="setpelletstoveon();">Pellet<BR>kachel</button></div>-->
 			<a href="javascript:void(0)" onclick="showPage('graphyearpage')">Jaar</a>
 			<a href="javascript:void(0)" onclick="showPage('graphtotalpage')">Totaal</a>
 		</li>
-		<li class="footerbutton" onclick="footeron();">Aan</a></li>
 	</div>
 	<div class="footersection">
-		<li class="label" onclick="window.location='#'">Casaan</li></div>
+		<li class="label" id="casaanlabel" onclick="window.location='#'">Casaan</li></div>
 	<div class="footersection">
 		<li class="backbutton" style="display:none" onclick="window.history.back();">Terug</li>
-		<li class="footerbutton"  onclick="footeroff();">Uit</a></li>
 	</div>
 </ul>
 </body>
